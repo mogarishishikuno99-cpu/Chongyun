@@ -1,6 +1,5 @@
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 
-// Système d'extraction local au cas où findUid rencontre des restrictions d'URL Facebook
 function extractUIDLocal(input) {
   if (!input) return null;
   const cleanInput = input.trim();
@@ -15,20 +14,26 @@ function extractUIDLocal(input) {
 module.exports = {
   config: {
     name: "add",
-    aliases: ["aadd", "addmember"],
-    version: "3.0.0",
+    aliases: ["ajoute", "addmember"],
+    version: "3.1.0",
     author: "Shade × Gemini",
-    role: 2,
-    description: "⚡ Ajouter des membres via UID ou Lien avec interface Cyber Émeraude",
+    role: 1, // Passer à 1 ou 0 selon les permissions de votre framework
+    description: "⚡ Ajouter des membres via UID ou Lien (Réservé au Propriétaire et Admin Groupe)",
     category: "system"
   },
 
   langs: {
     fr: {
-      notOwner: "⛔ **[ACCÈS REFUSÉ]** Terminal sécurisé. Seul le Fondateur Suprême possède les clés de contournement.",
+      notAllowed: "⛔ **[ACCÈS REFUSÉ]** Seuls les administrateurs du groupe et le Fondateur peuvent utiliser ce terminal.",
       usage: "💡 **[INFO TERMINAL]** Syntaxe requise : `add [UID ou Lien du profil]`",
       processing: "⏳ **[INITIALISATION]** Connexion à la passerelle Facebook... Tentative d'injection des utilisateurs.",
       result: "⚡ **[RAPPORT DE TRANSIT CYBER]**\n━━━━━━━━━━━━━━━━━\n🟩 Membres injectés : %1\n🟥 Échecs / Rejets : %2"
+    },
+    en: {
+      notAllowed: "⛔ **[ACCESS DENIED]** Only group admins and the Founder can use this terminal.",
+      usage: "💡 **[INFO TERMINAL]** Syntax: `add [UID or Profile Link]`",
+      processing: "⏳ **[INITIALIZING]** Connecting to Facebook gateway...",
+      result: "⚡ **[CYBER TRANSIT REPORT]**\n━━━━━━━━━━━━━━━━━\n🟩 Members added: %1\n🟥 Failed/Rejected: %2"
     }
   },
 
@@ -36,29 +41,33 @@ module.exports = {
     const { threadID, messageID, senderID } = event;
     const OWNER_ID = "61573867120837";
 
-    // 🔒 Sécurité d'accès strict
-    if (senderID !== OWNER_ID) {
-      return message.reply(getLang("notOwner"));
-    }
-
-    if (args.length === 0) {
-      return message.reply(getLang("usage"));
-    }
-
     try {
+      // 1. Récupération des données du groupe et de ses administrateurs
+      const threadInfo = await threadsData.get(threadID) || {};
+      const adminIDs = (threadInfo.adminIDs || []).map(admin => admin.id || admin);
+
+      // 2. Vérification des permissions (Owner OU Admin du groupe)
+      const isOwner = senderID === OWNER_ID;
+      const isAdmin = adminIDs.includes(senderID);
+
+      if (!isOwner && !isAdmin) {
+        return message.reply(getLang("notAllowed"));
+      }
+
+      if (args.length === 0) {
+        return message.reply(getLang("usage"));
+      }
+
       try { api.setMessageReaction("⏳", messageID, () => {}, true); } catch(e){}
       await message.reply(getLang("processing"));
 
-      const threadInfo = await threadsData.get(threadID) || {};
       const members = threadInfo.members || [];
-      
       let successCount = 0;
       let failedCount = 0;
 
       for (const item of args) {
         let uid = extractUIDLocal(item);
 
-        // Si l'extraction locale échoue et que global.utils.findUid est disponible
         if (!uid && global.utils?.findUid && /(?:https?:\/\/)?(?:www\.)?(?:facebook|fb)\.com\/.*/i.test(item)) {
           try {
             uid = await global.utils.findUid(item);
@@ -72,7 +81,6 @@ module.exports = {
           continue;
         }
 
-        // Vérification si l'utilisateur est déjà présent dans le groupe
         if (members.some(m => m.userID == uid && m.inGroup)) {
           failedCount++;
           continue;
@@ -81,13 +89,12 @@ module.exports = {
         try {
           await api.addUserToGroup(uid, threadID);
           successCount++;
-          await sleep(1200); // Délai de sécurité pour éviter le spam block de Facebook
+          await sleep(1200);
         } catch (addError) {
           failedCount++;
         }
       }
 
-      // Réaction finale selon le succès
       if (successCount > 0) {
         try { api.setMessageReaction("✅", messageID, () => {}, true); } catch(e){}
       } else {
@@ -95,7 +102,6 @@ module.exports = {
       }
 
       return message.reply(getLang("result", successCount, failedCount));
-
     } catch (globalError) {
       console.error(globalError);
       try { api.setMessageReaction("❌", messageID, () => {}, true); } catch(e){}

@@ -2,7 +2,7 @@ module.exports.config = {
     name: "hentai",
     version: "1.0.1",
     role: 0,
-    credits: "Fait avec aide",
+    credits: "Shade",
     description: "Récupère une vidéo d'anime aléatoire",
     commandCategory: "other", // Ajout de la catégorie ici pour le menu d'aide
     hasPrefix: true,
@@ -22,12 +22,12 @@ module.exports.onStart = async function ({ api, event, message }) {
         }
 
         const data = await response.json();
-        const listeAnimes = Object.values(data);
+        const listeHentais = Object.values(data);
         
         // Sélectionne un anime au hasard dans la liste
-        const animeAleatoire = listeAnimes[Math.floor(Math.random() * listeAnimes.length)];
+        const hentaiAleatoire = listeHentais[Math.floor(Math.random() * listeHentais.length)];
 
-        const lienVideo = animeAleatoire.video_2 || animeAleatoire.video_1 || animeAleatoire.link;
+        const lienVideo = hentaiAleatoire.video_2 || hentaiAleatoire.video_1 || hentaiAleatoire.link;
         
         if (!lienVideo) {
             return message.reply("❌ Aucune vidéo trouvée dans cette entrée.");
@@ -35,9 +35,9 @@ module.exports.onStart = async function ({ api, event, message }) {
 
         // Texte descriptif à envoyer avec la vidéo
         const descriptionText = `🔞 **Hentai Trouvé** 🔞\n\n` +
-                                `👤 Catégorie : ${animeAleatoire.category || 'Non spécifiée'}\n` +
-                                `👀 Vues : ${animeAleatoire.views_count || '0'}\n` +
-                                `🔄 Partages : ${animeAleatoire.share_count || '0'}`;
+                                `👤 Catégorie : ${hentaiAleatoire.category || 'Non spécifiée'}\n` +
+                                `👀 Vues : ${hentaiAleatoire.views_count || '0'}\n` +
+                                `🔄 Partages : ${hentaiAleatoire.share_count || '0'}`;
 
         // Envoi du texte avec le flux de la vidéo en pièce jointe (attachment) via un stream de l'URL
         const videoStream = await api.getStreamFromURL(lienVideo);

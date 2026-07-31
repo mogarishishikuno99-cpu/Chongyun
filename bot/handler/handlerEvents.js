@@ -1,48 +1,36 @@
 const fs = require("fs-extra");
+const path = require("path");
 const nullAndUndefined = [undefined, null];
 const leven = require("leven");
-const { createCanvas, loadImage } = require("canvas");
-
-// const { config } = global.GoatBot;
-// const { utils } = global;
 
 function getType(obj) {
 	return Object.prototype.toString.call(obj).slice(8, -1);
 }
 
-// <<< --- NEW: getRole FUNCTION WITH CUSTOM HIERARCHY --- >>>
+// <<< --- NEW: HIERARCHY WITH ROLE 5 (PREMIUM USERS INCLUDED) --- >>>
 function getRole(threadData, senderID) {
 	const config = global.GoatBot.config;
-	const adminBot = config.adminBot || [];
 	const developer = config.developer || [];
-    // NEW: Get vipuser list (Assuming vipuser is in config.json for role assignment)
-	const vipuser = config.vipuser || []; 
-    
-	if (!senderID)
-		return 0;
+	const adminBot = config.adminBot || [];
+	const vipuser = config.vipuser || [];
+	const premiumUsers = config.premiumUsers || config.premium || []; // Rôle 2: Premium
+
+	if (!senderID) return 0;
 	const adminBox = threadData ? threadData.adminIDs || [] : [];
-    
-	// 4. Developer (Highest Rank - needed for Role 4 commands)
-    if (developer.includes(senderID))
-        return 4;
-    
-    // 3. AdminBot (Needed for Role 3 commands)
-    if (adminBot.includes(senderID))
-        return 3; 
-    
-    // 2. VIP User (Needed for Role 2 commands)
-	if (vipuser.includes(senderID))
-        return 2; 
 
-    // 1. Group Admin (Needed for Role 1 commands)
-    if (adminBox.includes(senderID))
-        return 1;
-    
-    // 0. All Other Users (Lowest Rank)
-    return 0;
+	// 5. Developer (Plus haut rang)
+	if (developer.includes(senderID)) return 5;
+	// 4. AdminBot
+	if (adminBot.includes(senderID)) return 4;
+	// 3. VIP User
+	if (vipuser.includes(senderID)) return 3;
+	// 2. Premium User
+	if (premiumUsers.includes(senderID)) return 2;
+	// 1. Admin du groupe
+	if (adminBox.includes(senderID)) return 1;
+	// 0. Utilisateur standard
+	return 0;
 }
-// <<< --- END: getRole FUNCTION --- >>>
-
 
 function getText(type, reason, time, targetID, lang) {
 	const utils = global.utils;
@@ -66,51 +54,25 @@ function replaceShortcutInLang(text, prefix, commandName) {
 function getRoleConfig(utils, command, isGroup, threadData, commandName) {
 	let roleConfig;
 	if (utils.isNumber(command.config.role)) {
-		roleConfig = {
-			onStart: command.config.role
-		};
-	}
-	else if (typeof command.config.role == "object" && !Array.isArray(command.config.role)) {
-		if (!command.config.role.onStart)
-			command.config.role.onStart = 0;
+		roleConfig = { onStart: command.config.role };
+	} else if (typeof command.config.role == "object" && !Array.isArray(command.config.role)) {
+		if (!command.config.role.onStart) command.config.role.onStart = 0;
 		roleConfig = command.config.role;
+	} else {
+		roleConfig = { onStart: 0 };
 	}
-	else {
-		roleConfig = {
-			onStart: 0
-		};
-	}
-
-	if (isGroup)
-		roleConfig.onStart = threadData.data.setRole?.[commandName] ?? roleConfig.onStart;
-
+	if (isGroup) roleConfig.onStart = threadData.data.setRole?.[commandName] ?? roleConfig.onStart;
 	for (const key of ["onChat", "onStart", "onReaction", "onReply"]) {
-		if (roleConfig[key] == undefined)
-			roleConfig[key] = roleConfig.onStart;
+		if (roleConfig[key] == undefined) roleConfig[key] = roleConfig.onStart;
 	}
-
 	return roleConfig;
-	// {
-	// 	onChat,
-	// 	onStart,
-	// 	onReaction,
-	// 	onReply
-	// }
 }
 
 function isBannedOrOnlyAdmin(userData, threadData, senderID, threadID, isGroup, commandName, message, lang) {
 	const config = global.GoatBot.config;
-	// ✅ developerOnly, vipOnly যোগ করা হয়েছে
-	const { adminBot, developer, vipuser, hideNotiMessage, developerOnly, vipOnly } = config; 
-	
-	// Group all high roles for global checks
-	const allHighRoles = [...adminBot, ...developer, ...vipuser]; 
-    
-    // ✅ এখানে role বের করে নেওয়া হয়েছে 
-    // কারণ এটি global check এর জন্য দরকার।
-    const role = getRole(threadData, senderID); 
+	const { adminBot, developer, vipuser, hideNotiMessage, developerOnly, vipOnly } = config;
+	const role = getRole(threadData, senderID);
 
-	// check if user banned
 	const infoBannedUser = userData.banned;
 	if (infoBannedUser.status == true) {
 		const { reason, date } = infoBannedUser;
@@ -119,59 +81,49 @@ function isBannedOrOnlyAdmin(userData, threadData, senderID, threadID, isGroup, 
 		return true;
 	}
 
-	// 1. Check if only Admin Bot (Role 3 and above)
-	// The original code was checking for Bot Admin (Role 3 in new hierarchy)
 	if (
-		config.adminOnly.enable == true
-		&& !adminBot.includes(senderID) // Check if the sender is NOT AdminBot (Rank 3)
-		&& !config.developer.includes(senderID) // Check if the sender is NOT Developer (Rank 4)
-		&& !config.vipuser.includes(senderID) // Check if the sender is NOT VIP User (Rank 2)
-		&& !config.adminOnly.ignoreCommand.includes(commandName)
+		config.adminOnly.enable == true &&
+		!adminBot.includes(senderID) &&
+		!developer.includes(senderID) &&
+		!vipuser.includes(senderID) &&
+		!config.adminOnly.ignoreCommand.includes(commandName)
 	) {
 		if (hideNotiMessage.adminOnly == false)
 			message.reply(global.utils.getText({ lang, head: "handlerEvents" }, "onlyAdminBot", null, null, null, lang));
 		return true;
 	}
-	
-    // 2. >>> NEW: Check for DeveloperOnly mode (VIP Users only, i.e., Role >= 2)
-    // /devonly on করলে, VIP User (Role 2) বা তার উপরের র্যাঙ্কের ইউজারদের অ্যাক্সেস থাকবে।
+
 	if (
-		(developerOnly?.enable == true)
-		&& role < 2 // Check if the user is less than VIP User
-		&& !(developerOnly?.ignoreCommand || []).includes(commandName)
+		developerOnly?.enable == true &&
+		role < 3 &&
+		!(developerOnly?.ignoreCommand || []).includes(commandName)
 	) {
-		if ((hideNotiMessage.developerOnly ?? false) == false) 
-			message.reply(global.utils.getText({ lang, head: "handlerEvents" }, "onlyVipUserGlobal", null, null, null, lang)); 
+		if ((hideNotiMessage.developerOnly ?? false) == false)
+			message.reply(global.utils.getText({ lang, head: "handlerEvents" }, "onlyVipUserGlobal", null, null, null, lang));
 		return true;
 	}
-    
-	// 3. >>> NEW: Check for VIPOnly mode (VIP Users only, i.e., Role >= 2)
-	// /viponly on করলেও, VIP User (Role 2) বা তার উপরের র্যাঙ্কের ইউজারদের অ্যাক্সেস থাকবে।
+
 	if (
-		(vipOnly?.enable == true)
-		&& role < 2 // Check if the user is less than VIP User
-		&& !(vipOnly?.ignoreCommand || []).includes(commandName)
+		vipOnly?.enable == true &&
+		role < 3 &&
+		!(vipOnly?.ignoreCommand || []).includes(commandName)
 	) {
 		if ((hideNotiMessage.vipOnly ?? false) == false)
 			message.reply(global.utils.getText({ lang, head: "handlerEvents" }, "onlyVipUserGlobal", null, null, null, lang));
 		return true;
 	}
 
-
-	// ==========    Check Thread    ========== //
 	if (isGroup == true) {
 		if (
-			threadData.data.onlyAdminBox === true
-			&& !threadData.adminIDs.includes(senderID)
-			&& !(threadData.data.ignoreCommanToOnlyAdminBox || []).includes(commandName)
+			threadData.data.onlyAdminBox === true &&
+			!threadData.adminIDs.includes(senderID) &&
+			!(threadData.data.ignoreCommanToOnlyAdminBox || []).includes(commandName)
 		) {
-			// check if only admin box
 			if (!threadData.data.hideNotiMessageOnlyAdminBox)
 				message.reply(getText("onlyAdminBox", null, null, null, lang));
 			return true;
 		}
 
-		// check if thread banned
 		const infoBannedThread = threadData.banned;
 		if (infoBannedThread.status == true) {
 			const { reason, date } = infoBannedThread;
@@ -183,12 +135,11 @@ function isBannedOrOnlyAdmin(userData, threadData, senderID, threadID, isGroup, 
 	return false;
 }
 
-
 function createGetText2(langCode, pathCustomLang, prefix, command) {
 	const commandType = command.config.countDown ? "command" : "command event";
 	const commandName = command.config.name;
 	let customLang = {};
-	let getText2 = () => { };
+	let getText2 = () => {};
 	if (fs.existsSync(pathCustomLang))
 		customLang = require(pathCustomLang)[commandName]?.text || {};
 	if (command.langs || customLang || {}) {
@@ -205,38 +156,26 @@ function createGetText2(langCode, pathCustomLang, prefix, command) {
 
 module.exports = function (api, threadModel, userModel, dashBoardModel, globalModel, usersData, threadsData, dashBoardData, globalData) {
 	return async function (event, message) {
-
 		const { utils, client, GoatBot } = global;
 		const { getPrefix, removeHomeDir, log, getTime } = utils;
 		const { config, configCommands: { envGlobal, envCommands, envEvents } } = GoatBot;
 		const { autoRefreshThreadInfoFirstTime } = config.database;
 		let { hideNotiMessage = {} } = config;
-
 		const { body, messageID, threadID, isGroup } = event;
 
-		// Check if has threadID
-		if (!threadID)
-			return;
+		if (!threadID) return;
 
 		const senderID = event.userID || event.senderID || event.author;
-
 		let threadData = global.db.allThreadData.find(t => t.threadID == threadID);
 		let userData = global.db.allUserData.find(u => u.userID == senderID);
 
-		if (!userData && !isNaN(senderID))
-			userData = await usersData.create(senderID);
-
+		if (!userData && !isNaN(senderID)) userData = await usersData.create(senderID);
 		if (!threadData && !isNaN(threadID)) {
-			if (global.temp.createThreadDataError.includes(threadID))
-				return;
+			if (global.temp.createThreadDataError.includes(threadID)) return;
 			threadData = await threadsData.create(threadID);
 			global.db.receivedTheFirstMessage[threadID] = true;
-		}
-		else {
-			if (
-				autoRefreshThreadInfoFirstTime === true
-				&& !global.db.receivedTheFirstMessage[threadID]
-			) {
+		} else {
+			if (autoRefreshThreadInfoFirstTime === true && !global.db.receivedTheFirstMessage[threadID]) {
 				global.db.receivedTheFirstMessage[threadID] = true;
 				await threadsData.refreshInfo(threadID);
 			}
@@ -247,6 +186,7 @@ module.exports = function (api, threadModel, userModel, dashBoardModel, globalMo
 
 		const prefix = getPrefix(threadID);
 		const role = getRole(threadData, senderID);
+
 		const parameters = {
 			api, usersData, threadsData, message, event,
 			userModel, threadModel, prefix, dashBoardModel,
@@ -254,14 +194,14 @@ module.exports = function (api, threadModel, userModel, dashBoardModel, globalMo
 			envEvents, envGlobal, role,
 			removeCommandNameFromBody: function removeCommandNameFromBody(body_, prefix_, commandName_) {
 				if ([body_, prefix_, commandName_].every(x => nullAndUndefined.includes(x)))
-					throw new Error("Please provide body, prefix and commandName to use this function, this function without parameters only support for onStart");
+					throw new Error("Please provide body, prefix and commandName to use this function");
 				for (let i = 0; i < arguments.length; i++)
 					if (typeof arguments[i] != "string")
-						throw new Error(`The parameter "${i + 1}" must be a string, but got "${getType(arguments[i])}"`);
-
+						throw new Error(`The parameter "${i + 1}" must be a string`);
 				return body_.replace(new RegExp(`^${prefix_}(\\s+|)${commandName_}`, "i"), "").trim();
 			}
 		};
+
 		const langCode = threadData.data.lang || config.language || "en";
 
 		function createMessageSyntaxError(commandName) {
@@ -270,22 +210,13 @@ module.exports = function (api, threadModel, userModel, dashBoardModel, globalMo
 			};
 		}
 
-		/*
-			+-----------------------------------------------+
-			|							 WHEN CALL COMMAND								|
-			+-----------------------------------------------+
-		*/
-		let isUserCallCommand = false;
 		async function onStart() {
-			// —————————————— CHECK USE BOT —————————————— //
-			if (!body || !body.startsWith(prefix))
-				return;
+			if (!body || !body.startsWith(prefix)) return;
 			const dateNow = Date.now();
 			const args = body.slice(prefix.length).trim().split(/ +/);
-			// ————————————  CHECK HAS COMMAND ——————————— //
 			let commandName = args.shift().toLowerCase();
 			let command = GoatBot.commands.get(commandName) || GoatBot.commands.get(GoatBot.aliases.get(commandName));
-			// ———————— CHECK ALIASES SET BY GROUP ———————— //
+
 			const aliasesData = threadData.data.aliases || {};
 			for (const cmdName in aliasesData) {
 				if (aliasesData[cmdName].includes(commandName)) {
@@ -293,108 +224,79 @@ module.exports = function (api, threadModel, userModel, dashBoardModel, globalMo
 					break;
 				}
 			}
-			// ————————————— SET COMMAND NAME ————————————— //
-			if (command)
-				commandName = command.config.name;
-			// ——————— FUNCTION REMOVE COMMAND NAME ———————— //
+
+			if (command) commandName = command.config.name;
+
 			function removeCommandNameFromBody(body_, prefix_, commandName_) {
 				if (arguments.length) {
-					if (typeof body_ != "string")
-						throw new Error(`The first argument (body) must be a string, but got "${getType(body_)}"`);
-					if (typeof prefix_ != "string")
-						throw new Error(`The second argument (prefix) must be a string, but got "${getType(prefix_)}"`);
-					if (typeof commandName_ != "string")
-						throw new Error(`The third argument (commandName) must be a string, but got "${getType(commandName_)}"`);
-
 					return body_.replace(new RegExp(`^${prefix_}(\\s+|)${commandName_}`, "i"), "").trim();
-				}
-				else {
+				} else {
 					return body.replace(new RegExp(`^${prefix}(\\s+|)${commandName}`, "i"), "").trim();
 				}
 			}
-			// —————  CHECK BANNED OR ONLY ADMIN BOX  ————— //
-			if (isBannedOrOnlyAdmin(userData, threadData, senderID, threadID, isGroup, commandName, message, langCode))
-				return;
-			if (!command)
+
+			if (isBannedOrOnlyAdmin(userData, threadData, senderID, threadID, isGroup, commandName, message, langCode)) return;
+
+			if (!command) {
 				if (!hideNotiMessage.commandNotFound) {
-					// <------------------- NEW FUZZY MATCHING LOGIC STARTS HERE --------------------->
-					
 					const allCommands = Array.from(GoatBot.commands.keys());
 					let closestCommand = null;
 					let minDistance = 999;
-					const distanceThreshold = 2; // Allow up to 2 character differences
+					const distanceThreshold = 2;
 
-					// Check only if a command name was actually attempted (e.g., /halp, not just /)
 					if (commandName) {
 						for (const correctCommand of allCommands) {
-							// Check distance for the prefix-less command part
 							const distance = leven(commandName.toLowerCase(), correctCommand.toLowerCase());
-
 							if (distance < minDistance && distance <= distanceThreshold) {
 								minDistance = distance;
 								closestCommand = correctCommand;
 							}
 						}
 					}
-					
+
 					if (closestCommand) {
-						// Found a suggestion, use the new lang key
-						return await message.reply(
-							utils.getText({ lang: langCode, head: "handlerEvents" }, "commandNotFoundSuggestion", closestCommand, prefix)
-						);
+						return await message.reply(utils.getText({ lang: langCode, head: "handlerEvents" }, "commandNotFoundSuggestion", closestCommand, prefix));
 					} else {
-						// No suggestion or commandName was empty, fall back to original logic
 						return await message.reply(
 							commandName ?
 								utils.getText({ lang: langCode, head: "handlerEvents" }, "commandNotFound", commandName, prefix) :
 								utils.getText({ lang: langCode, head: "handlerEvents" }, "commandNotFound2", prefix)
 						);
 					}
-					// <------------------- NEW FUZZY MATCHING LOGIC ENDS HERE ----------------------->
-				}
-				else
-					return true;
-			// ————————————— CHECK PERMISSION ———————————— //
+				} else return true;
+			}
+
 			const roleConfig = getRoleConfig(utils, command, isGroup, threadData, commandName);
 			const needRole = roleConfig.onStart;
 
 			if (needRole > role) {
 				if (!hideNotiMessage.needRoleToUseCmd) {
-					if (needRole == 1) // Min Rank 1: Group Admin
-						return await message.reply(utils.getText({ lang: langCode, head: "handlerEvents" }, "onlyAdmin", commandName));
-					else if (needRole == 2) // Min Rank 2: VIP User
-						return await message.reply(utils.getText({ lang: langCode, head: "handlerEvents" }, "onlyAdminBot2", commandName));
-					else if (needRole == 3) // Min Rank 3: AdminBot
-						return await message.reply(utils.getText({ lang: langCode, head: "handlerEvents" }, "onlyVipUser", commandName)); // Re-purposing an existing key for Rank 3 min.
-					else if (needRole == 4) // Min Rank 4: Developer Only
-						return await message.reply(utils.getText({ lang: langCode, head: "handlerEvents" }, "onlyDeveloper", commandName)); // Using the Developer key for Rank 4
-				}
-				else {
-					return true;
-				}
+					if (needRole == 1) return await message.reply(utils.getText({ lang: langCode, head: "handlerEvents" }, "onlyAdmin", commandName));
+					else if (needRole == 2) return await message.reply("⚠️ Cette commande est réservée aux utilisateurs **Premium** (Rôle 2).");
+					else if (needRole == 3) return await message.reply(utils.getText({ lang: langCode, head: "handlerEvents" }, "onlyAdminBot2", commandName));
+					else if (needRole == 4) return await message.reply(utils.getText({ lang: langCode, head: "handlerEvents" }, "onlyVipUser", commandName));
+					else if (needRole == 5) return await message.reply(utils.getText({ lang: langCode, head: "handlerEvents" }, "onlyDeveloper", commandName));
+				} else return true;
 			}
-			// ———————————————— countDown ———————————————— //
-			if (!client.countDown[commandName])
-				client.countDown[commandName] = {};
+
+			if (!client.countDown[commandName]) client.countDown[commandName] = {};
 			const timestamps = client.countDown[commandName];
 			let getCoolDown = command.config.countDown;
-			if (!getCoolDown && getCoolDown != 0 || isNaN(getCoolDown))
-				getCoolDown = 1;
+			if (!getCoolDown && getCoolDown != 0 || isNaN(getCoolDown)) getCoolDown = 1;
 			const cooldownCommand = getCoolDown * 1000;
+
 			if (timestamps[senderID]) {
 				const expirationTime = timestamps[senderID] + cooldownCommand;
 				if (dateNow < expirationTime)
 					return await message.reply(utils.getText({ lang: langCode, head: "handlerEvents" }, "waitingForCommand", ((expirationTime - dateNow) / 1000).toString().slice(0, 3)));
 			}
-			// ——————————————— RUN COMMAND ——————————————— //
+
 			const time = getTime("DD/MM/YYYY HH:mm:ss");
 			isUserCallCommand = true;
 			try {
-				// analytics command call
 				(async () => {
 					const analytics = await globalData.get("analytics", "data", {});
-					if (!analytics[commandName])
-						analytics[commandName] = 0;
+					if (!analytics[commandName]) analytics[commandName] = 0;
 					analytics[commandName]++;
 					await globalData.set("analytics", analytics, "data");
 				})();
@@ -402,41 +304,26 @@ module.exports = function (api, threadModel, userModel, dashBoardModel, globalMo
 				createMessageSyntaxError(commandName);
 				const getText2 = createGetText2(langCode, `${process.cwd()}/languages/cmds/${langCode}.js`, prefix, command);
 				await command.onStart({
-					...parameters,
-					args,
-					commandName,
-					getLang: getText2,
-					removeCommandNameFromBody
+					...parameters, args, commandName, getLang: getText2, removeCommandNameFromBody
 				});
 				timestamps[senderID] = dateNow;
 				log.info("CALL COMMAND", `${commandName} | ${userData.name} | ${senderID} | ${threadID} | ${args.join(" ")}`);
-			}
-			catch (err) {
+			} catch (err) {
 				log.err("CALL COMMAND", `An error occurred when calling the command ${commandName}`, err);
 				return await message.reply(utils.getText({ lang: langCode, head: "handlerEvents" }, "errorOccurred", time, commandName, removeHomeDir(err.stack ? err.stack.split("\n").slice(0, 5).join("\n") : JSON.stringify(err, null, 2))));
 			}
 		}
 
-
-		/*
-		 +------------------------------------------------+
-		 |                    ON CHAT                     |
-		 +------------------------------------------------+
-		*/
 		async function onChat() {
 			const allOnChat = GoatBot.onChat || [];
 			const args = body ? body.split(/ +/) : [];
 			for (const key of allOnChat) {
 				const command = GoatBot.commands.get(key);
-				if (!command)
-					continue;
+				if (!command) continue;
 				const commandName = command.config.name;
 
-				// —————————————— CHECK PERMISSION —————————————— //
 				const roleConfig = getRoleConfig(utils, command, isGroup, threadData, commandName);
-				const needRole = roleConfig.onChat;
-				if (needRole > role)
-					continue;
+				if (roleConfig.onChat > role) continue;
 
 				const getText2 = createGetText2(langCode, `${process.cwd()}/languages/cmds/${langCode}.js`, prefix, command);
 				const time = getTime("DD/MM/YYYY HH:mm:ss");
@@ -444,110 +331,67 @@ module.exports = function (api, threadModel, userModel, dashBoardModel, globalMo
 
 				if (getType(command.onChat) == "Function") {
 					const defaultOnChat = command.onChat;
-					// convert to AsyncFunction
-					command.onChat = async function () {
-						return defaultOnChat(...arguments);
-					};
+					command.onChat = async function () { return defaultOnChat(...arguments); };
 				}
 
-				command.onChat({
-					...parameters,
-					isUserCallCommand,
-					args,
-					commandName,
-					getLang: getText2
-				})
+				command.onChat({ ...parameters, isUserCallCommand, args, commandName, getLang: getText2 })
 					.then(async (handler) => {
 						if (typeof handler == "function") {
-							if (isBannedOrOnlyAdmin(userData, threadData, senderID, threadID, isGroup, commandName, message, langCode))
-								return;
+							if (isBannedOrOnlyAdmin(userData, threadData, senderID, threadID, isGroup, commandName, message, langCode)) return;
 							try {
 								await handler();
 								log.info("onChat", `${commandName} | ${userData.name} | ${senderID} | ${threadID} | ${args.join(" ")}`);
-							}
-							catch (err) {
+							} catch (err) {
 								await message.reply(utils.getText({ lang: langCode, head: "handlerEvents" }, "errorOccurred2", time, commandName, removeHomeDir(err.stack ? err.stack.split("\n").slice(0, 5).join("\n") : JSON.stringify(err, null, 2))));
 							}
 						}
 					})
-					.catch(err => {
-						log.err("onChat", `An error occurred when calling the command onChat ${commandName}`, err);
-					});
+					.catch(err => log.err("onChat", `An error occurred in onChat ${commandName}`, err));
 			}
 		}
 
-
-		/*
-		 +------------------------------------------------+
-		 |                   ON ANY EVENT                 |
-		 +------------------------------------------------+
-		*/
 		async function onAnyEvent() {
 			const allOnAnyEvent = GoatBot.onAnyEvent || [];
 			let args = [];
-			if (typeof event.body == "string" && event.body.startsWith(prefix))
-				args = event.body.split(/ +/);
-
+			if (typeof event.body == "string" && event.body.startsWith(prefix)) args = event.body.split(/ +/);
 			for (const key of allOnAnyEvent) {
-				if (typeof key !== "string")
-					continue;
+				if (typeof key !== "string") continue;
 				const command = GoatBot.commands.get(key);
-				if (!command)
-					continue;
+				if (!command) continue;
 				const commandName = command.config.name;
 				const time = getTime("DD/MM/YYYY HH:mm:ss");
 				createMessageSyntaxError(commandName);
-
 				const getText2 = createGetText2(langCode, `${process.cwd()}/languages/events/${langCode}.js`, prefix, command);
 
 				if (getType(command.onAnyEvent) == "Function") {
 					const defaultOnAnyEvent = command.onAnyEvent;
-					// convert to AsyncFunction
-					command.onAnyEvent = async function () {
-						return defaultOnAnyEvent(...arguments);
-					};
+					command.onAnyEvent = async function () { return defaultOnAnyEvent(...arguments); };
 				}
 
-				command.onAnyEvent({
-					...parameters,
-					args,
-					commandName,
-					getLang: getText2
-				})
+				command.onAnyEvent({ ...parameters, args, commandName, getLang: getText2 })
 					.then(async (handler) => {
 						if (typeof handler == "function") {
 							try {
 								await handler();
 								log.info("onAnyEvent", `${commandName} | ${senderID} | ${userData.name} | ${threadID}`);
-							}
-							catch (err) {
+							} catch (err) {
 								message.reply(utils.getText({ lang: langCode, head: "handlerEvents" }, "errorOccurred7", time, commandName, removeHomeDir(err.stack ? err.stack.split("\n").slice(0, 5).join("\n") : JSON.stringify(err, null, 2))));
-								log.err("onAnyEvent", `An error occurred when calling the command onAnyEvent ${commandName}`, err);
+								log.err("onAnyEvent", `An error occurred in onAnyEvent ${commandName}`, err);
 							}
 						}
 					})
-					.catch(err => {
-						log.err("onAnyEvent", `An error occurred when calling the command onAnyEvent ${commandName}`, err);
-					});
+					.catch(err => log.err("onAnyEvent", `An error occurred in onAnyEvent ${commandName}`, err));
 			}
 		}
 
-		/*
-		 +------------------------------------------------+
-		 |                  ON FIRST CHAT                 |
-		 +------------------------------------------------+
-		*/
 		async function onFirstChat() {
 			const allOnFirstChat = GoatBot.onFirstChat || [];
 			const args = body ? body.split(/ +/) : [];
-
 			for (const itemOnFirstChat of allOnFirstChat) {
 				const { commandName, threadIDsChattedFirstTime } = itemOnFirstChat;
-				if (threadIDsChattedFirstTime.includes(threadID))
-					continue;
+				if (threadIDsChattedFirstTime.includes(threadID)) continue;
 				const command = GoatBot.commands.get(commandName);
-				if (!command)
-					continue;
+				if (!command) continue;
 
 				itemOnFirstChat.threadIDsChattedFirstTime.push(threadID);
 				const getText2 = createGetText2(langCode, `${process.cwd()}/languages/cmds/${langCode}.js`, prefix, command);
@@ -556,352 +400,257 @@ module.exports = function (api, threadModel, userModel, dashBoardModel, globalMo
 
 				if (getType(command.onFirstChat) == "Function") {
 					const defaultOnFirstChat = command.onFirstChat;
-					// convert to AsyncFunction
-					command.onFirstChat = async function () {
-						return defaultOnFirstChat(...arguments);
-					};
+					command.onFirstChat = async function () { return defaultOnFirstChat(...arguments); };
 				}
 
-				command.onFirstChat({
-					...parameters,
-					isUserCallCommand,
-					args,
-					commandName,
-					getLang: getText2
-				})
+				command.onFirstChat({ ...parameters, isUserCallCommand, args, commandName, getLang: getText2 })
 					.then(async (handler) => {
 						if (typeof handler == "function") {
-							if (isBannedOrOnlyAdmin(userData, threadData, senderID, threadID, isGroup, commandName, message, langCode))
-								return;
+							if (isBannedOrOnlyAdmin(userData, threadData, senderID, threadID, isGroup, commandName, message, langCode)) return;
 							try {
 								await handler();
 								log.info("onFirstChat", `${commandName} | ${userData.name} | ${senderID} | ${threadID} | ${args.join(" ")}`);
-							}
-							catch (err) {
+							} catch (err) {
 								await message.reply(utils.getText({ lang: langCode, head: "handlerEvents" }, "errorOccurred2", time, commandName, removeHomeDir(err.stack ? err.stack.split("\n").slice(0, 5).join("\n") : JSON.stringify(err, null, 2))));
 							}
 						}
 					})
-					.catch(err => {
-						log.err("onFirstChat", `An error occurred when calling the command onFirstChat ${commandName}`, err);
-					});
+					.catch(err => log.err("onFirstChat", `An error occurred in onFirstChat ${commandName}`, err));
 			}
 		}
 
-
-		/* +------------------------------------------------+
-		 |                    ON REPLY                    |
-		 +------------------------------------------------+
-		*/
 		async function onReply() {
-			if (!event.messageReply)
-				return;
+			if (!event.messageReply) return;
 			const { onReply } = GoatBot;
 			const Reply = onReply.get(event.messageReply.messageID);
-			if (!Reply)
-				return;
+			if (!Reply) return;
+
 			Reply.delete = () => onReply.delete(messageID);
 			const commandName = Reply.commandName;
-			if (!commandName) {
-				message.reply(utils.getText({ lang: langCode, head: "handlerEvents" }, "cannotFindCommandName"));
-				return log.err("onReply", `Can't find command name to execute this reply!`, Reply);
-			}
-			const command = GoatBot.commands.get(commandName);
-			if (!command) {
-				message.reply(utils.getText({ lang: langCode, head: "handlerEvents" }, "cannotFindCommand", commandName));
-				return log.err("onReply", `Command "${commandName}" not found`, Reply);
-			}
+			if (!commandName) return log.err("onReply", `Can't find command name`, Reply);
 
-			// —————————————— CHECK PERMISSION —————————————— //
+			const command = GoatBot.commands.get(commandName);
+			if (!command) return log.err("onReply", `Command "${commandName}" not found`, Reply);
+
 			const roleConfig = getRoleConfig(utils, command, isGroup, threadData, commandName);
-			const needRole = roleConfig.onReply;
-			if (needRole > role) {
-				if (!hideNotiMessage.needRoleToUseCmdOnReply) {
-					if (needRole == 1) // Min Rank 1: Group Admin
-						return await message.reply(utils.getText({ lang: langCode, head: "handlerEvents" }, "onlyAdminToUseOnReply", commandName));
-					else if (needRole == 2) // Min Rank 2: VIP User
-						return await message.reply(utils.getText({ lang: langCode, head: "handlerEvents" }, "onlyAdminBot2ToUseOnReply", commandName));
-					else if (needRole == 3) // Min Rank 3: AdminBot
-						return await message.reply(utils.getText({ lang: langCode, head: "handlerEvents" }, "onlyVipUserToUseOnReply", commandName)); // Re-purposing an existing key for Rank 3 min.
-					else if (needRole == 4) // Min Rank 4: Developer Only
-						return await message.reply(utils.getText({ lang: langCode, head: "handlerEvents" }, "onlyDeveloperToUseOnReply", commandName)); // Using the Developer key for Rank 4
-				}
-				else {
-					return true;
-				}
-			}
+			if (roleConfig.onReply > role) return;
 
 			const getText2 = createGetText2(langCode, `${process.cwd()}/languages/cmds/${langCode}.js`, prefix, command);
 			const time = getTime("DD/MM/YYYY HH:mm:ss");
+
 			try {
-				if (!command)
-					throw new Error(`Cannot find command with commandName: ${commandName}`);
 				const args = body ? body.split(/ +/) : [];
 				createMessageSyntaxError(commandName);
-				if (isBannedOrOnlyAdmin(userData, threadData, senderID, threadID, isGroup, commandName, message, langCode))
-					return;
-				await command.onReply({
-					...parameters,
-					Reply,
-					args,
-					commandName,
-					getLang: getText2
-				});
+				if (isBannedOrOnlyAdmin(userData, threadData, senderID, threadID, isGroup, commandName, message, langCode)) return;
+
+				await command.onReply({ ...parameters, Reply, args, commandName, getLang: getText2 });
 				log.info("onReply", `${commandName} | ${userData.name} | ${senderID} | ${threadID} | ${args.join(" ")}`);
-			}
-			catch (err) {
-				log.err("onReply", `An error occurred when calling the command onReply ${commandName}`, err);
+			} catch (err) {
+				log.err("onReply", `An error occurred in onReply ${commandName}`, err);
 				await message.reply(utils.getText({ lang: langCode, head: "handlerEvents" }, "errorOccurred3", time, commandName, removeHomeDir(err.stack ? err.stack.split("\n").slice(0, 5).join("\n") : JSON.stringify(err, null, 2))));
 			}
 		}
 
-
-		/*
-		 +------------------------------------------------+
-		 |                   ON REACTION                  |
-		 +------------------------------------------------+
-		*/
 		async function onReaction() {
 			const { onReaction } = GoatBot;
 			const Reaction = onReaction.get(messageID);
-			if (!Reaction)
-				return;
+			if (!Reaction) return;
+
 			Reaction.delete = () => onReaction.delete(messageID);
 			const commandName = Reaction.commandName;
-			if (!commandName) {
-				message.reply(utils.getText({ lang: langCode, head: "handlerEvents" }, "cannotFindCommandName"));
-				return log.err("onReaction", `Can't find command name to execute this reaction!`, Reaction);
-			}
-			const command = GoatBot.commands.get(commandName);
-			if (!command) {
-				message.reply(utils.getText({ lang: langCode, head: "handlerEvents" }, "cannotFindCommand", commandName));
-				return log.err("onReaction", `Command "${commandName}" not found`, Reaction);
-			}
+			if (!commandName) return log.err("onReaction", `Can't find command name`, Reaction);
 
-			// —————————————— CHECK PERMISSION —————————————— //
+			const command = GoatBot.commands.get(commandName);
+			if (!command) return log.err("onReaction", `Command "${commandName}" not found`, Reaction);
+
 			const roleConfig = getRoleConfig(utils, command, isGroup, threadData, commandName);
-			const needRole = roleConfig.onReaction;
-			if (needRole > role) {
-				if (!hideNotiMessage.needRoleToUseCmdOnReaction) {
-					if (needRole == 1) // Min Rank 1: Group Admin
-						return await message.reply(utils.getText({ lang: langCode, head: "handlerEvents" }, "onlyAdminToUseOnReaction", commandName));
-					else if (needRole == 2) // Min Rank 2: VIP User
-						return await message.reply(utils.getText({ lang: langCode, head: "handlerEvents" }, "onlyAdminBot2ToUseOnReaction", commandName));
-					else if (needRole == 3) // Min Rank 3: AdminBot
-						return await message.reply(utils.getText({ lang: langCode, head: "handlerEvents" }, "onlyVipUserToUseOnReaction", commandName)); // Re-purposing an existing key for Rank 3 min.
-					else if (needRole == 4) // Min Rank 4: Developer Only
-						return await message.reply(utils.getText({ lang: langCode, head: "handlerEvents" }, "onlyDeveloperToUseOnReaction", commandName)); // Using the Developer key for Rank 4
-				}
-				else {
-					return true;
-				}
-			}
-			// —————————————————————————————————————————————— //
+			if (roleConfig.onReaction > role) return;
 
 			const time = getTime("DD/MM/YYYY HH:mm:ss");
 			try {
-				if (!command)
-					throw new Error(`Cannot find command with commandName: ${commandName}`);
 				const getText2 = createGetText2(langCode, `${process.cwd()}/languages/cmds/${langCode}.js`, prefix, command);
-				const args = [];
 				createMessageSyntaxError(commandName);
-				if (isBannedOrOnlyAdmin(userData, threadData, senderID, threadID, isGroup, commandName, message, langCode))
-					return;
-				await command.onReaction({
-					...parameters,
-					Reaction,
-					args,
-					commandName,
-					getLang: getText2
-				});
+				if (isBannedOrOnlyAdmin(userData, threadData, senderID, threadID, isGroup, commandName, message, langCode)) return;
+
+				await command.onReaction({ ...parameters, Reaction, args: [], commandName, getLang: getText2 });
 				log.info("onReaction", `${commandName} | ${userData.name} | ${senderID} | ${threadID} | ${event.reaction}`);
-			}
-			catch (err) {
-				log.err("onReaction", `An error occurred when calling the command onReaction ${commandName}`, err);
+			} catch (err) {
+				log.err("onReaction", `An error occurred in onReaction ${commandName}`, err);
 				await message.reply(utils.getText({ lang: langCode, head: "handlerEvents" }, "errorOccurred4", time, commandName, removeHomeDir(err.stack ? err.stack.split("\n").slice(0, 5).join("\n") : JSON.stringify(err, null, 2))));
 			}
 		}
 
-
-		/*
-		 +------------------------------------------------+
-		 |                 EVENT COMMAND                  |
-		 +------------------------------------------------+
-		*/
 		async function handlerEvent() {
 			const { author } = event;
 			const allEventCommand = GoatBot.eventCommands.entries();
+
 			for (const [key] of allEventCommand) {
 				const getEvent = GoatBot.eventCommands.get(key);
-				if (!getEvent)
-					continue;
+				if (!getEvent) continue;
 				const commandName = getEvent.config.name;
 				const getText2 = createGetText2(langCode, `${process.cwd()}/languages/events/${langCode}.js`, prefix, getEvent);
 				const time = getTime("DD/MM/YYYY HH:mm:ss");
+
 				try {
-					const handler = await getEvent.onStart({
-						...parameters,
-						commandName,
-						getLang: getText2
-					});
+					const handler = await getEvent.onStart({ ...parameters, commandName, getLang: getText2 });
 					if (typeof handler == "function") {
 						await handler();
 						log.info("EVENT COMMAND", `Event: ${commandName} | ${author} | ${userData.name} | ${threadID}`);
 					}
-				}
-				catch (err) {
-					log.err("EVENT COMMAND", `An error occurred when calling the command event ${commandName}`, err);
+				} catch (err) {
+					log.err("EVENT COMMAND", `An error occurred in event ${commandName}`, err);
 					await message.reply(utils.getText({ lang: langCode, head: "handlerEvents" }, "errorOccurred5", time, commandName, removeHomeDir(err.stack ? err.stack.split("\n").slice(0, 5).join("\n") : JSON.stringify(err, null, 2))));
 				}
 			}
 		}
 
-
-		/*
-		 +------------------------------------------------+
-		 |                    ON EVENT                    |
-		 +------------------------------------------------+
-		*/
 		async function onEvent() {
 			const allOnEvent = GoatBot.onEvent || [];
-			const args = [];
 			const { author } = event;
 			for (const key of allOnEvent) {
-				if (typeof key !== "string")
-					continue;
+				if (typeof key !== "string") continue;
 				const command = GoatBot.commands.get(key);
-				if (!command)
-					continue;
+				if (!command) continue;
 				const commandName = command.config.name;
 				const time = getTime("DD/MM/YYYY HH:mm:ss");
 				createMessageSyntaxError(commandName);
-
 				const getText2 = createGetText2(langCode, `${process.cwd()}/languages/events/${langCode}.js`, prefix, command);
 
 				if (getType(command.onEvent) == "Function") {
 					const defaultOnEvent = command.onEvent;
-					// convert to AsyncFunction
-					command.onEvent = async function () {
-						return defaultOnEvent(...arguments);
-					};
+					command.onEvent = async function () { return defaultOnEvent(...arguments); };
 				}
 
-				command.onEvent({
-					...parameters,
-					args,
-					commandName,
-					getLang: getText2
-				})
+				command.onEvent({ ...parameters, args: [], commandName, getLang: getText2 })
 					.then(async (handler) => {
 						if (typeof handler == "function") {
 							try {
 								await handler();
 								log.info("onEvent", `${commandName} | ${author} | ${userData.name} | ${threadID}`);
-							}
-							catch (err) {
+							} catch (err) {
 								message.reply(utils.getText({ lang: langCode, head: "handlerEvents" }, "errorOccurred6", time, commandName, removeHomeDir(err.stack ? err.stack.split("\n").slice(0, 5).join("\n") : JSON.stringify(err, null, 2))));
-								log.err("onEvent", `An error occurred when calling the command onEvent ${commandName}`, err);
+								log.err("onEvent", `An error occurred in onEvent ${commandName}`, err);
 							}
 						}
 					})
-					.catch(err => {
-						log.err("onEvent", `An error occurred when calling the command onEvent ${commandName}`, err);
-					});
+					.catch(err => log.err("onEvent", `An error occurred in onEvent ${commandName}`, err));
 			}
 		}
 
-		/*
-		 +------------------------------------------------+
-		 |                    PRESENCE                    |
-		 +------------------------------------------------+
-		*/
-		async function presence() {
-			// Your code here
-		}
-
-		/*
-		 +------------------------------------------------+
-		 |                  READ RECEIPT                  |
-		 +------------------------------------------------+
-		*/
-		async function read_receipt() {
-			// Your code here
-		}
-
-		/*
-		 +------------------------------------------------+
-		 |                   		 TYP                    	|
-		 +------------------------------------------------+
-		*/
-		async function typ() {
-			// Your code here
-		}
+		async function presence() {}
+		async function read_receipt() {}
+		async function typ() {}
 
 		// ==============================
-		// 🎉 WELCOME MESSAGE
+		// 🎉 PROFESSIONAL WELCOME CARD (CANVAS V2)
 		// ==============================
 		try {
 			const { createCanvas, loadImage } = require("canvas");
 
 			if (event.logMessageType === "log:subscribe") {
-
 				const addedUsers = event.logMessageData.addedParticipants || [];
 				const threadInfo = await api.getThreadInfo(threadID);
+				const threadName = threadInfo.threadName || "Groupe";
 
 				for (const user of addedUsers) {
-
 					const userID = user.userFbId || user.userID;
-
-					if (userID == api.getCurrentUserID())
-						continue;
+					if (userID == api.getCurrentUserID()) continue;
 
 					const userInfo = await api.getUserInfo(userID);
-					const name = userInfo[userID]?.name || "Member";
+					const name = userInfo[userID]?.name || "Membre";
+					const avatarUrl = `https://graph.facebook.com/${userID}/picture?width=512&height=512`;
 
-					const avatar = `https://graph.facebook.com/${userID}/picture?width=512&height=512`;
-
-					const canvas = createCanvas(800, 400);
+					// Initialisation Canvas Pro
+					const canvas = createCanvas(900, 450);
 					const ctx = canvas.getContext("2d");
 
-					ctx.fillStyle = "#0f0f1a";
-					ctx.fillRect(0, 0, 800, 400);
+					// 1. Dégradé de fond Cyber/Sombre
+					const bgGradient = ctx.createLinearGradient(0, 0, 900, 450);
+					bgGradient.addColorStop(0, "#0b0c10");
+					bgGradient.addColorStop(0.5, "#1f2833");
+					bgGradient.addColorStop(1, "#0b0c10");
+					ctx.fillStyle = bgGradient;
+					ctx.fillRect(0, 0, 900, 450);
 
+					// 2. Bordure brillante
+					ctx.strokeStyle = "#66fcf1";
+					ctx.lineWidth = 6;
+					ctx.strokeRect(15, 15, 870, 420);
+
+					// 3. Carte intérieure transparente
+					ctx.fillStyle = "rgba(255, 255, 255, 0.05)";
+					ctx.fillRect(30, 30, 840, 390);
+
+					// 4. Avatar Circulaire avec lueur
+					ctx.save();
+					ctx.beginPath();
+					ctx.arc(160, 225, 90, 0, Math.PI * 2, true);
+					ctx.closePath();
+					ctx.clip();
+
+					try {
+						const img = await loadImage(avatarUrl);
+						ctx.drawImage(img, 70, 135, 180, 180);
+					} catch (err) {
+						ctx.fillStyle = "#45a29e";
+						ctx.fillRect(70, 135, 180, 180);
+					}
+					ctx.restore();
+
+					// Contour doré autour de l'avatar
+					ctx.beginPath();
+					ctx.arc(160, 225, 92, 0, Math.PI * 2, true);
+					ctx.strokeStyle = "#c5a059";
+					ctx.lineWidth = 5;
+					ctx.stroke();
+
+					// 5. Textes Design & Tronqués
+					ctx.fillStyle = "#66fcf1";
+					ctx.font = "bold 42px 'Arial'";
+					ctx.fillText("WELCOME TO THE TEAM!", 290, 110);
+
+					// Nom du Membre
 					ctx.fillStyle = "#ffffff";
-					ctx.font = "bold 35px Arial";
-					ctx.fillText("WELCOME", 280, 70);
+					ctx.font = "bold 32px 'Arial'";
+					const displayName = name.length > 22 ? name.substring(0, 20) + "..." : name;
+					ctx.fillText(`👤 ${displayName}`, 290, 190);
 
-					ctx.font = "22px Arial";
-					ctx.fillText(`Group: ${threadInfo.threadName}`, 220, 140);
+					// Nom du Groupe
+					ctx.fillStyle = "#c5a059";
+					ctx.font = "26px 'Arial'";
+					const displayGroup = threadName.length > 25 ? threadName.substring(0, 23) + "..." : threadName;
+					ctx.fillText(`👥 ${displayGroup}`, 290, 250);
 
-					ctx.fillText(`Member: ${name}`, 220, 190);
+					// Nombre de membres
+					ctx.fillStyle = "#c5c6c7";
+					ctx.font = "italic 22px 'Arial'";
+					ctx.fillText(`📊 Membre #${threadInfo.participantIDs.length}`, 290, 300);
 
-					const img = await loadImage(avatar);
-					ctx.drawImage(img, 40, 100, 150, 150);
+					// Pied de page Pro
+					ctx.fillStyle = "rgba(102, 252, 241, 0.5)";
+					ctx.font = "bold 18px 'Arial'";
+					ctx.fillText("ANGEL BOT • POWERED BY SHADE", 290, 370);
 
-					const path = __dirname + "/cache/welcome.png";
+					// Sauvegarde sécurisée dans tmp/cache
+					const cacheDir = path.join(process.cwd(), "cache");
+					fs.ensureDirSync(cacheDir);
+					const imgPath = path.join(cacheDir, `welcome_${userID}_${Date.now()}.png`);
+					
+					await fs.outputFile(imgPath, canvas.toBuffer());
 
-					fs.writeFileSync(path, canvas.toBuffer());
-
+					// Envoi du message enrichi
 					api.sendMessage({
-						body:
-`ཐི༑ཋྀ 𝑨𝒏𝒈𝒆𝒍 𝑩𝒐𝒕 જ⁀➴ ♡
-
-👋 Bienvenue @${name}
-
-✨ Dans : ${threadInfo.threadName}
-
-🤖 Créé par Shade`,
-						mentions: [{
-							tag: name,
-							id: userID
-						}],
-						attachment: fs.createReadStream(path)
-					}, threadID);
+						body: `ཐི༑ཋྀ 𝑨𝒏𝒈𝒆𝒍 𝑩𝒐𝒕 જ⁀➴ ♡\n👋 Bienvenue @${name} ✨\nDans : ${threadName}\n🤖 Propulsé par Shade`,
+						mentions: [{ tag: name, id: userID }],
+						attachment: fs.createReadStream(imgPath)
+					}, threadID, () => {
+						// Supprime l'image temporaire après l'envoi
+						fs.unlink(imgPath).catch(() => {});
+					});
 				}
 			}
-		}
-		catch (e) {
-			console.log("Welcome Error:", e);
+		} catch (e) {
+			console.error("Welcome Card Error:", e);
 		}
 
 		return {

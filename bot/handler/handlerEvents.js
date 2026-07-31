@@ -256,12 +256,20 @@ module.exports = function (api, threadModel, userModel, dashBoardModel, globalMo
 
 					if (closestCommand) {
 						return await message.reply(utils.getText({ lang: langCode, head: "handlerEvents" }, "commandNotFoundSuggestion", closestCommand, prefix));
+						
 					} else {
-						return await message.reply(
-							commandName ?
-								utils.getText({ lang: langCode, head: "handlerEvents" }, "commandNotFound", commandName, prefix) :
-								utils.getText({ lang: langCode, head: "handlerEvents" }, "commandNotFound2", prefix)
-						);
+						const userName = userData.name || "Membre";
+						const textToSend = commandName ?
+							utils.getText({ lang: langCode, head: "handlerEvents" }, "commandNotFound", commandName, prefix) :
+							utils.getText({ lang: langCode, head: "handlerEvents" }, "commandNotFound2", userName, prefix);
+
+						return await api.sendMessage({
+							body: textToSend,
+							mentions: [{
+								tag: userName,
+								id: senderID
+							}]
+						}, threadID);
 					}
 				} else return true;
 			}

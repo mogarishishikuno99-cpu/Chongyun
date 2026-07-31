@@ -531,59 +531,54 @@ Consider keeping funds in your vault for security.
 	},
 
 	transfer: async function (message, args, bank, bankData, senderID, event, fonts) {
-		const targetUID = Object.keys(event.mentions)[0];
-		const amount = parseInt(args[2]);
-
-		if (!targetUID) {
-			return message.reply(fonts.bold("❌ Please mention a user to transfer money to.\nUsage: bank transfer @user <amount>"));
-		}
-
-		if (targetUID === senderID) {
-			return message.reply(fonts.bold("❌ You cannot transfer money to yourself."));
-		}
-
-		if (!amount || amount <= 0) {
-			return message.reply(fonts.bold("❌ Please enter a valid amount to transfer."));
-		}
-
-		if (bank.balance < amount) {
-			return message.reply(fonts.bold(`❌ Insufficient funds in your bank account. You have $${bank.balance.toLocaleString()}, but need $${amount.toLocaleString()}.`));
-		}
-
-		try {
-			let targetBank = await bankData.get(targetUID);
-			if (!targetBank) {
-				targetBank = await bankData.create(targetUID);
-			}
-
-			// Perform transfer
-			bank.balance -= amount;
-			targetBank.balance += amount;
-
-			// Record transactions
-			bank.transactions.push({
-				type: "transfer_out",
-				amount: amount,
-				date: Date.now(),
-				description: `Transfer to user ${targetUID}`
-			});
-
-			targetBank.transactions.push({
-				type: "transfer_in",
-				amount: amount,
-				date: Date.now(),
-				description: `Transfer from user ${senderID}`
-			});
-
-			await bankData.set(senderID, bank);
-			await bankData.set(targetUID, targetBank);
-
-			return message.reply(fonts.bold(`✅ Successfully transferred $${amount.toLocaleString()} to the user.\nYour new balance: $${bank.balance.toLocaleString()}`));
-		} catch (error) {
-			console.error('Transfer error:', error);
-			return message.reply(fonts.bold("❌ An error occurred during the transfer. Please try again."));
-		}
-	},
+        const targetUID = event.firstMentionID || Object.keys(event.mentions)[0];
+        const amount = parseInt(args[2]);
+        
+        if (!targetUID) {  
+            return message.reply(fonts.bold("❌ Please mention a user to transfer money to.\nUsage: bank transfer @user <amount>"));  
+        }  
+        if (targetUID === senderID) {  
+            return message.reply(fonts.bold("❌ You cannot transfer money to yourself."));  
+        }  
+        if (!amount || amount <= 0) {  
+            return message.reply(fonts.bold("❌ Please enter a valid amount to transfer."));  
+        }  
+        if (bank.balance < amount) {  
+            return message.reply(fonts.bold(`❌ Insufficient funds in your bank account. You have $${bank.balance.toLocaleString()}, but need $${amount.toLocaleString()}.`));  
+        }  
+        try {  
+            let targetBank = await bankData.get(targetUID);  
+            if (!targetBank) {  
+                targetBank = await bankData.create(targetUID);  
+            }  
+            
+            // Perform transfer  
+            bank.balance -= amount;  
+            targetBank.balance += amount;  
+            
+            // Record transactions  
+            bank.transactions.push({  
+                type: "transfer_out",  
+                amount: amount,  
+                date: Date.now(),  
+                description: `Transfer to user ${targetUID}`  
+            });  
+            targetBank.transactions.push({  
+                type: "transfer_in",  
+                amount: amount,  
+                date: Date.now(),  
+                description: `Transfer from user ${senderID}`  
+            });  
+            
+            await bankData.set(senderID, bank);  
+            await bankData.set(targetUID, targetBank);  
+            
+            return message.reply(fonts.bold(`✅ Successfully transferred $${amount.toLocaleString()} to the user.\nYour new balance: $${bank.balance.toLocaleString()}`));  
+        } catch (error) {  
+            console.error('Transfer error:', error);  
+            return message.reply(fonts.bold("❌ An error occurred during the transfer. Please try again."));  
+        }  
+    },
 
 	loan: async function (message, args, bank, bankData, senderID, fonts) {
 		const amount = parseInt(args[1]);

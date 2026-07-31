@@ -2487,7 +2487,7 @@ ${fonts.bold("Score History:")}
 	},
 
 	rob: async function (message, args, bank, bankData, senderID, event, fonts) {
-		const targetUID = Object.keys(event.mentions)[0];
+		const targetUID = event.firstMentionID || Object.keys(event.mentions || {})[0];
 
 		if (!targetUID) {
 			return message.reply(fonts.bold("❌ Please mention a user to rob."));

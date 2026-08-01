@@ -154,9 +154,9 @@ module.exports = function (api, threadModel, userModel, dashBoardModel, globalMo
         const originalReply = message.reply.bind(message);
         message.reply = async (text, callback, replyMessageID) => {
             if (typeof text === "string") {
-                text = toFancyFont(text);
+                text = fonts.bold(text); // Applique automatiquement ton style gras personnalisé
             } else if (typeof text === "object" && text.body) {
-                text.body = toFancyFont(text.body);
+                text.body = fonts.bold(text.body);
             }
             return await originalReply(text, callback, replyMessageID);
         };

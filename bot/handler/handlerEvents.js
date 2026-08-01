@@ -1,6 +1,6 @@
 const fs = require("fs-extra");
 const path = require("path");
-const { toFancyFont } = require("./func/fonts"); // Ajuste ce chemin si ton dossier "func" est ailleurs
+const { toFancyFont } = require("../../scripts/func/fonts"); // Ajuste ce chemin si ton dossier "func" est ailleurs
 const nullAndUndefined = [undefined, null];
 const leven = require("leven");
 

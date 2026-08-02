@@ -38,10 +38,10 @@ module.exports = {
         },
         category: "owner",
         guide: {
-            fr: "   {pn} load <tên file lệnh>"
+            fr: "   {pn} load <nom du fichier de commande>"
                 + "\n   {pn} loadAll"
-                + "\n   {pn} install <url> <tên file lệnh>: Tải xuống và cài đặt một tệp lệnh từ một url, url là đường dẫn đến tệp lệnh (raw)"
-                + "\n   {pn} install <tên file lệnh> <code>: Tải xuống và cài đặt một tệp lệnh từ một code, code là mã của lệnh",
+                + "\n   {pn} install <url> <nom du fichier de commande> : Télécharge et installe un fichier de commande depuis une URL (lien brut/raw)."
+                + "\n   {pn} install <nom du fichier de commande> <code> : Télécharge et installe un fichier de commande à partir d'un code de commande.",
             en: "   {pn} load <command file name>"
                 + "\n   {pn} loadAll"
                 + "\n   {pn} install <url> <command file name>: Download and install a command file from a url, url is the path to the file (raw)"

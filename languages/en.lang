@@ -1,8 +1,8 @@
 # index.js
 
 Goat.newVersionDetected = "📢 𝖧é, 𝗈𝗇 𝖺 𝗎𝗇𝖾 𝗇𝗈𝗎𝗏𝖾𝗅𝗅𝖾 𝗏𝖾𝗋𝗌𝗂𝗈𝗇 ! 𝖳𝗎 𝖺𝗌 𝗅𝖺 %1 𝖺𝗅𝗈𝗋𝗌 𝗊𝗎’𝗈𝗇 𝖾𝗌𝗍 à 𝗅𝖺 %2. 𝖡𝗈𝗎𝗀𝖾-𝗍𝗈𝗂 𝖾𝗍 𝗍𝖺𝗉𝖾 ç𝖺 𝖽𝖺𝗇𝗌 𝗍𝖺 𝖼𝗈𝗇𝗌𝗈𝗅𝖾 : %3 😤"
-Goat.autoRestart1 = "🔄 𝖮𝗎𝗉𝗌, 𝗃𝖾 𝖽𝗈𝗂𝗌 𝖿𝖺𝗂𝗋𝖾 𝗎𝗇 𝘱𝘦𝗍𝗂𝗍 𝖻𝗋𝖾𝖺𝚔... 𝖱𝖾𝖽é𝗆𝖺𝗋𝗋𝖺𝗀𝖾 𝖺𝗎𝗍𝗈𝗆𝖺𝗍𝗂𝗊𝗎𝖾 𝖽𝖺𝗇𝗌 %1 ! ⏳"
-Goat.autoRestart2 = "📅 𝖢’𝖾𝗌𝗍 𝗅’𝗁𝖾𝗎𝗋𝖾 𝖽𝗎 𝖼𝗁𝖺𝗇𝗀𝖾𝗆𝖾𝗇𝗍 ! 𝖱𝖾𝖽é𝗆𝖺𝗋𝗋𝖺𝗀𝖾 (𝖢𝗋𝗈𝗇) 𝘱𝗋𝗈𝗀𝗋𝖺𝗆𝗆é à : %1 ✨"
+Goat.autoRestart1 = "🔄 𝖮𝗎𝗉𝗌, 𝗃𝖾 𝖽𝗈𝗂𝗌 𝖿𝖺𝗂𝗋𝖾 𝗎𝗇 𝘱𝘦𝗍𝗂𝗍 𝖻𝗋𝖾𝖺𝚔... 𝖱edé𝗆𝖺𝗋𝗋𝖺𝗀𝖾 𝖺𝗎𝗍𝗈𝗆𝖺𝗍𝗂𝗊𝗎𝖾 𝖽𝖺𝗇𝗌 %1 ! ⏳"
+Goat.autoRestart2 = "📅 𝖢’𝖾𝗌𝗍 𝗅’𝗁𝖾𝗎𝗋𝖾 𝖽𝗎 𝖼𝗁𝖺𝗇𝗀𝖾𝗆𝖾𝗇𝗍 ! 𝖱edé𝗆𝖺𝗋𝗋𝖺𝗀𝖾 (𝖢𝗋𝗈𝗇) 𝘱𝗋𝗈𝗀𝗋𝖺𝗆𝗆é à : %1 ✨"
 Goat.googleApiTokenExpired = "⚠️ 𝖠𝗋𝗀𝗁, 𝗆𝗈𝗇 𝗍𝗈𝗄𝖾𝗇 𝖦𝗈𝗈𝗀𝗅𝖾 𝖠𝖯𝖨 𝖺 𝖾𝗑𝗉𝗂𝗋é ! 𝖵𝖺 𝗆’𝖾𝗇 𝖼𝗁𝖾𝗋𝖼𝗁𝖾𝗋 𝗎𝗇 𝗇𝗈𝗎𝗏𝖾𝖺𝗎 𝗂𝖼𝗂, 𝗌’𝗂𝗅 𝗍𝖾 𝘱𝗅𝖺𝗂𝗍 : https://developers.google.com/oauthplayground/ 🤔"
 
 # bot/login/login.js
@@ -31,11 +31,11 @@ login.refreshCookieError = "💥 𝖮𝗁 𝗇𝗈𝗇, 𝗅’𝖺𝖼𝗍𝗎�
 login.refreshCookieSuccess = "✨ 𝖢𝗈𝗈𝗄𝗂𝖾 𝖺𝖼𝗍𝗎𝖺𝗅𝗂𝗌é ! 𝖳𝗈𝗎𝗍 𝖾𝗌𝗍 𝗇𝗂𝖼𝗄𝖾𝗅. 😉"
 login.refreshCookieWarning = "⚠️ 𝖫𝖾 𝗆𝗈𝖽𝖾 𝖺𝗎𝗍𝗈-𝖺𝖼𝗍𝗎𝖺𝗅𝗂𝗌𝖺𝗍𝗂𝗈𝗇 𝖾𝗌𝗍 𝗅à, 𝗆𝖺𝗂𝗌 𝗍𝗈𝗇 𝖼𝗈𝗇𝖿𝗂𝗀.𝗃𝗌𝗈𝗇 𝗆𝖾 𝗌𝖾𝗆𝖻𝗅𝖾 𝗂𝗇𝖼𝗈𝗆𝗉𝗅𝖾𝗍..."
 login.tokenError = "❌ 𝖳𝗈𝗇 𝗍𝗈𝗄𝖾𝗇 𝖾𝗌𝗍 𝗆𝗈𝗋𝗍 𝗈𝗎 𝗂𝗇𝗏𝖺𝗅𝗂𝖽𝖾 𝖽𝖺𝗇𝗌 𝗅𝖾 𝖿𝗂𝖼𝗁𝗂𝖾𝗋 %2. 🙄"
-login.cookieError = "❌ 𝖠𝗌𝗌𝖾𝗓 𝗉𝖾𝗋𝖽𝗎 𝖽𝖾 𝗍𝖾𝗆𝗉𝗌 ! 𝖳𝗈𝗇 𝖼𝗈𝗈𝗄𝗂𝖾 𝗇'𝖾𝗌𝗍 𝘱𝗅𝗎𝗌 𝖻𝗈𝗇."
+login.cookieError = "❌ 𝖠𝗌𝗌𝖾𝗓 𝗉𝖾𝗋𝖽𝗎 𝖽𝖾 𝗍𝖾𝗆𝗉𝗌 ! 𝖳𝗈𝗇 𝖼𝗈𝗈𝗄𝗂𝖾 𝗇'𝖾𝗌𝗍 𝗉𝗅𝗎𝗌 𝖻𝗈𝗇."
 login.loginPasswordError = "💥 𝖱𝖺𝖺𝖺𝗁, 𝗂𝗆𝗉𝗈𝗌𝗌𝗂𝖻𝗅𝖾 𝖽𝖾 𝗆𝖾 𝖼𝗈𝗇𝗇𝖾𝗍𝖾𝗋 𝖺𝗏𝖾𝖼 𝖼𝖾𝗍 𝖤𝗆𝖺𝗂𝗅 𝖾𝗍 𝖼𝖾 𝖬𝗈𝗍 𝖽𝖾 𝗉𝖺𝗌𝗌𝖾 !"
 login.loginSuccess = "🎉 𝖸𝖾𝖺𝗁 ! 𝖢𝗈𝗇𝗇𝖾𝗍𝗂𝗈𝗇 𝗋é𝗎𝗌𝗌𝗂𝖾, 𝗃𝖾 𝗌𝗎𝗂𝗌 𝘱𝗋ê𝗍𝖾 ! ✨"
 login.loginError = "💥 𝖬𝖺𝗂𝗌 𝖼’𝖾𝗌𝗍 𝗊𝗎𝗈𝗂 𝖼𝖾 𝖻𝗎𝗀 ? 𝖴𝗇𝖾 𝖾𝗋𝗋𝖾𝗎𝗋 𝖾𝗌𝗍 𝗌𝗎𝗋𝗏𝖾𝗇𝗎𝖾 𝘱𝖾𝗇𝖽𝖺𝗇𝗍 𝗅𝖺 𝖼𝗈𝗇𝗇𝖾𝗍𝗂𝗈𝗇."
-login.openDashboardSuccess = "💻 𝖯𝖺𝗀𝖾 𝖽𝖾 𝗀𝖾𝗌𝗍𝗂𝗈𝗇 𝗈𝗎𝗏𝖾𝗋𝗍𝖾 𝖺𝗏𝖾𝖼 𝗌𝗎𝖼𝼼è𝗌 ! 𝖳𝗎 𝖺𝗌 𝗏𝗎 ç𝖺 ? 😎"
+login.openDashboardSuccess = "💻 𝖯𝖺𝗀𝖾 𝖽𝖾 𝗀𝖾𝗌𝗍𝗂𝗈𝗇 𝗈𝗎𝗏𝖾𝗋𝗍𝖾 𝖺𝗏𝖾𝖼 𝗌𝗎𝖼𝖼è𝗌 ! 𝖳𝗎 𝖺𝗌 𝗏𝗎 ç𝖺 ? 😎"
 login.openDashboardError = "❌ 𝖨𝗆𝗉𝗈𝗌𝗌𝗂𝖻𝗅𝖾 𝖽’𝗈𝗎𝗏𝗋𝗂𝗋 𝗅𝖺 𝗉𝖺𝗀𝖾 𝖽𝖾 𝗀𝖾𝗌𝗍𝗂𝗈𝗇. 𝖳𝗎 𝖺𝗌 𝖼𝖺𝗌𝗌é 𝗊𝗎𝖾𝗅𝗊𝗎𝖾 𝖼𝗁𝗈𝗌𝖾 ? 😜"
 login.changeGbanData = "🔒 𝖫𝖾𝗌 𝖽𝗈𝗇𝗇é𝖾𝗌 𝗈𝗇𝗍 𝖼𝗁𝖺𝗇𝗀é, 𝗃𝖾 𝗋𝖾𝖿𝗎𝗌𝖾 𝖽𝖾 𝗅𝖺𝗇𝖼𝖾𝗋 𝗅𝖾 𝖻𝗈𝗍 𝖽𝖺𝗇𝗌 𝖼𝖾𝗌 𝖼𝗈𝗇𝖽𝗂𝗍𝗂𝗈𝗇𝗌 !"
 login.errorNoti = "❌ 𝖩’𝖺𝗂 𝗆𝖺𝗅 𝖺𝗎 𝖼𝗋â𝗇𝖾... 𝖤𝗋𝗋𝖾𝗎𝗋 𝗅𝗈𝗋𝗌 𝖽𝖾 𝗅𝖺 𝗋é𝖼𝗎𝗉é𝗋𝖺𝗍𝗂𝗈𝗇 𝖽𝗎 𝗆𝖾𝗌𝗌𝖺𝗀𝖾."
@@ -49,9 +49,9 @@ login.gbanAdminMessage = "📢 𝖠𝗅𝖾𝗋𝗍𝖾 ! 𝖫’𝗎𝗍𝗂�
 login.openServerUptimeSuccess = "🚀 𝖲𝖾𝗋𝗏𝖾𝗎𝗋 𝗎𝗉𝗍𝗂𝗆𝖾 𝗈𝗎𝗏𝖾𝗋𝗍 : %1 ! 𝖮𝗇 𝖾𝗌𝗍 𝖾𝗇 𝗅𝗂𝗀𝗇𝖾 !"
 login.openServerUptimeError = "❌ 𝖨𝗆𝗉𝗈𝗌𝗌𝗂𝖻𝗅𝖾 𝖽’𝗈𝗎𝗏𝗋𝗂𝗋 𝗅𝖾 𝗌𝖾𝗋𝗏𝖾𝗎𝗋 𝗎𝗉𝗍𝗂𝗆𝖾. 𝖴𝗀𝗁..."
 login.restartListenMessage = "🔄 𝖩𝖾 𝗋𝖾𝗅𝖺𝗇𝖼𝖾 𝖫𝗂𝗌𝗍𝖾𝗇𝖬𝖰𝖳𝖳 𝗍𝗈𝗎𝗍𝖾𝗌 𝗅𝖾𝗌 %1 𝘱𝗈𝗎𝗋 ê𝗍𝗋𝖾 𝗌û𝗋𝖾 !"
-login.stopRestartListenMessage = "🛑 𝖩’𝖺𝗂 𝖼𝗈𝗎𝗉é 𝗅𝖾 𝗋𝖾𝖽é𝗆𝖺𝗋𝗋𝖺𝗀𝖾 𝖺𝗎𝗍𝗈 𝖽𝖾 𝖫𝗂𝗌𝗍𝖾𝗇𝖬𝖰𝖳𝖳."
-login.restartListenMessageError = "💥 𝖬𝗂𝗇𝖼𝖾, 𝖾𝗋𝗋𝖾𝗎𝗋 𝘱𝖾𝗇𝖽𝖺𝗇𝗍 𝗅𝖾 𝗋𝖾𝖽é𝗆𝖺𝗋𝗋𝖺𝗀𝖾 𝖽𝖾 𝖫𝗂𝗌𝗍𝖾𝗇𝖬𝖰𝖳𝖳..."
-login.restartListenMessage2 = "✨ 𝖫𝗂𝗌𝗍𝖾𝗇𝖬𝖰𝖳𝖳 𝖺 𝗋𝖾𝖽é𝗆𝖺𝗋𝗋é ! 𝖳𝗈𝗎𝗍 𝗏𝖺 𝖻𝗂𝖾𝗇 !"
+login.stopRestartListenMessage = "🛑 𝖩’𝖺𝗂 𝖼𝗈𝗎𝗉é 𝗅𝖾 𝗋edé𝗆𝖺𝗋𝗋𝖺𝗀𝖾 𝖺𝗎𝗍𝗈 𝖽𝖾 𝖫𝗂𝗌𝗍𝖾𝗇𝖬𝖰𝖳𝖳."
+login.restartListenMessageError = "💥 𝖬𝗂𝗇𝖼𝖾, 𝖾𝗋𝗋𝖾𝗎𝗋 𝘱𝖾𝗇𝖽𝖺𝗇𝗍 𝗅𝖾 𝗋edé𝗆𝖺𝗋𝗋𝖺𝗀𝖾 𝖽𝖾 𝖫𝗂𝗌𝗍𝖾𝗇𝖬𝖰𝖳𝖳..."
+login.restartListenMessage2 = "✨ 𝖫𝗂𝗌𝗍𝖾𝗇𝖬𝖰𝖳𝖳 𝖺 𝗋edé𝗆𝖺𝗋𝗋é ! 𝖳𝗈𝗎𝗍 𝗏𝖺 𝖻𝗂𝖾𝗇 !"
 login.refreshCookieAfter = "⏳ 𝖯𝗋𝗈𝖼𝗁𝖺𝗂𝗇 𝗋𝖺𝖿𝗋𝖺î𝖼𝗁𝗂𝗌𝗌𝖾𝗆𝖾𝗇𝗍 𝖽𝗎 𝖼𝗈𝗈𝗄𝗂𝖾 𝖽𝖺𝗇𝗌 %1."
 login.listenMqttClose = "🔒 𝖫𝗂𝗌𝗍𝖾𝗇𝖬𝖰𝖳𝖳 𝖾𝗌𝗍 𝖿𝖾𝗋𝗆é."
 login.listenMqttCloseByUser = "🔒 𝖫𝗂𝗌𝗍𝖾𝗇𝖬𝖰𝖳𝖳 𝖺 é𝗍é 𝖼𝗈𝗎𝗉é 𝘱𝖺𝗋 𝗅’𝗎𝗍𝗂𝗅𝗂𝗌𝖺𝗍𝖾𝗎𝗋."
@@ -78,33 +78,33 @@ loadScripts.NOT_MATCH = "❌ 𝖭𝖤 𝖢𝖮𝖱𝖱𝖤𝖲𝖯𝖮𝖭𝖣 �
 
 # bot/login/socketIO.js
 socketIO.connected = "🌐 𝖢𝗈𝗇𝗇𝖾𝗍é𝖾 𝖺𝗎 𝗌𝖾𝗋𝗏𝖾𝗎𝗋 𝗌𝗈𝖼𝗄𝖾𝗍.𝗂𝗈 ! 𝖮𝗇 𝗋𝖾𝗌𝗍𝖾 𝖾𝗇 𝖼𝗈𝗇𝗍𝖺𝖼𝗍."
-socketIO.error = "❌ 𝖬𝗂𝗇𝖼𝖾, 𝖾𝗋𝗋𝖾𝗎𝗋 𝖽𝖾 𝖼𝗈𝗇𝗇𝖾𝗑𝗂𝗈𝗇 𝗌𝗈𝖼𝗄𝖾𝗍.𝗂𝗈..."
+socketIO.error = "❌ 𝖬𝗂𝗇𝖼𝖾, 𝖾𝗋𝗋𝖾𝗎𝗋 𝖽𝖾 𝖼𝗈𝗇𝗇𝖾𝖼𝗍𝗂𝗈𝗇 𝗌𝗈𝖼𝗄𝖾𝗍.𝗂𝗈..."
 
 # bot/handler/handlerCheckData.js
 handlerCheckData.cantCreateThread = "❌ 𝖬𝖺𝗂𝗌 𝘱𝗈𝗎𝗋𝗊𝗎𝗈𝗂 𝗃𝖾 𝗇’𝖺𝗋𝗋𝗂𝗏𝖾 𝗉𝖺𝗌 à é𝖼𝗋𝗂𝗋𝖾 𝗅𝖾 𝗀𝗋𝗈𝗎𝗉𝖾 %1 𝖾𝗇 𝖡𝖣𝖣 ?! 😤"
 handlerCheckData.cantCreateUser = "❌ 𝖨𝗆𝗉𝗈𝗌𝗌𝗂𝖻𝗅𝖾 𝖽'é𝖼𝗋𝗂𝗋𝖾 𝗅'𝗎𝗍𝗂𝗅𝗂𝗌𝖺𝗍𝖾𝗎𝗋 %1 𝖾𝗇 𝖡𝖣𝖣... 𝖣é𝗌𝗈𝗅é𝖾."
 
 # bot/handler/handlerEvents.js
-handlerEvents.userBanned = "🚫 𝖮𝗈𝗉𝗌... 𝖳𝗎 𝖺𝗌 é𝗍é 𝖻𝖺𝗇𝗇𝗂 𝖽𝗎 𝖻𝗈𝗍 ! 𝖩𝖾 𝗇𝖾 𝗍’é𝖼𝗈𝗎𝗍𝖾 𝗉𝗅𝗎𝗌.\n» 𝖱𝖺𝗂𝗌𝗈𝗇 : %1\n» 𝖧𝖾𝗎𝗋𝖾 : %2\n» 𝖳𝗈𝗇 𝖨𝖣 : %3"
-handlerEvents.threadBanned = "🚫 𝖢𝖾 𝗀𝗋𝗈𝗎𝗉𝖾 𝖺 𝖿𝖺𝗂𝗍 𝗇’𝗂𝗆𝗉𝗈𝗋𝗍𝖾 𝗊𝗎𝗈𝗂 ! 𝖡𝖺𝗇𝗇𝗂 𝖽𝗎 𝖻𝗈𝗍.\n» 𝖱𝖺𝗂𝗌𝗈𝗇 : %1\n» 𝖧𝖾𝗎𝗋𝖾 : %2\n» 𝖨𝖣 𝖦𝗋𝗈𝗎𝗉𝖾 : %3"
-handlerEvents.onlyAdminBox = "🔒 | 𝖧𝖾𝗒 %1, 𝖽é𝗌𝗈𝗅é𝖾 𝗆𝖺𝗂𝗌 𝖼𝖾 𝗀𝗋𝗈𝗎𝗉𝖾 𝖾𝗌𝗍 𝖺𝖼𝗍𝗎𝖾𝗅𝗅𝖾𝗆𝖾𝗇𝗍 𝗏𝖾𝗋𝗋𝗈𝗎𝗂𝗅𝗅é 𝗉𝗈𝗎𝗋 𝗅𝖾𝗌 𝖺𝖽𝗆𝗂𝗇𝗂𝗌𝗍𝗋𝖺𝗍𝖾𝗎𝗋𝗌."
-handlerEvents.onlyAdminBot = "❌ | 𝖧𝖾𝗒 %1, 𝗌𝗍𝗈𝗉 ! 𝖲𝖾𝗎𝗅 𝗆𝗈𝗇 𝗉𝗋𝗈𝗉𝗋𝗂é𝗍𝖺𝗂𝗋𝖾 𝖺 𝗅𝖾 𝖽𝗋𝗈𝗂𝗍 𝖽𝖾 𝗆𝖾 𝖽𝗈𝗇𝗇𝖾𝗋 𝖼𝖾𝗍 𝗈𝗋𝖽𝗋𝖾 !"
-handlerEvents.onlyDeveloperGlobal = "⚙️ | 𝖧𝖾𝗒 %1, 𝗋𝖾𝗌𝗉𝖾𝖼𝗍𝖾 𝗅𝖾𝗌 𝖼𝗋é𝖺𝗍𝖾𝗎𝗋𝗌 ! 𝖲𝖾𝗎𝗅 𝗅𝖾 𝖽é𝗏𝖾𝗅𝗈𝗉𝗉𝖾𝗎𝗋 𝗉𝖾𝗎𝗍 𝖿𝖺𝗂𝗋𝖾 ç𝖺."
-handlerEvents.onlyVipUserGlobal = "💎 | 𝖧𝖾𝗒 %1, 𝖼’𝖾𝗌𝗍 𝗉𝗈𝗎𝗋 𝗅𝖾𝗌 𝖵𝖨𝖯 ç𝖺 ! 𝖳𝗎 𝗇’𝖺𝗌 𝗉𝖺𝗌 𝗍𝗈𝗇 𝖻𝖺𝖽𝗀𝖾."
-handlerEvents.onlyPremiumUser = "⭐ | 𝖧𝖾𝗒 %1, 𝗌𝖾𝗎𝗅𝗌 𝗅𝖾𝗌 𝗎𝗍𝗂𝗅𝗂𝗌𝖺𝗍𝖾𝗎𝗋𝗌 𝖯𝗋𝖾𝗆𝗂𝗎𝗆 𝗉𝖾𝗎𝗏𝖾𝗇𝗍 𝗎𝗍𝗂𝗅𝗂𝗌𝖾𝗋 𝗅𝖺 𝖼𝗈𝗆𝗆𝖺𝗇𝖽𝖾 \"%2\""
-handlerEvents.commandNotFound = "❌ | 𝖧𝖾𝗒 %1, \"%2\" ? Ça 𝗇’𝖾𝗑𝗂𝗌𝗍𝖾 𝗉𝖺𝗌 𝖽𝖺𝗇𝗌 𝗆𝖾𝗌 𝖼𝗈𝗆𝗆𝖺𝗇𝖽𝖾𝗌 ! 𝖳𝖺𝗉𝖾 %3𝗁𝖾𝗅𝗉 𝗉𝗈𝗎𝗋 𝗏𝗈𝗂𝗋 !"
-handlerEvents.commandNotFound2 = "👋 | 𝖧𝖾𝗒 %1, 𝗍𝗎 𝗏𝗂𝖾𝗇𝗌 𝖽𝖾 𝗍𝖺𝗉𝖾𝗋 𝗅𝖾 𝗉𝗋é𝖿𝗂𝗑𝖾 𝗌𝖾𝗎𝗅 \"%2\" — 𝗆𝖺𝗂𝗌 𝗊𝗎𝖾 𝗏𝖾𝗎𝗑-𝗍𝗎 𝗊𝗎𝖾 𝗃𝖾 𝖿𝖺𝗌𝗌𝖾 ? 🤔 𝖤𝗌𝗌𝖺𝗂𝖾 \"%2𝗁𝖾𝗅𝗉\" 𝗉𝗈𝗎𝗋 𝗏𝗈𝗂𝗋 𝗍𝗈𝗎𝗌 𝗅𝖾𝗌 𝖼𝗈𝗆𝗆𝖺𝗇𝖽𝖾𝗌 𝖽𝗂𝗌𝗉𝗈𝗇𝗂𝖻𝗅𝖾𝗌 !"
-handlerEvents.prefixOnly = "👋 | 𝖧𝖾𝗒 %1, 𝗍𝗎 𝖺𝗌 𝗃𝗎𝗌𝗍𝖾 𝗍𝖺𝗉é \"%2\" — 𝗆𝖺𝗂𝗌 𝗍𝗎 𝗏𝖾𝗎𝗑 𝗊𝗎𝖾 𝗃𝖾 𝖿𝖺𝗌𝗌𝖾 𝗊𝗎𝗈𝗂 ? 😜 𝖤𝗌𝗌𝖺𝗂𝖾 \"%2𝗁𝖾𝗅𝗉\" !"
-handlerEvents.commandNotFoundSuggestion = "🧐 | 𝖧𝖾𝗒 %1, 𝖼𝖾𝗍𝗍𝖾 𝖼𝗈𝗆𝗆𝖺𝗇𝖽𝖾 𝗇'𝖾𝗑𝗂𝗌𝗍𝖾 𝗉𝖺𝗌. 𝖳𝗎 𝗇𝖾 𝗏𝗈𝗎𝗅𝖺𝗂𝗌 𝗉𝖺𝗌 𝗉𝗅𝗎𝗍ô𝗍 𝖽𝗂𝗋𝖾 %2%3 ? 😉"
-handlerEvents.commandSyntaxError = "⚠️ | 𝖧𝖾𝗒 %1, 𝗍𝗎 𝗍'𝖾𝗌 𝗍𝗋𝗈𝗆𝗉é 𝖽𝖺𝗇𝗌 𝗅'é𝖼𝗋𝗂𝗍𝗎𝗋𝖾. 𝖳𝖺𝗉𝖾 %2𝗁𝖾𝗅𝗉 %3 𝗉𝗈𝗎𝗋 𝖺𝗉𝗉𝗋𝖾𝗇𝖽𝗋𝖾 !"
-handlerEvents.onlyAdmin = "❌ | 𝖧𝖾𝗒 %1, 𝗌𝖾𝗎𝗅𝗌 𝗅𝖾𝗌 𝖺𝖽𝗆𝗂𝗇𝗌 𝖽𝗎 𝗀𝗋𝗈𝗎𝗉𝖾 𝗉𝖾𝗎𝗏𝖾𝗇𝗍 𝗆𝖾 𝖽𝖾𝗆𝖺𝗇𝖽𝖾𝗋 \"%2\". 𝖳𝗎 𝗇'𝖺𝗌 𝗉𝖺𝗌 𝗅𝖾 𝗉𝗈𝗎𝗏𝗈𝗂𝗋 !"
-handlerEvents.onlyAdminToUseOnReply = "❌ | 𝖧𝖾𝗒 %1, 𝗌𝖾𝗎𝗅𝗌 𝗅𝖾𝗌 𝖺𝖽𝗆𝗂𝗇𝗌 𝗉𝖾𝗎𝗏𝖾𝗇𝗍 𝗎𝗍𝗂𝗅𝗂𝗌𝖾𝗋 𝗅𝖺 𝗋é𝗉𝗈𝗇𝗌𝖾 𝖽𝖾 \"%2\"."
-handlerEvents.onlyAdminToUseOnReaction = "❌ | 𝖧𝖾𝗒 %1, 𝗌𝖾𝗎𝗅𝗌 𝗅𝖾𝗌 𝖺𝖽𝗆𝗂𝗇𝗌 𝗉𝖾𝗎𝗏𝖾𝗇𝗍 𝗍𝗈𝗎𝖼𝗁𝖾𝗋 à 𝗅𝖺 𝗋é𝖺𝖼𝗍𝗂𝗈𝗇 𝖽𝖾 \"%2\"."
-handlerEvents.onlyAdminBot2 = "💫 | 𝖧𝖾𝗒 %1, 𝖽é𝗌𝗈𝗅é𝖾 ! 𝖲𝖾𝗎𝗅𝗌 𝗅𝖾𝗌 𝗎𝗌𝖾𝗋𝗌 𝖵𝖨𝖯 𝗉𝖾𝗎𝗏𝖾𝗇𝗍 𝖺𝖼𝖼é𝖽𝖾𝗋 à \"%2\". 💎"
-handlerEvents.onlyDeveloper = "⚙️ | 𝖧𝖾𝗒 %1, 𝖼'𝖾𝗌𝗍 𝗉𝗋é𝖼𝗂𝖾𝗎𝗑... 𝖲𝖾𝗎𝗅 𝗅𝖾 𝖣é𝗏𝖾𝗅𝗈𝗉𝗉𝖾𝗎𝗋 𝗉𝖾𝗎𝗍 𝗍𝗈𝗎𝖼𝗁𝖾𝗋 à \"%2\"."
-handlerEvents.onlyVipUser = "💎 | 𝖧𝖾𝗒 %1, 𝗌𝖾𝗎𝗅𝗌 𝗅'𝖠𝖽𝗆𝗂𝗇𝡡𝗈𝗍 𝖾𝗍 𝗅𝖾 𝖣é𝗏𝖾𝗅𝗈𝗉𝗉𝖾𝗎𝗋 𝗉𝖾𝗎𝗏𝖾𝗇𝗍 𝗆𝖺𝗇𝗂𝗉𝗎𝗅𝖾𝗋 \"%2\"."
-handlerEvents.waitingForCommand = "⏱ | 𝖧𝖾𝗒 %1, 𝖽𝗈𝗎𝖼𝖾𝗆𝖾𝗇𝗍 ! 𝖯𝖺𝗍𝗂𝖾𝗇𝗍𝖾 %2𝗌 𝖺𝗏𝖺𝗇𝗍 𝖽𝖾 𝗆𝖾 𝗋𝖾𝗌𝗈𝗅𝗅𝗂𝖼𝗂𝗍𝖾𝗋. 🙃"
-handlerEvents.errorOccurred = "❌ [%1] 𝖮𝗈𝗉𝗌, 𝗃'𝖺𝗂 𝗎𝗇 𝘱𝖾𝗍𝗂𝗍 𝖻𝗎𝗀 𝗌𝗎𝗋 \"%2\" :\n\n%3 😤"
+handlerEvents.userBanned = "🚫 𝗢𝗈𝗉𝗌... 𝗧𝗎 𝖺𝗌 é𝗍é 𝖻𝖺𝗇𝗇𝗂 𝖽𝗎 𝖻𝗈𝗍 ! 𝗝𝖾 𝗇𝖾 𝗍’é𝖼𝗈𝗎𝗍𝖾 𝗉𝗅𝗎𝗌.\n» 𝗥𝖺𝗂𝗌𝗈𝗇 : %1\n» 𝗛𝖾𝗎𝗋𝖾 : %2\n» 𝗧𝗈𝗇 𝗜𝗗 : %3"
+handlerEvents.threadBanned = "🚫 𝗖𝖾 𝗀𝗋𝗈𝗎𝗉𝖾 𝖺 𝖿𝖺𝗂𝗍 𝗇’𝗂𝗆𝗉𝗈𝗋𝗍𝖾 𝗊𝗎𝗈𝗂 ! 𝗕𝖺𝗇𝗇𝗂 𝖽𝗎 𝖻𝗈𝗍.\n» 𝗥𝖺𝗂𝗌𝗈𝗇 : %1\n» 𝗛𝖾𝗎𝗋𝖾 : %2\n» 𝗜𝗗 𝗚𝗋𝗈𝗎𝗉𝖾 : %3"
+handlerEvents.onlyAdminBox = "🔒 | 𝗛𝖾𝗒 %1, 𝖽é𝗌𝗈𝗅é𝖾 𝗆𝖺𝗂𝗌 𝖼𝖾 𝗀𝗋𝗈𝗎𝗉𝖾 𝖾𝗌𝗍 𝖺𝖼𝗍𝗎𝖾𝗅𝗅𝖾𝗆𝖾𝗇𝗍 𝗏𝖾𝗋𝗋𝗈𝗎𝗂𝗅𝗅é 𝗉𝗈𝗎𝗋 𝗅𝖾𝗌 𝖺𝖽𝗆𝗂𝗇𝗂𝗌𝗍𝗋𝖺𝗍𝖾𝗎𝗋𝗌."
+handlerEvents.onlyAdminBot = "❌ | 𝗛𝖾𝗒 %1, 𝗌𝗍𝗈𝗉 ! 𝗦𝖾𝗎𝗅 𝗆𝗈𝗇 𝗉𝗋𝗈𝗉𝗋𝗂é𝗍𝖺𝗂𝗋𝖾 𝖺 𝗅𝖾 𝖽𝗋𝗈𝗂𝗍 𝖽𝖾 𝗆𝖾 𝖽𝗈𝗇𝗇𝖾𝗋 𝖼𝖾𝗍 𝗈𝗋𝖽𝗋𝖾 !"
+handlerEvents.onlyDeveloperGlobal = "⚙️ | 𝗛𝖾𝗒 %1, 𝗋𝖾𝗌𝗉𝖾𝖼𝗍𝖾 𝗅𝖾𝗌 𝖼𝗋é𝖺𝗍𝖾𝗎𝗋𝗌 ! 𝗦𝖾𝗎𝗅 𝗅𝖾 𝖽é𝗏𝖾𝗅𝗈𝗉𝗉𝖾𝗎𝗋 𝗉𝖾𝗎𝗍 𝖿𝖺𝗂𝗋𝖾 ç𝖺."
+handlerEvents.onlyVipUserGlobal = "💎 | 𝗛𝖾𝗒 %1, 𝖼’𝖾𝗌𝗍 𝗉𝗈𝗎𝗋 𝗅𝖾𝗌 𝗩𝗜𝗣 ç𝖺 ! 𝗧𝗎 𝗇’𝖺𝗌 𝗉𝖺𝗌 𝗍𝗈𝗇 𝖻𝖺𝖽𝗀𝖾."
+handlerEvents.onlyPremiumUser = "⭐ | 𝗛𝖾𝗒 %1, 𝗌𝖾𝗎𝗅𝗌 𝗅𝖾𝗌 𝗎𝗍𝗂𝗅𝗂𝗌𝖺𝗍𝖾𝗎𝗋𝗌 𝗣𝗋𝖾𝗆𝗂𝗎𝗆 𝗉𝖾𝗎𝗏𝖾𝗇𝗍 𝗎𝗍𝗂𝗅𝗂𝗌𝖾𝗋 𝗅𝖺 𝖼𝗈𝗆𝗆𝖺𝗇𝖽𝖾 \"%2\"."
+handlerEvents.commandNotFound = "❌ | 𝗛𝖾𝗒 %1, \"%1\" ? 𝗖̧a 𝗇’𝖾𝗑𝗂𝗌𝗍𝖾 𝗉𝖺𝗌 𝖽𝖺𝗇𝗌 𝗆𝖾𝗌 𝖼𝗈𝗆𝗆𝖺𝗇𝖽𝖾𝗌 ! 𝗧𝖺𝗉𝖾 %2𝗁𝖾𝗅𝗉 𝗉𝗈𝗎𝗋 𝗏𝗈𝗂𝗋 !"
+handlerEvents.commandNotFound2 = "👋 | 𝗛𝖾𝗒 %1, 𝗍𝗎 𝗏𝗂𝖾𝗇𝗌 𝖽𝖾 𝗍𝖺𝗉𝖾𝗋 𝗅𝖾 𝗉𝗋é𝖿𝗂𝗑𝖾 𝗌𝖾𝗎𝗅 \"%2\" — 𝗆𝖺𝗂𝗌 𝗊𝗎𝖾 𝗏𝖾𝗎𝗑-𝗍𝗎 𝗊𝗎𝖾 𝗃𝖾 𝖿𝖺𝗌𝗌𝖾 ? 🤔 𝗘𝗌𝗌𝖺𝗂𝖾 \"%2𝗁𝖾𝗅𝗉\" 𝗉𝗈𝗎𝗋 𝗏𝗈𝗂𝗋 𝗍𝗈𝗎𝗌 𝗅𝖾𝗌 𝖼𝗈𝗆𝗆𝖺𝗇𝖽𝖾𝗌 𝖽𝗂𝗌𝗉𝗈𝗇𝗂𝖻𝗅𝖾𝗌 !"
+handlerEvents.prefixOnly = "👋 | 𝗛𝖾𝗒 %1, 𝗍𝗎 𝖺𝗌 𝗃𝗎𝗌𝗍𝖾 𝗍𝖺𝗉é \"%2\" — 𝗆𝖺𝗂𝗌 𝗍𝗎 𝗏𝖾𝗎𝗑 𝗊𝗎𝖾 𝗃𝖾 𝖿𝖺𝗌𝗌𝖾 𝗊𝗎𝗈𝗂 ? 😜 𝗘𝗌𝗌𝖺𝗂𝖾 \"%2𝗁𝖾𝗅𝗉\" !"
+handlerEvents.commandNotFoundSuggestion = "🧐 | 𝗛𝖾𝗒 %1, 𝖼𝖾𝗍𝗍𝖾 𝖼𝗈𝗆𝗆𝖺𝗇𝖽𝖾 𝗇'𝖾𝗑𝗂𝗌𝗍𝖾 𝗉𝖺𝗌. 𝗧𝗎 𝗇𝖾 𝗏𝗈𝗎𝗅𝖺𝗂𝗌 𝗉𝖺𝗌 𝗉𝗅𝗎𝗍ô𝗍 𝖽𝗂𝗋𝖾 %2%1 ?"
+handlerEvents.commandSyntaxError = "⚠️ | 𝗛𝖾𝗒 %1, 𝗍𝗎 𝗍'𝖾𝗌 𝗍𝗋𝗈𝗆𝗉é 𝖽𝖺𝗇𝗌 𝗅'é𝖼𝗋𝗂𝗍𝗎𝗋𝖾. 𝗧𝖺𝗉𝖾 %1𝗁𝖾𝗅𝗉 %2 𝗉𝗈𝗎𝗋 𝖺𝗉𝗉𝗋𝖾𝗇𝖽𝗋𝖾 !"
+handlerEvents.onlyAdmin = "❌ | 𝗛𝖾𝗒 %1, 𝗌𝖾𝗎𝗅𝗌 𝗅𝖾𝗌 𝖺𝖽𝗆𝗂𝗇𝗌 𝖽𝗎 𝗀𝗋𝗈𝗎𝗉𝖾 𝗉𝖾𝗎𝗏𝖾𝗇𝗍 𝗆𝖾 𝖽𝖾𝗆𝖺𝗇𝖽𝖾𝗋 \"%1\". 𝗧𝗎 𝗇'𝖺𝗌 𝗉𝖺𝗌 𝗅𝖾 𝗉𝗈𝗎𝗏𝗈𝗂𝗋 !"
+handlerEvents.onlyAdminToUseOnReply = "❌ | 𝗛𝖾𝗒 %1, 𝗌𝖾𝗎𝗅𝗌 𝗅𝖾𝗌 𝖺𝖽𝗆𝗂𝗇𝗌 𝗉𝖾𝗎𝗏𝖾𝗇𝗍 𝗎𝗍𝗂𝗅𝗂𝗌𝖾𝗋 𝗅𝖺 𝗋é𝗉𝗈𝗇𝗌𝖾 𝖽𝖾 \"%1\"."
+handlerEvents.onlyAdminToUseOnReaction = "❌ | 𝗛𝖾𝗒 %1, 𝗌𝖾𝗎𝗅𝗌 𝗅𝖾𝗌 𝖺𝖽𝗆𝗂𝗇𝗌 𝗉𝖾𝗎𝗏𝖾𝗇𝗍 𝗍𝗈𝗎𝖼𝗁𝖾𝗋 à 𝗅𝖺 𝗋é𝖺𝖼𝗍𝗂𝗈𝗇 𝖽𝖾 \"%1\"."
+handlerEvents.onlyAdminBot2 = "💫 | 𝗛𝖾𝗒 %1, 𝖽é𝗌𝗈𝗅é𝖾 ! 𝗦𝖾𝗎𝗅𝗌 𝗅𝖾𝗌 𝗎𝗌𝖾𝗋𝗌 𝗩𝗜𝗣 𝗉𝖾𝗎𝗏𝖾𝗇𝗍 𝖺𝖼𝖼é𝖽𝖾𝗋 à \"%1\". 💎"
+handlerEvents.onlyDeveloper = "⚙️ | 𝗛𝖾𝗒 %1, 𝖼'𝖾𝗌𝗍 𝗉𝗋é𝖼𝗂𝖾𝗎𝗑... 𝗦𝖾𝗎𝗅 𝗅𝖾 𝗗é𝗏𝖾𝗅𝗈𝗉𝗉𝖾𝗎𝗋 𝗉𝖾𝗎𝗍 𝗍𝗈𝗎𝖼𝗁𝖾𝗋 à \"%1\"."
+handlerEvents.onlyVipUser = "💎 | 𝗛𝖾𝗒 %1, 𝗌𝖾𝗎𝗅𝗌 𝗅'𝗔𝖽𝗆𝗂𝗇𝡡𝗈𝗍 𝖾𝗍 𝗅𝖾 𝗗é𝗏𝖾𝗅𝗈𝗉𝗉𝖾𝗎𝗋 𝘱𝖾𝗎𝗏𝖾𝗇𝗍 𝗆𝖺𝗇𝗂𝗉𝗎𝗅𝖾𝗋 \"%1\"."
+handlerEvents.waitingForCommand = "⏱ | 𝗛𝖾𝗒 %1, 𝖽𝗈𝗎𝖼𝖾𝗆𝖾𝗇𝗍 ! 𝗣𝖺𝗍𝗂𝖾𝗇𝗍𝖾 %1𝗌 𝖺𝗏𝖺𝗇𝗍 𝖽𝖾 𝗆𝖾 𝗋𝖾𝗌𝗈𝗅𝗅𝗂𝖼𝗂𝗍𝖾𝗋."
+handlerEvents.errorOccurred = "❌ [%1] 𝖮𝗈𝗉𝗌, 𝗃'𝖺𝗂 𝗎𝗇 𝗉𝘦𝗍𝗂𝗍 𝖻𝗎𝗀 𝗌𝗎𝗋 \"%2\" :\n\n%3 😤"
 handlerEvents.errorOccurred2 = "❌ [%1] 𝖴𝗇𝖾 𝖾𝗋𝗋𝖾𝗎𝗋 𝖾𝗌𝗍 𝗌𝗎𝗋𝗏𝖾𝗇𝗎𝖾 𝖽𝖺𝗇𝗌 𝗅𝖾 𝗈𝗇𝖢𝗁𝖺𝗍 𝖽𝖾 \"%2\"\n\n%3"
 handlerEvents.errorOccurred3 = "❌ [%1] 𝖴𝗇𝖾 𝖾𝗋𝗋𝖾𝗎𝗋 𝖾𝗌𝗍 𝗌𝗎𝗋𝗏𝖾𝗇𝗎𝖾 𝖽𝖺𝗇𝗌 𝗅𝖾 𝗈𝗇𝖱𝖾𝗉𝗅𝗒 𝖽𝖾 \"%2\"\n\n%3"
 handlerEvents.errorOccurred4 = "❌ [%1] 𝖴𝗇𝖾 𝖾𝗋𝗋𝖾𝗎𝗋 𝖾𝗌𝗍 𝗌𝗎𝗋𝗏𝖾𝗇𝗎𝖾 𝖽𝖺𝗇𝗌 𝗅𝖾 𝗈𝗇𝖱𝖾𝖺𝖼𝗍𝗂𝗈𝗇 𝖽𝖾 \"%2\"\n\n%3"
@@ -115,7 +115,7 @@ handlerEvents.cannotFindCommandName = "❌ 𝖩𝖾 𝗇'𝖺𝗋𝗋𝗂𝗏�
 handlerEvents.cannotFindCommand = "❌ 𝖨𝗆𝗉𝗈𝗌𝗌𝗂𝖻𝗅𝖾 𝖽𝖾 𝗍𝗋𝗈𝗎𝗏𝖾𝗋 \"%1\" 𝖽𝖺𝗇𝗌 𝗆𝗈𝗇 𝗋𝖾𝗀𝗂𝗌𝗍𝗋𝖾."
 
 # bot/autoUptime.js
-autoUptime.autoUptimeTurnedOn = "🚀 𝖬𝗈𝖽𝖾 𝖠𝗎𝗍𝗈𝖴𝗉𝗍𝗂𝗆𝖾 𝖺𝖼𝗍𝗂𝗏é ! 𝖩𝖾 𝗋𝖾𝗌𝗍𝖾 é𝗏𝖾𝗂𝗅𝗅é𝖾 𝘱𝗈𝗎𝗋 𝗍𝗈𝗂. ✨"
+autoUptime.autoUptimeTurnedOn = "🚀 𝖬𝗈𝖽𝖾 𝖠𝗎𝗍𝗈𝖴𝗉𝗍𝗂𝗆𝖾 𝖺𝖼𝗍𝗂𝗏é ! 𝖩𝖾 𝗋𝖾𝗌𝗍𝖾 é𝗏𝖾𝗂𝗅𝗅é𝖾 𝗉𝗈𝗎𝗋 𝗍𝗈𝗂. ✨"
 
 # database/controller/index.js
 indexController.connectingMongoDB = "🔄 𝖢𝗈𝗇𝗇𝖾𝗍𝗂𝗈𝗇 à 𝖬𝗈𝗇𝗀𝗈𝖣𝖡 𝖾𝗇 𝖼𝗈𝗎𝗋𝗌..."
@@ -125,11 +125,11 @@ indexController.connectMySQLSuccess = "📁 𝖢𝗈𝗇𝗇𝖾𝗍𝗂𝗈𝗇
 
 # updater.js
 updater.updateTooFast = "✋ 𝖠𝗍𝗍𝖾𝗇𝖽𝗌 𝗎𝗇 𝘱𝖾𝗎 ! 𝖫𝖺𝗂𝗌𝗌𝖾-𝗆𝗈𝗂 5 𝗆𝗂𝗇𝗎𝗍𝖾𝗌 𝖺𝗏𝖺𝗇𝗍 𝖽𝖾 𝗋𝖾𝗆𝖾𝗍𝗍𝗋𝖾 à 𝗃𝗈𝗎𝗋. 𝖱𝖾𝗌𝗍𝖾 %1𝗆 %2𝗌. 🙄"
-updater.latestVersion = "✨ 𝖳𝗎 𝖺𝗌 𝖽é𝗃à 𝗅𝖺 𝖽𝖾𝗋𝗇𝗂è𝗋𝖾 𝗏𝖾𝗋𝗌𝗂𝗈𝗇 ! 𝖯𝖺𝗌 𝖻𝖾𝗌𝗈𝗂𝗇 𝖽𝖾 𝗆'𝖾𝗆𝻀ê𝗍𝖾𝗋. 😜"
+updater.latestVersion = "✨ 𝖳𝗎 𝖺𝗌 𝖽é𝗃à 𝗅𝖺 𝖽𝖾𝗋𝗇𝗂è𝗋𝖾 𝗏𝖾𝗋𝗌𝗂𝗈𝗇 ! 𝖯𝖺𝗌 𝖻𝖾𝗌𝗈𝗂𝗇 𝖽𝖾 𝗆'𝖾𝗆𝖻ê𝗍𝖾𝗋. 😜"
 updater.newVersions = "📢 𝖮𝗁, 𝗂𝗅 𝗒 𝖺 %1 𝗇𝗈𝗎𝗏𝖾𝗅𝗅𝖾𝗌 𝗆𝗂𝗌𝖾𝗌 à 𝗃𝗈𝗎𝗋... 𝖩𝖾 𝗆'𝖾𝗇 𝗈𝖼𝖼𝗎𝗉𝖾 !"
 updater.updateSuccess = "🎉 𝖬𝗂𝗌𝖾 à 𝗃𝗈𝗎𝗋 𝗋é𝗎𝗌𝗌𝗂𝖾 𝖾𝗇 %1 ! 𝖩𝖾 𝗌𝗎𝗂𝗌 𝗍𝗈𝗎𝗍𝖾 𝗇𝖾𝗎𝗏𝖾. 💖"
-updater.installingPackages = "📦 𝖩’𝗂𝗇𝗌𝗍𝖺𝗅𝗅𝖾 𝗅𝖾𝗌 𝖽é𝘱𝖾𝗇𝖽𝖺𝗇𝖼𝖾𝗌, 𝗇𝖾 𝗍𝗈𝗎𝗏𝗁𝖾 à 𝗋𝗂𝐞𝗇..."
-updater.installSuccess = "✅ 𝖨𝗇𝗌𝗍𝖺𝗅𝗅𝖺𝗍𝗂𝗈𝗇 𝗍𝖾𝗋𝗆𝗂𝗇é𝖾 ! 𝖱𝖾𝖽é𝗆𝖺𝗋𝗋𝖾-𝗆𝗈𝗂 𝘱𝗈𝗎𝗋 𝗏𝗈𝗂𝗋 ! ✨"
+updater.installingPackages = "📦 𝖩’𝗂𝗇𝗌𝗍𝖺𝗅𝗅𝖾 𝗅𝖾𝗌 𝖽é𝘱𝖾𝗇𝖽𝖺𝗇𝖼𝖾𝗌, 𝗇𝖾 𝗍𝗈𝗎𝖼𝗁𝖾 à 𝗋𝗂𝖾𝗇..."
+updater.installSuccess = "✅ 𝖨𝗇𝗌𝗍𝖺𝗅𝗅𝖺𝗍𝗂𝗈𝗇 𝗍𝖾𝗋𝗆𝗂𝗇é𝖾 ! 𝖱edé𝗆𝖺𝗋𝗋𝖾-𝗆𝗈𝗂 𝘱𝗈𝗎𝗋 𝗏𝗈𝗂𝗋 ! ✨"
 updater.backupSuccess = "🗄️ 𝖲𝖺𝗎𝗏𝖾𝗀𝖺𝗋𝖽𝖾 𝖿𝖺𝗂𝗍𝖾 𝖺𝗏𝖾𝖼 𝗌𝗎𝖼𝖼è𝗌 𝖽𝖺𝗇𝗌 𝗅𝖾 𝖽𝗈𝗌𝗌𝗂𝖾𝗋 %1."
 
 # dashboard/routes/verifyfbid.js
@@ -139,7 +139,7 @@ verifyfbid.sendCode = "🔑 𝖳𝗂𝖾𝗇𝗌, 𝗏𝗈𝗂𝖼𝗂 𝗍𝗈�
 utils.errorOccurred = "❌ 𝖬𝗂𝗇𝖼𝖾, 𝗎𝗇𝖾 𝖾𝗋𝗋𝖾𝗎𝗋 𝖾𝗌𝗍 𝖺𝗋𝗋𝗂𝗏é𝖾 :\n\n%1 😤"
 
 # for command
-command.restartedBot = "🔄 𝖢'𝖾𝗌𝗍 𝖻𝗈𝗇, 𝗃𝖾 𝗆𝖾 𝗌𝗎𝗂𝗌 𝗋𝖾𝖽é𝗆𝖺𝗋𝗋é𝖾 ! 𝖩𝖾 𝗌𝗎𝗂𝗌 𝖾𝗇 𝘱𝗅𝖾𝗂𝗇𝖾 𝖿𝗈𝗋𝗆𝖾. ✨"
+command.restartedBot = "🔄 𝖢'𝖾𝗌𝗍 𝖻𝗈𝗇, 𝗃𝖾 𝗆𝖾 𝗌𝗎𝗂𝗌 𝗋edé𝗆𝖺𝗋𝗋é𝖾 ! 𝖩𝖾 𝗌𝗎𝗂𝗌 𝖾𝗇 𝘱𝗅𝖾𝗂𝗇𝖾 𝖿𝗈𝗋𝗆𝖾. ✨"
 
 # dashboard/app.js
 app.tooManyRequests = "🛑 𝖮𝗁𝗅𝖺𝗅𝖺 ! 𝖳𝗋𝗈𝗉 𝖽𝖾 𝗋𝖾𝗊𝗎ê𝗍𝖾𝗌 ! 𝖫𝖺𝗂𝗌𝗌𝖾-𝗆𝗈𝗂 𝗌𝗈𝗎𝖿𝖿𝗅𝖾𝗋 𝖾𝗍 𝗋é𝖾𝗌𝗌𝖺𝗂𝖾 𝘱𝗅𝗎𝗌 𝗍𝖺𝗋𝖽 ! 😤"

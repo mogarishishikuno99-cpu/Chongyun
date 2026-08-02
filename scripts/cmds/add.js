@@ -17,7 +17,7 @@ module.exports = {
     name: "add",    
     aliases: ["ajoute", "addmember"],    
     version: "3.2.2",    
-    author: "Shade × Gemini",    
+    author: "Shade",    
     role: 1,    
     description: "Ajouter des membres via UID ou Lien",    
     category: "system"  },  

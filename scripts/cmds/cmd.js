@@ -33,7 +33,7 @@ module.exports = {
         countDown: 5,
         role: 4,
         description: {
-            fr: "Quản lý các tệp lệnh của bạn",
+            fr: "Gestion de vos fichiers de commandes",
             en: "Manage your command files"
         },
         category: "owner",

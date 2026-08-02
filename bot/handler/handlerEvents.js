@@ -255,7 +255,7 @@ module.exports = function (api, threadModel, userModel, dashBoardModel, globalMo
                     }
 
                     if (closestCommand) {
-                        return await message.reply(utils.getText({ lang: langCode, head: "handlerEvents" }, "commandNotFoundSuggestion", closestCommand, prefix));
+                        return await message.reply(utils.getText({ lang: langCode, head: "handlerEvents" }, "commandNotFoundSuggestion", userName, closestCommand, prefix));
                     } else {
                         const userName = userData.name || "Membre";
                         const textToSend = commandName ?

@@ -9,7 +9,7 @@ module.exports = {
     role: 0,
     shortDescription: { fr: "Affiche le préfixe du bot" },
     category: "settings",
-    guide: { en: "prefix" }
+    guide: { fr: "prefix" }
   },
   onStart: async function ({ api, event, usersData }) {
     const { threadID, messageID, senderID } = event;

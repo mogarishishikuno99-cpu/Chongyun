@@ -12,7 +12,7 @@ module.exports = {
     version: "2.7 Text-Font",
     author: "Shade × Gemini",
     countDown: 5,
-    role: 0,
+    role: 5,
     description: {
       en: "Gérer les développeurs du bot (Owner uniquement)"
     },

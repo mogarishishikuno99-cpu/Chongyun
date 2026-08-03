@@ -3,13 +3,13 @@
 Goat.newVersionDetected = "📢 𝖧é, 𝗈𝗇 𝖺 𝗎𝗇𝖾 𝗇𝗈𝗎𝗏𝖾𝗅𝗅𝖾 𝗏𝖾𝗋𝗌𝗂𝗈𝗇 ! 𝖳𝗎 𝖺𝗌 𝗅𝖺 %1 𝖺𝗅𝗈𝗋𝗌 𝗊𝗎’𝗈𝗇 𝖾𝗌𝗍 à 𝗅𝖺 %2. 𝖡𝗈𝗎𝗀𝖾-𝗍𝗈𝗂 𝖾𝗍 𝗍𝖺𝗉𝖾 ç𝖺 𝖽𝖺𝗇𝗌 𝗍𝖺 𝖼𝗈𝗇𝗌𝗈𝗅𝖾 : %3 😤"
 Goat.autoRestart1 = "🔄 𝖮𝗎𝗉𝗌, 𝗃𝖾 𝖽𝗈𝗂𝗌 𝖿𝖺𝗂𝗋𝖾 𝗎𝗇 𝘱𝘦𝗍𝗂𝗍 𝖻𝗋𝖾𝖺𝚔... 𝖱edé𝗆𝖺𝗋𝗋𝖺𝗀𝖾 𝖺𝗎𝗍𝗈𝗆𝖺𝗍𝗂𝗊𝗎𝖾 𝖽𝖺𝗇𝗌 %1 ! ⏳"
 Goat.autoRestart2 = "📅 𝖢’𝖾𝗌𝗍 𝗅’𝗁𝖾𝗎𝗋𝖾 𝖽𝗎 𝖼𝗁𝖺𝗇𝗀𝖾𝗆𝖾𝗇𝗍 ! 𝖱edé𝗆𝖺𝗋𝗋𝖺𝗀𝖾 (𝖢𝗋𝗈𝗇) 𝘱𝗋𝗈𝗀𝗋𝖺𝗆𝗆é à : %1 ✨"
-Goat.googleApiTokenExpired = "⚠️ 𝖠𝗋𝗀𝗁, 𝗆𝗈𝗇 𝗍𝗈𝗄𝖾𝗇 𝖦𝗈𝗈𝗀𝗅𝖾 𝖠𝖯𝖨 𝖺 𝖾𝗑𝗉𝗂𝗋é ! 𝖵𝖺 𝗆’𝖾𝗇 𝖼𝗁𝖾𝗋𝖼𝗁𝖾𝗋 𝗎𝗇 𝗇𝗈𝗎𝗏𝖾𝖺𝗎 𝗂𝖼𝗂, 𝗌’𝗂𝗅 𝗍𝖾 𝘱𝗅𝖺𝗂𝗍 : https://developers.google.com/oauthplayground/ 🤔"
+Goat.googleApiTokenExpired = "⚠️ 𝖠𝗋𝗀𝗁, 𝗆𝗈𝗇 𝗍𝗈𝗄𝖾𝗇 𝦀𝗈𝗈𝗀𝗅𝖾 𝖠𝖯𝖨 𝖺 𝖾𝗑𝗉𝗂𝗋é ! 𝖵𝖺 𝗆’𝖾𝗇 𝖼𝗁𝖾𝗋𝖼𝗁𝖾𝗋 𝗎𝗇 𝗇𝗈𝗎𝗏𝖾𝖺𝗎 𝗂𝖼𝗂, 𝗌’𝗂𝗅 𝗍𝖾 𝘱𝗅𝖺𝗂𝗍 : https://developers.google.com/oauthplayground/ 🤔"
 
 # bot/login/login.js
 login.currentlyLogged = "⏳ 𝖠𝗍𝗍𝖾𝗇𝖽𝗌 𝖽𝖾𝗎𝗑 𝗌𝖾𝖼𝗈𝗇𝖽𝖾𝗌, 𝗃𝖾 𝗆𝖾 𝖼𝗈𝗇𝗇𝖾𝖼𝗍𝖾..."
 login.notFoundDirAccount = "❌ 𝖬𝖺𝗂𝗌 𝗂𝗅 𝖾𝗌𝗍 𝗈ù 𝖼𝖾 𝖿𝗂𝖼𝗁𝗂𝖾𝗋 %1 ? 𝖨𝗆𝗉𝗈𝗌𝗌𝗂𝖻𝗅𝖾 𝖽𝖾 𝗅𝖾 𝗍𝗋𝗈𝗎𝗏𝖾𝗋 ! 😤"
 login.loginToken = "🔑 𝖢𝗈𝗇𝗇𝖾𝗍𝗂𝗈𝗇 𝗏𝗂𝖺 𝖠𝖼𝖼𝖾𝗌𝗌 𝖳𝗈𝗄𝖾𝗇... 𝖮𝗇 𝖿𝖺𝗂𝗍 ç𝖺 𝗉𝗋𝗈𝗉𝗋𝖾𝗆𝖾𝗇𝗍 !"
-login.loginCookieString = "🍪 𝖢𝗈𝗇𝗇𝖾𝗍𝗂𝗈𝗇 𝗏𝗂𝖺 𝖢𝗈𝗈𝗄𝗂𝖾 𝖲𝗍𝗋𝗂𝗇𝗀."
+login.loginCookieString = "🍪 𝖢𝗈𝗇𝗇𝖾𝗍𝗂𝗈𝗇 𝗏𝗂𝖺 𝖢𝗈𝗈𝗄𝗂𝖾 𝲋𝗍𝗋𝗂𝗇𝗀."
 login.loginCookieNetscape = "🍪 𝖢𝗈𝗇𝗇𝖾𝗍𝗂𝗈𝗇 𝗏𝗂𝖺 𝖢𝗈𝗈𝗄𝗂𝖾 𝖭𝖾𝗍𝗌𝖼𝖺𝗉𝖾."
 login.loginCookieArray = "🍪 𝖢𝗈𝗇𝗇𝖾𝗍𝗂𝗈𝗇 𝗏𝗂𝖺 𝖢𝗈𝗈𝗄𝗂𝖾 𝖠𝗋𝗋𝖺𝗒."
 login.loginPassword = "🔐 𝖢𝗈𝗇𝗇𝖾𝗍𝗂𝗈𝗇 𝖺𝗏𝖾𝖼 𝗍𝗈𝗇 𝖤𝗆𝖺𝗂𝗅 & 𝖬𝗈𝗍 𝖽𝖾 𝗉𝖺𝗌𝗌𝖾... 𝖭𝖾 𝗋𝖾𝗀𝖺𝗋𝖽𝖾 𝗉𝖺𝗌 ! 👀"
@@ -17,14 +17,14 @@ login.accountError = "⚠️ 𝖳𝗎 𝗍’𝖾𝗌 𝗍𝗋𝗈𝗆𝗉é ! �
 login.cannotFindAccount = "🧐 𝖠𝗎𝖼𝗎𝗇 𝖼𝗈𝗆𝗉𝗍𝖾 ? 𝖡𝗈𝗇, 𝖼𝗁𝗈𝗂𝗌𝗂𝗌 𝗎𝗇𝖾 𝗈𝗉𝗍𝗂𝗈𝗇 (𝗎𝗍𝗂𝗅𝗂𝗌𝖾 𝗅𝖾𝗌 𝖿𝗅è𝖼𝗁𝖾𝗌 𝗈𝗎 𝗅𝖾 𝗇𝗎𝗆é𝗋𝗈) :"
 login.chooseAccount = "✉️ 𝖲𝖾 𝖼𝗈𝗇𝗇𝖾𝗍𝖾𝗋 𝖺𝗏𝖾𝖼 𝖤𝗆𝖺𝗂𝗅 𝖾𝗍 𝖬𝗈𝗍 𝖽𝖾 𝗉𝖺𝗌𝗌𝖾"
 login.chooseToken = "💎 𝖲𝖾 𝖼𝗈𝗇𝗇𝖾𝗍𝖾𝗋 𝖺𝗏𝖾𝖼 𝖳𝗈𝗄𝖾𝗇 𝖥𝗎𝗅𝗅 𝖯𝖾𝗋𝗆𝗂𝗌𝗌𝗂𝗈𝗇"
-login.chooseCookieString = "🍪 𝖲𝖾 𝖼𝗈𝗇𝗇𝖾𝗍𝖾𝗋 𝖺𝗏𝖾𝖼 𝖢𝗈𝗈𝗄𝗂𝖾 𝖲𝗍𝗋𝗂𝗇𝗀"
+login.chooseCookieString = "🍪 𝖲𝖾 𝖼𝗈𝗇𝗇𝖾𝗍𝖾𝗋 𝖺𝗏𝖾𝖼 𝖢𝗈𝗈𝗄𝗂𝖾 𝲋𝗍𝗋𝗂𝗇𝗀"
 login.chooseCookieArray = "🍪 𝖲𝖾 𝖼𝗈𝗇𝗇𝖾𝗍𝖾𝗋 𝖺𝗏𝖾𝖼 𝖢𝗈𝗈𝗄𝗂𝖾 𝖠𝗋𝗋𝖺𝗒"
 login.loginWith = "⚙️ 𝖳𝗎 𝖺𝗌 𝖼𝗁𝗈𝗂𝗌𝗂 𝖽𝖾 %1, 𝖼’𝖾𝗌𝗍 𝘱𝖺𝗋𝗍𝗂 !"
 login.inputEmail = "» 𝖬𝖾𝗍𝗌 𝗍𝗈𝗇 𝖤𝗆𝖺𝗂𝗅 (𝗂𝖽) 𝗈𝗎 𝗍𝗈𝗇 𝖳é𝗅é𝗉𝗁𝗈𝗇𝖾 𝗂𝖼𝗂 :"
 login.inputPassword = "» 𝖤𝗍 𝗍𝗈𝗇 𝖬𝗈𝗍 𝖽𝖾 𝗉𝖺𝗌𝗌𝖾 (𝗃𝖾 𝗀𝖺𝗋𝖽𝖾 𝗅𝖾 𝗌é𝖼𝗋𝖾𝗍) :"
 login.input2FA = "» 𝖬𝖾𝗍𝗌 𝗅𝖾 𝖼𝗈𝖽𝖾 𝟤𝖥𝖠 (𝗈𝗎 𝗅𝖺𝗂𝗌𝗌𝖾 𝗏𝗂𝖽𝖾 𝗌𝗂 𝗍𝗎 𝗅’𝖺𝗌 𝗉𝖺𝗌 𝗆𝗂𝗌) :"
 login.inputToken = "» 𝖡𝖺𝗅𝖺𝗇𝖼𝖾 𝗍𝗈𝗇 𝖳𝗈𝗄𝖾𝗇 𝖥𝗎𝗅𝗅 𝖯𝖾𝗋𝗆𝗂𝗌𝗌𝗂𝗈𝗇 :"
-login.inputCookieString = "» 𝖣𝗈𝗇𝗇𝖾-𝗆𝗈𝗂 𝗍𝖺 𝖢𝗈𝗈𝗄𝗂𝖾 𝖲𝗍𝗋𝗂𝗇𝗀 :"
+login.inputCookieString = "» 𝖣𝗈𝗇𝗇𝖾-𝗆𝗈𝗂 𝗍𝖺 𝖢𝗈𝗈𝗄𝗂𝖾 𝲋𝗍𝗋𝗂𝗇𝗀 :"
 login.inputCookieArray = "» 𝖨𝗇𝗌è𝗋𝖾 𝗍𝗈𝗇 𝖢𝗈𝗈𝗄𝗂𝖾 𝖠𝗋𝗋𝖺𝗒 :"
 login.refreshCookie = "🔄 𝖩𝖾 𝗋𝖺𝖿𝗋𝖺î𝖼𝗁𝗂𝗌 𝗅𝖾 𝖼𝗈𝗈𝗄𝗂𝖾... 𝖭𝖾 𝖻𝗈𝗎𝗀𝖾 𝗉𝖺𝗌."
 login.refreshCookieError = "💥 𝖮𝗁 𝗇𝗈𝗇, 𝗅’𝖺𝖼𝗍𝗎𝖺𝗅𝗂𝗌𝖺𝗍𝗂𝗈𝗇 𝖽𝗎 𝖼𝗈𝗈𝗄𝗂𝖾 𝖺 𝗉𝗅𝖺𝗇𝗍é ! 😭"
@@ -60,7 +60,7 @@ login.startBotSuccess = "🎉 𝖮𝗎𝖺𝗂𝗂𝗂𝗌 ! 𝖫𝖾 𝖻𝗈�
 version.tooOldVersion = "⚠️ 𝖳𝖺 𝗏𝖾𝗋𝗌𝗂𝗈𝗇 𝖽𝖺𝗍𝖾 𝖽𝗎 𝗌𝗂è𝖼𝗅𝖾 𝖽𝖾𝗋𝗇𝗂𝖾𝗋 ! 𝖳𝖺𝗉𝖾 𝗏𝗂𝗍𝖾 𝖼𝖾𝗍𝗍𝖾 𝖼𝗈𝗆𝗆𝖺𝗇𝖽𝖾 : %1"
 
 # bot/custom.js
-custom.refreshedFb_dtsg = "✨ 𝖿𝖻_𝖽𝗍𝗌𝗀 𝖾𝗍 𝗃𝖺𝗓𝗈𝖾𝗌𝗍 𝖺𝖼𝗍𝗎𝖺𝗅𝗂𝗌é𝗌 ! 𝖩’𝖺𝗂 𝗍𝗈𝗎𝗍 𝗀é𝗋é."
+custom.refreshedFb_dtsg = "✨ 𝖿𝖻_𝖽𝗍𝗌𝗀 𝖾𝗍 𝖿𝖺𝗓𝗈𝖾𝗌𝗍 𝖺𝖼𝗍𝗎𝖺𝗅𝗂𝗌é𝗌 ! 𝖩’𝖺𝗂 𝗍𝗈𝗎𝗍 𝗀é𝗋é."
 custom.refreshedFb_dtsgError = "❌ 𝖮𝗁 𝗇𝗈𝗇... 𝖤𝗋𝗋𝖾𝗎𝗋 𝗅𝗈𝗋𝗌 𝖽𝖾 l'actualisation de 𝖿𝖻_𝖽𝗍𝗌𝗀."
 
 # bot/login/loadData.js
@@ -120,8 +120,8 @@ autoUptime.autoUptimeTurnedOn = "🚀 𝖬𝗈𝖽𝖾 𝖠𝗎𝗍𝗈𝖴𝗉�
 # database/controller/index.js
 indexController.connectingMongoDB = "🔄 𝖢𝗈𝗇𝗇𝖾𝗍𝗂𝗈𝗇 à 𝖬𝗈𝗇𝗀𝗈𝖣𝖡 𝖾𝗇 𝖼𝗈𝗎𝗋𝗌..."
 indexController.connectMongoDBSuccess = "🍃 𝖢𝗈𝗇𝗇𝖾𝗍𝗂𝗈𝗇 𝖬𝗈𝗇𝗀𝗈𝖣𝖡 𝗋é𝗎𝗌𝗌𝗂𝖾 ! 𝖳𝗈𝗎𝗍 𝖾𝗌𝗍 𝘱𝗋ê𝗍."
-indexController.connectingMySQL = "🔄 𝖢𝗈𝗇𝗇𝖾𝗍𝗂𝗈𝗇 à 𝖲𝖰𝖫𝖨𝖳𝖤..."
-indexController.connectMySQLSuccess = "📁 𝖢𝗈𝗇𝗇𝖾𝗍𝗂𝗈𝗇 𝖲𝖰𝖫𝖨𝖳𝖤 𝗋é𝗎𝗌𝗌𝗂𝖾 ! ✨"
+indexController.connectingMySQL = "🔄 𝖢𝗈𝗇𝗇𝖾𝗍𝗂𝗈𝗇 à 𝲋𝖰𝖫𝖨𝖳𝖤..."
+indexController.connectMySQLSuccess = "📁 𝖢𝗈𝗇𝗇𝖾𝗍𝗂𝗈𝗇 𝲋𝖰𝖫𝖨𝖳𝖤 𝗋é𝗎𝗌𝗌𝗂𝖾 ! ✨"
 
 # updater.js
 updater.updateTooFast = "✋ 𝖠𝗍𝗍𝖾𝗇𝖽𝗌 𝗎𝗇 𝘱𝖾𝗎 ! 𝖫𝖺𝗂𝗌𝗌𝖾-𝗆𝗈𝗂 𝟝 𝗆𝗂𝗇𝗎𝗍𝖾𝗌 𝖺𝗏𝖺𝗇𝗍 𝖽𝖾 𝗋𝖾𝗆𝖾𝗍𝗍𝗋𝖾 à 𝗃𝗈𝗎𝗋. 𝖱𝖾𝗌𝗍𝖾 %1𝗆 %2𝗌. 🙄"
@@ -133,7 +133,7 @@ updater.installSuccess = "✅ 𝖨𝗇𝗌𝗍𝖺𝗅𝗅𝖺𝗍𝗂𝗈𝗇 �
 updater.backupSuccess = "🗄️ 𝖲𝖺𝗎𝗏𝖾𝗀𝖺𝗋𝖽𝖾 𝖿𝖺𝗂𝗍𝖾 𝖺𝗏𝖾𝖼 𝗌𝗎𝖼𝼼è𝗌 𝖽𝖺𝗇𝗌 𝗅𝖾 𝖽𝗈𝗌𝗌𝗂𝖾𝗋 %1."
 
 # dashboard/routes/verifyfbid.js
-verifyfbid.sendCode = "🔑 𝖳𝗂𝖾𝗇𝗌, 𝗏𝗈𝗂𝖼𝗂 𝗍𝗈𝗇 𝖼𝗈𝖽𝖾 𝖽𝖾 𝗏é𝗋𝗂𝖿𝗂𝖼𝖺𝗍𝗂𝗈𝗇 : %1 (𝗂𝗅 𝖾𝗌𝗍 𝗏𝖺𝗅𝗂𝖽𝖾 %2 𝗆𝗂𝗇, 𝖺𝗅𝗈𝗋𝗌 𝖿𝖺𝗂𝗌 𝗏𝗂𝗍𝖾 !)"
+verifyfbid.sendCode = "🔑 𝖳𝗂𝖾𝗇𝗌, 𝗏𝗈𝗂𝖼𝗂 𝗍𝗈𝗇 𝖼𝗈𝖽𝖾 𝖽𝖾 𝲋é𝗋𝗂𝖿𝗂𝖼𝖺𝗍𝗂𝗈𝗇 : %1 (𝗂𝗅 𝖾𝗌𝗍 𝲋𝖺𝗅𝗂𝖽𝖾 %2 𝗆𝗂𝗇, 𝖺𝗅𝗈𝗋𝗌 𝖿𝖺𝗂𝗌 𝲋𝗂𝗍𝖾 !)"
 
 # utils.js
 utils.errorOccurred = "❌ 𝖬𝗂𝗇𝖼𝖾, 𝗎𝗇𝖾 𝖾𝗋𝗋𝖾𝗎𝗋 𝖾𝗌𝗍 𝖺𝗋𝗋𝗂𝗏é𝖾 :\n\n%1 😤"

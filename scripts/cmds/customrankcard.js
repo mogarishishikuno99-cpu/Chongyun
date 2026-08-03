@@ -1,6 +1,7 @@
 // 🌸 Hori Custom Rank Card Terminal 🌸
 const checkUrlRegex = /https?:\/\/.*\.(?:png|jpg|jpeg|gif)/gi;
 const regExColor = /#([0-9a-f]{6})|rgb\((\d{1,3}),\s*(\d{1,3}),\s*(\d{1,3})\)|rgba\((\d{1,3}),\s*(\d{1,3}),\s*(\d{1,3}),\s*(\d+\.?\d*)\)/gi;
+const fonts = require("../func/fonts.js");
 const { uploadImgbb } = global.utils;
 
 module.exports = {
@@ -12,26 +13,14 @@ module.exports = {
     countDown: 5,
     role: 0,
     description: {
-      vi: "Thiết kế thẻ rank theo ý bạn 🌸",
       en: "Design your custom dynamic rank card interface."
     },
     category: "utility",
     guide: {
-      vi: "🌸 {pn} maincolor #f43f5e",
-      en: "🌸 {pn} maincolor #f43f5e"
+      en: fonts.bold("🌸 {pn} maincolor #f43f5e")
     }
   },
-
   langs: {
-    vi: {
-      invalidImage: "❌ Đường dẫn hình ảnh không hợp lệ.",
-      invalidAttachment: "❌ Tệp được gửi không phải là hình ảnh.",
-      invalidColor: "❌ Mã màu không đúng định dạng.",
-      notSupportImage: "❌ Không hỗ trợ định dạng hình ảnh cho \"%1\".",
-      success: "🌸 Cấu hình đã được lưu thành công.",
-      reseted: "🌸 Đã đặt lại cấu hình giao diện mặc định.",
-      invalidAlpha: "❌ Chỉ số độ trong suốt (Alpha) phải nằm trong khoảng từ 0 đến 1."
-    },
     en: {
       invalidImage: "❌ Invalid target image URL link.",
       invalidAttachment: "❌ The provided component is not a valid image file.",
@@ -42,51 +31,45 @@ module.exports = {
       invalidAlpha: "❌ Opacity transparency value must be range between 0 ⟶ 1."
     }
   },
-
   onStart: async function ({ message, threadsData, event, args, getLang, usersData, envCommands }) {
     if (!args[0]) return message.SyntaxError();
-
     const customRankCard = await threadsData.get(event.threadID, "data.customRankCard", {});
     const key = args[0].toLowerCase();
     let value = args.slice(1).join(" ");
-
     const supportImage = ["maincolor", "background", "bg", "subcolor", "expbarcolor", "progresscolor", "linecolor"];
     const notSupportImage = ["textcolor", "namecolor", "expcolor", "rankcolor", "levelcolor", "lvcolor"];
-
+    
     if ([...notSupportImage, ...supportImage].includes(key)) {
       const attachmentsReply = event.messageReply?.attachments;
       const attachments = [
         ...event.attachments.filter(({ type }) => ["photo", "animated_image"].includes(type)),
         ...attachmentsReply?.filter(({ type }) => ["photo", "animated_image"].includes(type)) || []
       ];
-
+      
       if (value === "reset") {
         // Mode reset géré dans le switch inférieur
       } else if (value.match(/^https?:\/\//)) {
         const matchUrl = value.match(checkUrlRegex);
-        if (!matchUrl) return message.reply(getLang("invalidImage"));
-
+        if (!matchUrl) return message.reply(fonts.christus(getLang("invalidImage")));
         const infoFile = await uploadImgbb(matchUrl[0], "url");
         value = infoFile.image.url;
       } else if (attachments.length > 0) {
         if (!["photo", "animated_image"].includes(attachments[0].type)) {
-          return message.reply(getLang("invalidAttachment"));
+          return message.reply(fonts.christus(getLang("invalidAttachment")));
         }
-
         const url = attachments[0].url;
         const infoFile = await uploadImgbb(url, "url");
         value = infoFile.image.url;
       } else {
         const colors = value.match(regExColor);
-        if (!colors) return message.reply(getLang("invalidColor"));
-
+        if (!colors) return message.reply(fonts.christus(getLang("invalidColor")));
         value = colors.length === 1 ? colors[0] : colors;
       }
-
+      
       if (value !== "reset" && notSupportImage.includes(key) && value.startsWith?.("http")) {
-        return message.reply(getLang("notSupportImage", key));
+        return message.reply(fonts.christus(getLang("notSupportImage", key)));
       }
-
+      
       switch (key) {
         case "maincolor":
         case "background":
@@ -122,12 +105,13 @@ module.exports = {
           value === "reset" ? delete customRankCard.exp_text_color : customRankCard.exp_text_color = value;
           break;
       }
-
+      
       try {
         await threadsData.set(event.threadID, customRankCard, "data.customRankCard");
-
         message.reply({
-          body: `✨ 🌸 **[ INTERFACE DE RENDU MISE À JOUR ]** 🌸 ✨\n━━━━━━━━━━━━━━━━━━━━━━━━━━\n📊 **Modification :** Définition de l'attribut [ ${key} ] effectuée.\n📈 **Statut :** Changements sauvegardés dans la base de données du salon.`,
+          body: fonts.christus("✨ 🌸 [ INTERFACE DE RENDU MISE À JOUR ] 🌸 ✨\n━━━━━━━━━━━━━━━━━━━━━━━━━━\n") + 
+                fonts.christus("Modification : ") + fonts.christus(`Définition de l'attribut [ ${key} ] effectuée.\n`) + 
+                fonts.christus("Statut : ") + fonts.christus("Changements sauvegardés dans la base de données du salon."),
           attachment: await global.client.makeRankCard(
             event.senderID,
             usersData,
@@ -144,16 +128,14 @@ module.exports = {
       }
     } else if (["alphasubcolor", "alphasubcard"].includes(key)) {
       if (parseFloat(value) < 0 || parseFloat(value) > 1) {
-        return message.reply(getLang("invalidAlpha"));
+        return message.reply(fonts.christus(getLang("invalidAlpha")));
       }
-
       customRankCard.alpha_subcard = parseFloat(value);
-
       try {
         await threadsData.set(event.threadID, customRankCard, "data.customRankCard");
-
         message.reply({
-          body: `✨ 🌸 **[ OPACITY INTERFACE OPTIMIZED ]** 🌸 ✨\n━━━━━━━━━━━━━━━━━━━━━━━━━━\n🛡️ Opacité de transparence mise à jour avec succès [ ${value} ]. Calibrage du visuel en cours.`,
+          body: fonts.christus("✨ 🌸 [ OPACITY INTERFACE OPTIMIZED ] 🌸 ✨\n━━━━━━━━━━━━━━━━━━━━━━━━━━\n") + 
+                fonts.christus(`Opacité de transparence mise à jour avec succès [ ${value} ]. Calibrage du visuel en cours.`),
           attachment: await global.client.makeRankCard(
             event.senderID,
             usersData,
@@ -171,7 +153,7 @@ module.exports = {
     } else if (key === "reset") {
       try {
         await threadsData.set(event.threadID, {}, "data.customRankCard");
-        message.reply(`✨ 🌸 **[ ARCHITECTURE INITIALISÉE ]** 🌸 ✨\n━━━━━━━━━━━━━━━━━━━━━━━━━━\n✅ Configuration réinitialisée. Les calques d'origine de la carte de niveau ont été restaurés.`);
+        message.reply(fonts.christus("✨ 🌸 [ ARCHITECTURE INITIALISÉE ] 🌸 ✨\n━━━━━━━━━━━━━━━━━━━━━━━━━━\nConfiguration réinitialisée. Les calques d'origine de la carte de niveau ont été restaurés."));
       } catch (err) {
         message.err(err);
       }

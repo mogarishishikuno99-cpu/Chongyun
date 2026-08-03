@@ -1,10 +1,8 @@
-const fs = require("fs");
+const fs = require("fs-extra");
 const path = require("path");
-const axios = require("axios");
-const { createCanvas, loadImage } = require("canvas");
+const fonts = require("../func/fonts.js");
 
 const DB_FILE = path.join(__dirname, "premium_codes.json");
-const FB_TOKEN = "6628568379%7Cc1e620fa708a1d5696fb991c1bde5662";
 
 function loadCodes() {
   if (!fs.existsSync(DB_FILE)) fs.writeFileSync(DB_FILE, "{}");
@@ -18,235 +16,176 @@ function saveCodes(data) {
 module.exports = {
   config: {
     name: "premium",
-    version: "6.5",
-    author: "Shade x Hori",
-    role: 2, // Seuls les Admins Généraux du bot peuvent utiliser cette commande
+    version: "8.0.0",
+    author: "Shade × Gemini",
+    role: 2, // Seuls les administrateurs du bot (Rôle 2) peuvent utiliser cette commande
     category: "system",
     description: {
-      fr: "Gestion sélective du statut premium avec des conditions de ciblage strictes.",
-      en: "Selective premium status management with strict targeting conditions."
+      fr: "Gestion des membres premium via le config.json (Format Texte avec Fonts)",
+      en: "Premium members management via config.json (Text Format with Fonts)"
+    },
+    guide: {
+      en: "{p}{n} list (-l) → Liste des membres premium\n{p}{n} add (-a) [@tag | uid | reply] → Ajouter le premium\n{p}{n} remove (-r) [@tag | uid | reply] → Retirer le premium\n{p}{n} check [@tag | uid | reply] → Vérifier le statut\n{p}{n} redeem [code] → Activer un code"
     }
   },
 
   onStart: async function ({ message, args, event, usersData }) {
-    if (!args[0]) {
-      return message.reply("Dis, tu as oublié l'action ! 🙄 Utilise : add, remove, check, list ou redeem ! ✨");
-    }
+    const { threadID, messageID, type, messageReply, mentions } = event;
 
-    const type = args[0].toLowerCase();
-    let targetID = null;
-
-    // --- 🎯 GESTION STRICTE DES ENTRÉES UTILISATEUR ---
-    if (type === "add") {
-      // ADD accepte : Tag OU Reply OU UID manuel
-      targetID =
-        event.mentions && Object.keys(event.mentions || {}).length > 0
-          ? Object.keys(event.mentions)[0]
-          : event.messageReply
-          ? event.messageReply.senderID
-          : args[1];
-    } else if (type === "remove" || type === "check") {
-      // REMOVE et CHECK acceptent UNIQUEMENT : Tag OU UID manuel
-      targetID =
-        event.mentions && Object.keys(event.mentions || {}).length > 0
-          ? Object.keys(event.mentions)[0]
-          : args[1];
-    }
-
-    if (!targetID && type !== "list" && type !== "redeem") {
-      if (type === "remove") {
-        return message.reply("Heu... Pour retirer un accès, tu dois obligatoirement mentionner (tag) l'utilisateur ou écrire son UID directement ! Pas de reply ici. 😤");
-      }
-      return message.reply("Heu... Je ne trouve pas cet utilisateur. Tu as bien mentionné quelqu'un, répondu à un message ou mis un ID valide ? 🤔");
-    }
-
-    let data = {};
-    if (targetID) {
-      data = await usersData.get(targetID) || { data: {} };
-      if (!data.data) data.data = {};
-    }
-
-    // --- 💎 ACTION : ADD ---
-    if (type === "add") {
-      // Récupère les jours sur args[2] si c'est un tag/UID manuel, ou args[1] si c'est un reply
-      let daysInput = event.messageReply ? args[1] : args[2];
-      const days = parseInt(daysInput) || 7;
-
-      data.data.premium = true;
-      data.data.premiumUntil = Date.now() + days * 24 * 60 * 60 * 1000;
-
-      await usersData.set(targetID, data);
-      return message.reply(`✨ Oh lala, quelle classe ! L'utilisateur (ID: ${targetID}) fait maintenant partie du club PREMIUM pour ${days} jours ! 💖 Ne t'y habitue pas trop non plus ! 😉`);
-    }
-
-    // --- ❌ ACTION : REMOVE ---
-    if (type === "remove") {
-      data.data.premium = false;
-      data.data.premiumUntil = null;
-
-      await usersData.set(targetID, data);
-      return message.reply(`💔 Oops ! C'est fini le traitement de faveur. Le statut Premium a été retiré pour l'UID ${targetID}. Retour à la normale ! 😜`);
-    }
-
-    // --- 🌸 ACTION : CHECK ---
-    if (type === "check") {
-      const now = Date.now();
-      const isPremium = data?.data?.premium && (!data?.data?.premiumUntil || data.data.premiumUntil > now);
-
-      if (isPremium) {
-        const remaining = data.data.premiumUntil ? Math.ceil((data.data.premiumUntil - now) / (1000 * 60 * 60 * 24)) : "l'infini";
-        return message.reply(`💎 Validé ! Cet utilisateur est bien PREMIUM ! Il lui reste environ ${remaining} jour(s). Quelle chance... ✨`);
-      } else {
-        return message.reply("❌ Désolée, mais cet utilisateur est un membre tout à fait ordinaire ! Pas de passe-droit ici. 🤫");
-      }
-    }
-
-    // --- 🎟️ ACTION : REDEEM ---
-    if (type === "redeem") {
-      const code = args[1];
-      if (!code) return message.reply("Tu essaies d'activer du vent ? Donne-moi un code premium valide ! 🙄");
-
-      let codes = loadCodes();
-      if (!codes[code]) {
-        return message.reply("Argh ! Ce code est complètement faux ou a déjà expiré ! Retente ta chance. 😤");
+    try {
+      // 1. Gestion de config.json
+      const configPath = path.join(process.cwd(), "config.json");
+      let botConfig = {};
+      if (fs.existsSync(configPath)) {
+        botConfig = fs.readJsonSync(configPath);
       }
 
-      const days = codes[code];
-      let senderData = await usersData.get(event.senderID) || { data: {} };
-      if (!senderData.data) senderData.data = {};
-
-      senderData.data.premium = true;
-      senderData.data.premiumUntil = (senderData.data.premiumUntil && senderData.data.premiumUntil > Date.now() ? senderData.data.premiumUntil : Date.now()) + days * 86400000;
-
-      await usersData.set(event.senderID, senderData);
-      delete codes[code];
-      saveCodes(codes);
-
-      return message.reply(`🎉 Code activé avec succès ! Tu gagnes +${days} jours PREMIUM ! Profites-en bien, c'est Hori qui régale ! ✨💖`);
-    }
-
-    // --- 📋 ACTION : LIST (AVEC CANVAS LUXE & AVATARS) ---
-    if (type === "list") {
-      let all = [];
-      try {
-        all = await usersData.getAll() || [];
-      } catch {
-        return message.reply("Aïe, ma mémoire flanche... Impossible de récupérer la liste des membres ! 💔");
+      // Initialisation du tableau premiumUser dans le config.json si absent
+      if (!Array.isArray(botConfig.premiumUser)) {
+        botConfig.premiumUser = [];
       }
 
-      const list = all.filter(u => u?.data?.premium && (!u?.data?.premiumUntil || u.data.premiumUntil > Date.now()));
-
-      if (!list.length) {
-        return message.reply("C'est bien calme ici... Aucun utilisateur n'est PREMIUM pour le moment ! 🌸");
+      if (!args[0]) {
+        const errAction = fonts.christus("Dis, tu as oublié l'action ! 👀 Utilise : add, remove, check, list ou redeem ! ✨");
+        return api.sendMessage(errAction, threadID, messageID);
       }
 
-      message.reply("Attends deux secondes, je sors le registre VIP... ⏳✨");
+      const subAction = args[0].toLowerCase();
+      let action = subAction;
+      if (subAction === "l" || subAction === "-l") action = "list";
+      if (subAction === "a" || subAction === "-a") action = "add";
+      if (subAction === "r" || subAction === "-r") action = "remove";
 
-      const width = 1000;
-      const rowHeight = 100;
-      const headerHeight = 180;
-      const height = headerHeight + (list.length * rowHeight) + 40;
+      let targetID = null;
 
-      const canvas = createCanvas(width, height);
-      const ctx = canvas.getContext("2d");
+      // --- 🎯 GESTION DE LA CIBLE ---
+      if (action === "add" || action === "remove" || action === "check") {
+        if (type === "message_reply" && messageReply) {
+          targetID = messageReply.senderID;
+        } else if (mentions && Object.keys(mentions).length > 0) {
+          targetID = Object.keys(mentions)[0];
+        } else if (args[1] && !args[1].startsWith("-") && !isNaN(args[1])) {
+          targetID = args[1].trim();
+        } else if (args[2] && !isNaN(args[2])) {
+          targetID = args[2].trim();
+        }
+      }
 
-      const bgGradient = ctx.createLinearGradient(0, 0, width, height);
-      bgGradient.addColorStop(0, "#0f0c1b");
-      bgGradient.addColorStop(0.5, "#18122b");
-      bgGradient.addColorStop(1, "#0d0214");
-      ctx.fillStyle = bgGradient;
-      ctx.fillRect(0, 0, width, height);
+      if (!targetID && action !== "list" && action !== "redeem") {
+        const errTarget = fonts.christus("Heu... Je ne trouve pas cet utilisateur. Tu as bien mentionné quelqu'un, répondu à un message ou mis un ID valide ? 🤔");
+        return api.sendMessage(errTarget, threadID, messageID);
+      }
 
-      ctx.strokeStyle = "rgba(255, 105, 180, 0.15)";
-      ctx.lineWidth = 3;
-      ctx.strokeRect(15, 15, width - 30, height - 30);
-
-      ctx.font = "bold 45px 'Segoe UI', Arial, sans-serif";
-      const titleGrad = ctx.createLinearGradient(0, 0, width, 0);
-      titleGrad.addColorStop(0.3, "#ff79c6");
-      titleGrad.addColorStop(0.7, "#bd93f9");
-      ctx.fillStyle = titleGrad;
-      ctx.textAlign = "center";
-      ctx.fillText("💎 HORI'S LUXURY PREMIUM LIST 💎", width / 2, 85);
-
-      ctx.font = "italic 20px Arial";
-      ctx.fillStyle = "#8be9fd";
-      ctx.fillText(`Membres privilégiés en date d'aujourd'hui • Total : ${list.length}`, width / 2, 125);
-
-      let y = headerHeight;
-
-      for (let i = 0; i < list.length; i++) {
-        const u = list[i];
-        const name = u.name || `Utilisateur inconnu (${u.userID})`;
-        
-        ctx.fillStyle = i % 2 === 0 ? "rgba(255, 255, 255, 0.04)" : "rgba(255, 255, 255, 0.01)";
-        ctx.fillRect(40, y - 20, width - 80, rowHeight - 10);
-
-        ctx.font = "bold 28px Arial";
-        ctx.fillStyle = "#ffb86c";
-        ctx.textAlign = "left";
-        ctx.fillText(`#${i + 1}`, 60, y + 35);
-
-        const avatarUrl = `https://graph.facebook.com/${u.userID}/picture?width=200&access_token=${FB_TOKEN}`;
-        try {
-          const imgBuffer = await axios.get(avatarUrl, { responseType: "arraybuffer" });
-          const img = await loadImage(Buffer.from(imgBuffer.data));
-
-          ctx.save();
-          ctx.beginPath();
-          ctx.arc(160, y + 25, 35, 0, Math.PI * 2, true);
-          ctx.closePath();
-          ctx.clip();
-          ctx.drawImage(img, 125, y - 10, 70, 70);
-          ctx.restore();
-
-          ctx.strokeStyle = "#ffb86c";
-          ctx.lineWidth = 2;
-          ctx.beginPath();
-          ctx.arc(160, y + 25, 36, 0, Math.PI * 2, true);
-          ctx.stroke();
-        } catch {
-          ctx.fillStyle = "#ff79c6";
-          ctx.beginPath();
-          ctx.arc(160, y + 25, 35, 0, Math.PI * 2, true);
-          ctx.fill();
+      // --- 💎 ACTION : ADD ---
+      if (action === "add") {
+        if (botConfig.premiumUser.includes(targetID)) {
+          const errAlready = fonts.christus("💡 Cet utilisateur est déjà enregistré comme premium.");
+          return api.sendMessage(errAlready, threadID, messageID);
         }
 
-        ctx.font = "bold 26px 'Segoe UI', Arial";
-        ctx.fillStyle = "#ffffff";
-        ctx.fillText(name, 220, y + 25);
+        botConfig.premiumUser.push(targetID);
+        fs.writeJsonSync(configPath, botConfig, { spaces: 2 });
 
-        ctx.font = "18px Arial";
-        if (!u.data.premiumUntil) {
-          ctx.fillStyle = "#50fa7b";
-          ctx.fillText("👑 ACCÈS À VIE", 220, y + 53);
+        // Synchronisation globale en mémoire
+        if (global.config) global.config.premiumUser = botConfig.premiumUser;
+        if (global.GoatBot && global.GoatBot.config) global.GoatBot.config.premiumUser = botConfig.premiumUser;
+
+        const targetName = await usersData.getName(targetID) || "Utilisateur(ice) Facebook";
+        const formattedTitle = fonts.christus("✓  | Added premium role for 1 users:\n• ");
+        const formattedName = fonts.christus(targetName);
+        const finalMsg = `${formattedTitle}${formattedName} (${targetID})`;
+
+        return api.sendMessage(finalMsg, threadID, messageID);
+      }
+
+      // --- ❌ ACTION : REMOVE ---
+      if (action === "remove") {
+        if (!botConfig.premiumUser.includes(targetID)) {
+          const errNot = fonts.christus("❌ Cet utilisateur n'est pas enregistré comme premium.");
+          return api.sendMessage(errNot, threadID, messageID);
+        }
+
+        botConfig.premiumUser = botConfig.premiumUser.filter(id => id !== targetID);
+        fs.writeJsonSync(configPath, botConfig, { spaces: 2 });
+
+        // Synchronisation globale en mémoire
+        if (global.config) global.config.premiumUser = botConfig.premiumUser;
+        if (global.GoatBot && global.GoatBot.config) global.GoatBot.config.premiumUser = botConfig.premiumUser;
+
+        const targetName = await usersData.getName(targetID) || "Utilisateur(ice) Facebook";
+        const formattedTitle = fonts.christus("✓ | Removed premium role of 1 users:\n• ");
+        const formattedName = fonts.christus(targetName);
+        const finalMsg = `${formattedTitle}${formattedName} (${targetID})`;
+
+        return api.sendMessage(finalMsg, threadID, messageID);
+      }
+
+      // --- 🌸 ACTION : CHECK ---
+      if (action === "check") {
+        const isPremium = botConfig.premiumUser.includes(targetID);
+        if (isPremium) {
+          const checkMsg = fonts.christus("💎 Validé ! Cet utilisateur fait bien partie des membres PREMIUM ! ✨");
+          return api.sendMessage(checkMsg, threadID, messageID);
         } else {
-          const dateStr = new Date(u.data.premiumUntil).toLocaleDateString("fr-FR");
-          ctx.fillStyle = "#ff5555";
-          ctx.fillText(`📅 Jusqu'au : ${dateStr}`, 220, y + 53);
+          const checkNo = fonts.christus("❌ Désolée, mais cet utilisateur est un membre tout à fait ordinaire ! Pas de passe-droit ici. 🤫");
+          return api.sendMessage(checkNo, threadID, messageID);
         }
-
-        ctx.fillStyle = "rgba(189, 147, 249, 0.2)";
-        ctx.fillRect(width - 170, y + 10, 110, 30);
-        ctx.font = "bold 14px Arial";
-        ctx.fillStyle = "#bd93f9";
-        ctx.textAlign = "center";
-        ctx.fillText("ACTIVE VIP", width - 115, y + 30);
-
-        y += rowHeight;
       }
 
-      const file = path.join(__dirname, "premium_list_luxe.png");
-      fs.writeFileSync(file, canvas.toBuffer("image/png"));
+      // --- 🎟️ ACTION : REDEEM ---
+      if (action === "redeem") {
+        const code = args[1];
+        if (!code) {
+          const errCode = fonts.christus("Tu essaies d'activer du vent ? Donne-moi un code premium valide ! 🧎");
+          return api.sendMessage(errCode, threadID, messageID);
+        }
+        let codes = loadCodes();
+        if (!codes[code]) {
+          const errWrong = fonts.christus("Argh ! Ce code est complètement faux ou a déjà expiré ! Retente ta chance. 😜");
+          return api.sendMessage(errWrong, threadID, messageID);
+        }
+        
+        // Si le redeem est validé, on ajoute l'expéditeur (senderID) au config.json s'il n'y est pas déjà
+        if (!botConfig.premiumUser.includes(event.senderID)) {
+          botConfig.premiumUser.push(event.senderID);
+          fs.writeJsonSync(configPath, botConfig, { spaces: 2 });
+          if (global.config) global.config.premiumUser = botConfig.premiumUser;
+          if (global.GoatBot && global.GoatBot.config) global.GoatBot.config.premiumUser = botConfig.premiumUser;
+        }
 
-      return message.reply({
-        body: "Et voilà la liste ! Ils ont pas la classe mes petits protégés ? 😎💎",
-        attachment: fs.createReadStream(file)
-      }, () => {
-        if (fs.existsSync(file)) fs.unlinkSync(file);
-      });
+        const days = codes[code];
+        delete codes[code];
+        saveCodes(codes);
+
+        const redMsg = fonts.christus(`🎉 Code activé avec succès ! Tu gagnes le statut PREMIUM permanent ! Profites-en bien ! 😊`);
+        return api.sendMessage(redMsg, threadID, messageID);
+      }
+
+      // --- 📋 ACTION : LIST (TEXTE + FONTS) ---
+      if (action === "list") {
+        if (!botConfig.premiumUser.length) {
+          const emptyMsg = fonts.christus("C'est bien calme ici... Aucun utilisateur n'est PREMIUM pour le moment ! 🌸");
+          return api.sendMessage(emptyMsg, threadID, messageID);
+        }
+
+        let msg = fonts.christus("★ | 𝗟𝗂𝗌𝗍 𝗈𝖿 𝗉𝗋𝖾𝗆𝗂𝗎𝗆 𝗎𝗌𝖾𝗋𝗌:\n");
+        for (let i = 0; i < botConfig.premiumUser.length; i++) {
+          const uid = botConfig.premiumUser[i];
+          const name = await usersData.getName(uid) || "Utilisateur inconnu";
+          const formattedName = fonts.christus(name);
+          
+          msg += `• ${formattedName} (${uid}) - ${fonts.christus("Permanent")}\n`;
+        }
+
+        return api.sendMessage(msg.trim(), threadID, messageID);
+      }
+
+      const errSyntax = fonts.christus("Hum... Tu parles une autre langue ? Je ne comprends pas cette sous-commande. 🤨");
+      return api.sendMessage(errSyntax, threadID, messageID);
+
+    } catch (err) {
+      console.error("PREMIUM ERROR:", err);
+      return message.reply("❌ Une erreur est survenue lors de la lecture du fichier de configuration.");
     }
-
-    return message.reply("Hum... Tu parles une autre langue ? Je ne comprends pas cette sous-commande. 🤨");
   }
 };

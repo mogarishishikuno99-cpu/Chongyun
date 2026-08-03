@@ -16,7 +16,7 @@ function saveCodes(data) {
 module.exports = {
   config: {
     name: "premium",
-    version: "8.0.0",
+    version: "8.0.1",
     author: "Shade × Gemini",
     role: 2, // Seuls les administrateurs du bot (Rôle 2) peuvent utiliser cette commande
     category: "system",
@@ -29,7 +29,7 @@ module.exports = {
     }
   },
 
-  onStart: async function ({ message, args, event, usersData }) {
+  onStart: async function ({ message, args, event, usersData, api }) {
     const { threadID, messageID, type, messageReply, mentions } = event;
 
     try {

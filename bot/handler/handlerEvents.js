@@ -255,18 +255,19 @@ module.exports = function (api, threadModel, userModel, dashBoardModel, globalMo
                     }
 
                     if (closestCommand) {
-                        return await message.reply(utils.getText({ lang: langCode, head: "handlerEvents" }, "commandNotFoundSuggestion", userName, closestCommand, prefix));
+                        return await message.reply(utils.getText({ lang: langCode, head: "handlerEvents" }, "commandNotFoundSuggestion", closestCommand, prefix));
                     } else {
                         const userName = userData.name || "Membre";
                         const textToSend = commandName ?
-                              utils.getText({ lang: langCode, head: "handlerEvents" }, "commandNotFound", userName, commandName, prefix) :
-                              utils.getText({ lang: langCode, head: "handlerEvents" }, "commandNotFound2", userName, prefix);
+                            utils.getText({ lang: langCode, head: "handlerEvents" }, "commandNotFound", commandName, prefix) :
+                            utils.getText({ lang: langCode, head: "handlerEvents" }, "commandNotFound2", userName, prefix);
+
                         return await api.sendMessage({
                             body: textToSend,
                             mentions: [{
                                 tag: userName,
                                 id: senderID
-                         }]
+                            }]
                         }, threadID);
                     }
                 } else return true;
@@ -563,7 +564,8 @@ module.exports = function (api, threadModel, userModel, dashBoardModel, globalMo
         async function read_receipt() {}
         async function typ() {}
 
-        return {
+
+       return {
             onAnyEvent,
             onFirstChat,
             onChat,

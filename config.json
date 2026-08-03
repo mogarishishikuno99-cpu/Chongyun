@@ -24,6 +24,10 @@
     "enable": false,
     "ignoreCommand": []
   },
+  "premiumOnly": {
+    "enable": false,
+    "ignoreCommand": []
+  },
   "adminBot": [
   "61573867120837",
   "61590552177904"  
@@ -35,6 +39,10 @@
   "61573867120837",
   "61590552177904"
 ],
+  "premiumUser": [
+    "61573867120837",
+    "61590552177904"
+  ],
   "reactBy": {
     "delete": ["🗑️", "❌", "😠", "😡", "😾"],
     "kick": ["👟", "🦵"]

@@ -1,10 +1,10 @@
-/** * @author Shade & AI 
- * @title Transfert d'argent Canvas Premium (Sci-Fi / Quantum) 
- * @name give 
- * @class give 
- * @version 2.0.0 
- * @description Donne de l'argent de portefeuille à un autre utilisateur avec le design futuriste Quantum. 
- * @usage give [@tag/reply] [montant] 
+/** * @author Shade & AI  
+ * @title Transfert d'argent Canvas Premium (Sci-Fi / Quantum)  
+ * @name give  
+ * @class give  
+ * @version 2.0.0  
+ * @description Donne de l'argent de portefeuille à un autre utilisateur avec le design futuriste Quantum.  
+ * @usage give [@tag/reply] [montant]  
  */
 
 const path = require("path");
@@ -33,19 +33,19 @@ function parseAmount(input) {
     return Math.floor(value);
 }
 
-// Même système d'abréviation intelligent que la Balance Card
+// Système d'abréviation intelligent
 function formatMoney(amount) {
     const absoluteNum = Number(amount);
     if (isNaN(absoluteNum) || absoluteNum === 0) return "0";
     if (absoluteNum < 1000) return `${absoluteNum}`;
-            
+                
     const suffixes = ["", "K", "M", "B", "T", "Qa", "Qi"];
     let i = Math.floor(Math.log10(absoluteNum) / 3);
-            
+                
     if (i >= suffixes.length) {
         i = suffixes.length - 1;
     }
-            
+                
     const formatted = (absoluteNum / Math.pow(1000, i)).toFixed(1);
     return `${formatted.replace(/\.0$/, "")} ${suffixes[i]}`;
 }
@@ -54,18 +54,19 @@ module.exports = {
   config: {
       name: "give",
       version: "2.0.0",
-      role: 0,           
-      author: "Shade & AI",            
-      description: "Donne de l'argent via tag ou réponse avec gestion des abréviations (k, M, B, T) et interface Quantum Premium",            
-      category: "economy",            
+      role: 0,                 
+      author: "Shade & AI",                  
+      description: "Donne de l'argent via tag ou réponse avec gestion des abréviations (k, M, B, T) et interface Quantum Premium",                  
+      category: "economy",                  
       guide: {
         fr: "{p}{n} [@tag] [montant] ou en répondant à un message : {p}{n} [montant]"
-      },            
-      countDown: 3    
+      },                  
+      countDown: 3      
   },
+
   onStart: async function ({ api, event, args, usersData }) {
     const { threadID, messageID, senderID, mentions, type, messageReply } = event;
-              
+                  
     let targetID = null;
     let rawAmount = null;
 
@@ -92,32 +93,30 @@ module.exports = {
     if (!amount || isNaN(amount) || amount <= 0) {
       return api.sendMessage("❌ Montant invalide.\nExemples : /give @nom 5k ou /give 1.5M\nEn réponse : /give 500", threadID, messageID);
     }
-            
+                
     // 2. Récupération des données initiales avant modification (pour les états "BEFORE")
     let senderData = await usersData.get(senderID) || {};
     let targetData = await usersData.get(targetID) || {};
-
     const senderMoneyBefore = senderData.money !== undefined ? senderData.money : 0;
     const targetMoneyBefore = targetData.money !== undefined ? targetData.money : 0;
 
     if (senderMoneyBefore < amount) {
       return api.sendMessage(`❌ Fonds insuffisants dans ton portefeuille. (Solde actuel : ${formatMoney(senderMoneyBefore)} $)`, threadID, messageID);
     }
-            
+                
     // 3. Débit / Crédit et calcul des états "AFTER"
     const senderMoneyAfter = senderMoneyBefore - amount;
     const targetMoneyAfter = targetMoneyBefore + amount;
-
     senderData.money = senderMoneyAfter;
     targetData.money = targetMoneyAfter;
-            
+                
     await usersData.set(senderID, { money: senderData.money, data: senderData.data || {}, exp: senderData.exp || 0 });
     await usersData.set(targetID, { money: targetData.money, data: targetData.data || {}, exp: targetData.exp || 0 });
-            
+                
     // Récupération des pseudos
     const senderName = (await usersData.getName(senderID)) || "Donateur Anonyme";
     const targetName = (await usersData.getName(targetID)) || "Bénéficiaire";
-            
+                
     // Initialisation sécurisée du dossier cache
     const cacheDir = path.join(__dirname, "cache");
     if (!fs.existsSync(cacheDir)) fs.mkdirSync(cacheDir, { recursive: true });
@@ -137,24 +136,27 @@ module.exports = {
       second: "2-digit"
     });
 
-    // === GÉNÉRATION DU CANVAS NÉON ULTRA PREMIUM ===
+    // Génération d'un ID de transaction unique
+    const transactionId = `TX-${Math.floor(100000 + Math.random() * 900000)}`;
+
+    // === GÉNÉRATION DU CANVAS SHADE QUANTUM ===
     const imageBuffer = await createTransferCard({
       senderName: senderName,
       senderAvatar: senderAvatarUrl,
+      senderRank: `#${senderID.slice(-3)}`,
+      senderBalanceBefore: senderMoneyBefore,
+      senderBalanceAfter: senderMoneyAfter,
+
       receiverName: targetName,
       receiverAvatar: targetAvatarUrl,
-      amount: amount,
-      senderBalance: {
-        before: senderMoneyBefore,
-        after: senderMoneyAfter
-      },
-      receiverBalance: {
-        before: targetMoneyBefore,
-        after: targetMoneyAfter
-      },
-      senderRank: `#${senderID.slice(-3)}`,
       receiverRank: `#${targetID.slice(-3)}`,
-      date: formattedDate
+      receiverBalanceBefore: targetMoneyBefore,
+      receiverBalanceAfter: targetMoneyAfter,
+
+      amount: amount,
+      systemName: "SHADE BANK",
+      date: formattedDate,
+      transactionId: transactionId
     });
 
     // Sauvegarde temporaire du fichier

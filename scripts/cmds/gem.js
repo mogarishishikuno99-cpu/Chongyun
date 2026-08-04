@@ -1,7 +1,7 @@
 const axios = require("axios");
 const fs = require("fs-extra");
 const path = require("path");
-
+const fonts = require("../func/fonts.js");
 const githubUrl = "https://raw.githubusercontent.com/Saim-x69x/sakura/main/ApiUrl.json";
 const memoryFile = path.join(__dirname, "cache", "gem_memory.json");
 let memory = {};
@@ -27,7 +27,7 @@ function saveMemory() {
 // Récupère l'URL de l'API depuis GitHub
 async function getApiUrl() {
   const res = await axios.get(githubUrl);
-  return res.data.apiv3; // Utilise la clé 'apiv3' comme dans ton script edit
+  return res.data.apiv3;
 }
 
 // Convertit l'image en Base64 pour l'API
@@ -39,14 +39,13 @@ async function urlToBase64(url) {
 module.exports = {
   config: {
     name: "gem",
-    version: "6.1.0 Hori Edition",
+    version: "6.1.2 Fonts Edition",
     author: "Shade × Gemini",
     role: 0,
     category: "ai",
     description: "🎨 Génère un montage graphique anime/fantastique basé sur une image et une histoire continue.",
     guide: { fr: "Réponds à une image avec tes consignes de montage de scène" }
   },
-
   onStart: async function ({ message, event, args, api }) {
     const userID = event.senderID;
     const prompt = args.join(" ").trim();
@@ -55,16 +54,16 @@ module.exports = {
     if (prompt.toLowerCase() === "reset") {
       memory[userID] = { image: null, story: "" };
       saveMemory();
-      return message.reply("✨ 🌸 **[ MÉMOIRE RÉINITIALISÉE ]** 🌸 ✨\n━━━━━━━━━━━━━━━━━━━━━━━━━━\n🧠 Ton historique de scène et tes prompts accumulés ont été effacés avec succès !");
+      return message.reply(fonts.christus("🧠 Ton historique de scène et tes prompts accumulés ont été effacés avec succès !"));
     }
 
     const attachment = event.messageReply?.attachments?.[0];
     if (!attachment || attachment.type !== "photo") {
-      return message.reply("✨ 🌸 **[ COMPOSANT MANQUANT ]** 🌸 ✨\n━━━━━━━━━━━━━━━━━━━━━━━━━━\n💡 Action requise : Réponds à une image (photo de profil, paysage, anime) pour définir la base visuelle du montage.");
+      return message.reply(fonts.christus("💡 Action requise : Réponds à une image (photo de profil, paysage, anime) pour définir la base visuelle du montage."));
     }
 
     if (!prompt) {
-      return message.reply(`✨ 🌸 **[ INSTRUCTIONS DU SCRIPT ]** 🌸 ✨\n━━━━━━━━━━━━━━━━━━━━━━━━━━\n💡 Exemple d'utilisation :\nRéponds à une photo et écris : \`${this.config.name} en train de se battre avec Sukuna sur un toit en bois style anime\``);
+      return message.reply(fonts.christus(`💡 Exemple d'utilisation :\nRéponds à une photo et écris : \`${this.config.name} en train de se battre avec Sukuna sur un toit en bois style anime\``));
     }
 
     // Gestion de l'historique d'images dans la mémoire de l'IA
@@ -78,16 +77,16 @@ module.exports = {
 
     let loading;
     const cacheDir = path.join(__dirname, "cache");
-    const filePath = path.join(cacheDir, `hori_gem_${userID}_${Date.now()}.jpg`);
+    const filePath = path.join(cacheDir, `gem_${userID}_${Date.now()}.jpg`);
 
     try {
-      api.setMessageReaction("🎨", event.messageID, () => {}, true);
-      loading = await message.reply("✨ 🌸 **[ IMMERSION GRAPHIQUE ]** 🌸 ✨\n━━━━━━━━━━━━━━━━━━━━━━━━━━\n🎨 Rendu en cours d'exécution... Le module de dessin applique vos filtres esthétiques, veuillez patienter.");
+      try { api.setMessageReaction("🎨", event.messageID, () => {}, true); } catch(e) {}
+      loading = await message.reply(fonts.christus("🎨 Rendu en cours d'exécution... Le module de dessin applique vos filtres esthétiques, veuillez patienter."));
 
       // 1. Récupération de l'URL de l'API
       const API_URL = await getApiUrl();
 
-      // 2. Préparation des données (Payload) en Base64 comme ton script edit
+      // 2. Préparation des données (Payload) en Base64
       const payload = {
         prompt: memory[userID].story,
         images: [await urlToBase64(attachment.url)],
@@ -107,13 +106,12 @@ module.exports = {
       await fs.writeFile(filePath, Buffer.from(res.data));
 
       if (loading?.messageID) {
-        await api.unsendMessage(loading.messageID);
+        await api.unsendMessage(loading.messageID).catch(() => {});
       }
-
-      api.setMessageReaction("🖼️", event.messageID, () => {}, true);
+      try { api.setMessageReaction("🖼️", event.messageID, () => {}, true); } catch(e) {}
 
       return message.reply({
-        body: `✨ 🌸 **[ MONTAGE EFFECTUÉ ]** 🌸 ✨\n━━━━━━━━━━━━━━━━━━━━━━━━━━\n🎬 **Style :** Anime & Fantastique Studio\n📈 **Statut :** Synthèse réussie\n━━━━━━━━━━━━━━━━━━━━━━━━━━\n💡 _Utilise la commande "reset" pour démarrer une toute nouvelle composition._`,
+        body: fonts.christus("✅ Synthèse réussie\n💡 Utilise la commande \"reset\" pour démarrer une toute nouvelle composition."),
         attachment: fs.createReadStream(filePath)
       }, () => {
         try { if (fs.existsSync(filePath)) fs.unlinkSync(filePath); } catch (e) {}
@@ -124,10 +122,10 @@ module.exports = {
       if (loading?.messageID) {
         await api.unsendMessage(loading.messageID).catch(() => {});
       }
-      api.setMessageReaction("❌", event.messageID, () => {}, true);
+      try { api.setMessageReaction("❌", event.messageID, () => {}, true); } catch(e) {}
       try { if (fs.existsSync(filePath)) fs.unlinkSync(filePath); } catch (_) {}
       
-      return message.reply("✨ 🌸 **[ TERMINAL SURCHARGÉ ]** 🌸 ✨\n━━━━━━━━━━━━━━━━━━━━━━━━━━\n❌ Le serveur de rendu graphique est temporairement saturé ou en cours de redémarrage.\n\n💡 _Veuillez soumettre à nouveau votre invite dans 30 secondes._");
+      return message.reply(fonts.christus("❌ Le serveur de rendu graphique est temporairement saturé ou en cours de redémarrage. Veuillez soumettre à nouveau votre invite dans 30 secondes."));
     }
   }
 };

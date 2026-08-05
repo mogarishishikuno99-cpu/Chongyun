@@ -9,17 +9,14 @@
 
 const path = require("path");
 const fs = require("fs");
+const fonts = require("../func/fonts.js");
 const { createTransferCard } = require("../canvas/transferCard");
 
-/**
- * Analyse et convertit les abréviations (1k, 1.5M, 2T) en nombre réel.
- */
 function parseAmount(input) {
   if (!input) return null;
   const cleanInput = input.trim().toUpperCase();
   const match = cleanInput.match(/^([0-9.]+)\s*([KMBTQAISG]?)$/);
   if (!match) return null;
-
   const value = parseFloat(match[1]);
   const suffix = match[2];
   const multipliers = {
@@ -30,16 +27,12 @@ function parseAmount(input) {
     QA: 100000000000000,
     QI: 100000000000000000
   };
-
   if (suffix && multipliers[suffix]) {
     return Math.floor(value * multipliers[suffix]);
   }
   return Math.floor(value);
 }
 
-/**
- * Formate un montant sous forme lisible avec séparateurs de milliers
- */
 function formatMoney(amount) {
   const num = Number(amount) || 0;
   return num.toLocaleString("fr-FR");
@@ -49,24 +42,22 @@ module.exports = {
   config: {
     name: "give",
     aliases: ["transfer", "send"],
-    version: "2.1.0",
+    version: "2.1.3",
     role: 0,
     author: "Shade & AI",
     description: "Transfère de l'argent et génère une carte HUD Quantum sécurisée.",
     category: "economy",
     guide: {
-      fr: "{p}{n} [@tag] [montant] ou en répondant à un message : {p}{n} [montant]"
+      en: "{p}{n} [@tag] [montant] ou en répondant à un message : {p}{n} [montant]"
     },
     countDown: 3
   },
 
   onStart: async function ({ api, event, args, usersData }) {
     const { threadID, messageID, senderID, mentions, type, messageReply } = event;
-
     let targetID = null;
     let rawAmount = null;
 
-    // 1. Détection de la cible et extraction de l'argument du montant
     if (type === "message_reply" && messageReply) {
       targetID = messageReply.senderID;
       rawAmount = args[0];
@@ -78,10 +69,9 @@ module.exports = {
 
     const amountToTransfer = parseAmount(rawAmount);
 
-    // Validation des données d'entrée
     if (!targetID) {
       return api.sendMessage(
-        "❌ Veuillez mentionner un destinataire ou répondre à son message.",
+        fonts.christus("❌ Veuillez mentionner un destinataire ou répondre à son message."),
         threadID,
         messageID
       );
@@ -89,7 +79,7 @@ module.exports = {
 
     if (targetID === senderID) {
       return api.sendMessage(
-        "❌ Impossible d'effectuer un transfert vers votre propre compte.",
+        fonts.christus("❌ Impossible d'effectuer un transfert vers votre propre compte."),
         threadID,
         messageID
       );
@@ -97,28 +87,26 @@ module.exports = {
 
     if (!amountToTransfer || isNaN(amountToTransfer) || amountToTransfer <= 0) {
       return api.sendMessage(
-        "❌ Montant invalide.\nExemples : /transfer @nom 5k, /transfer 1.5M ou /transfer 500",
+        fonts.christus("MONTANT INVALIDE\n──────────────────\nUtilisez : 500  1k  2.5m  1b"),
         threadID,
         messageID
       );
     }
 
-    // 2. Récupération des données avant transaction
     const senderData = (await usersData.get(senderID)) || {};
     const targetData = (await usersData.get(targetID)) || {};
-
     const senderMoneyBefore = Number(senderData.money) || 0;
     const targetMoneyBefore = Number(targetData.money) || 0;
 
     if (senderMoneyBefore < amountToTransfer) {
+      const missingAmount = amountToTransfer - senderMoneyBefore;
       return api.sendMessage(
-        `❌ Fonds insuffisants. Solde actuel : ${formatMoney(senderMoneyBefore)} $`,
+        fonts.christus(`FONDS INSUFFISANTS\n────────────────────\nVotre solde   : $${formatMoney(senderMoneyBefore)}\nMontant voulu : $${formatMoney(amountToTransfer)}\nManque        : $${formatMoney(missingAmount)}`),
         threadID,
         messageID
       );
     }
 
-    // 3. Calcul et enregistrement direct en base de données
     const realSenderBalanceAfter = senderMoneyBefore - amountToTransfer;
     const realReceiverBalanceAfter = targetMoneyBefore + amountToTransfer;
 
@@ -132,13 +120,22 @@ module.exports = {
       money: realReceiverBalanceAfter
     });
 
-    // 4. Récupération des noms et avatars réels
     const senderName = (await usersData.getName(senderID)) || "Expéditeur";
     const receiverName = (await usersData.getName(targetID)) || "Destinataire";
 
-    const fbAccessToken = "6628568379%7Cc1e620fa708a1d5696fb991c1bde5662";
-    const senderAvatarUrl = `https://graph.facebook.com/${senderID}/picture?width=512&height=512&access_token=${fbAccessToken}`;
-    const receiverAvatarUrl = `https://graph.facebook.com/${targetID}/picture?width=512&height=512&access_token=${fbAccessToken}`;
+    // Récupération des avatars via la méthode sécurisée usersData.getAvatarUrl()
+    let senderAvatarUrl, receiverAvatarUrl;
+    try {
+      senderAvatarUrl = await usersData.getAvatarUrl(senderID);
+    } catch (e) {
+      senderAvatarUrl = "https://i.imgur.com/I3VsBEt.png";
+    }
+
+    try {
+      receiverAvatarUrl = await usersData.getAvatarUrl(targetID);
+    } catch (e) {
+      receiverAvatarUrl = "https://i.imgur.com/I3VsBEt.png";
+    }
 
     const formattedDate = new Date().toLocaleString("fr-FR", {
       day: "2-digit",
@@ -150,7 +147,6 @@ module.exports = {
 
     const transactionId = `TX-${Math.floor(100000 + Math.random() * 900000)}`;
 
-    // 5. Génération de la carte avec les vrais montants réels calculés
     const imageBuffer = await createTransferCard({
       senderName: senderName,
       senderTag: `#${senderID.slice(-4)}`,
@@ -158,21 +154,18 @@ module.exports = {
       senderBalanceBefore: senderMoneyBefore,
       senderBalanceAfter: realSenderBalanceAfter,
       senderAvatar: senderAvatarUrl,
-
       receiverName: receiverName,
       receiverTag: `#${targetID.slice(-4)}`,
       receiverRank: "MEMBRE",
       receiverBalanceBefore: targetMoneyBefore,
       receiverBalanceAfter: realReceiverBalanceAfter,
       receiverAvatar: receiverAvatarUrl,
-
       amount: amountToTransfer,
       date: formattedDate,
       transactionId: transactionId,
       systemName: "QUANTUM BANK"
     });
 
-    // 6. Sauvegarde et envoi du rendu
     const cacheDir = path.join(__dirname, "cache");
     if (!fs.existsSync(cacheDir)) {
       fs.mkdirSync(cacheDir, { recursive: true });
@@ -183,13 +176,12 @@ module.exports = {
 
     return api.sendMessage(
       {
-        body: `✅ **Transfert réussi !**\n💸 **${senderName}** a envoyé **${formatMoney(amountToTransfer)} $** à **${receiverName}**.`,
+        body: fonts.christus(`TRANSFERT QUANTIQUE REUSSI\n──────────────────────────\nDe      : ${senderName}\nVers    : ${receiverName}\nMontant : $${formatMoney(amountToTransfer)}\n──────────────────────────\n${senderName} : $${formatMoney(realSenderBalanceAfter)}\n${receiverName}: $${formatMoney(realReceiverBalanceAfter)}\nStatut  : // Sécurisé & Chiffré`),
         attachment: fs.createReadStream(pathSave)
       },
       threadID,
       () => {
-        try {
-          if (fs.existsSync(pathSave)) fs.unlinkSync(pathSave);
+        try {          if (fs.existsSync(pathSave)) fs.unlinkSync(pathSave);
         } catch (err) {
           console.error("Erreur lors de la suppression du fichier temporaire :", err);
         }

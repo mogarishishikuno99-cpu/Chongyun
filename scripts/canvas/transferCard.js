@@ -17,6 +17,82 @@ try {
 const FONT_FAMILY = '"QuantumFont", "Roboto Mono", "Courier New", monospace';
 
 // -------------------------------------------------------------------------
+// PALETTES DE COULEURS THÉMATIQUES (SÉLECTION ALÉATOIRE)
+// -------------------------------------------------------------------------
+
+const COLOR_THEMES = {
+  // Couleur d'origine (Cyber Blue)
+  blue: {
+    primary: "#00d4ff",
+    secondary: "#83d9ff",
+    textDim: "#4a9cb5",
+    textSub: "#5c9bb5",
+    bgCoreGrad: "rgba(0, 212, 255, 0.35)",
+    rgbaPrimary: (a) => `rgba(0, 212, 255, ${a})`,
+    rgbaSecondary: (a) => `rgba(0, 150, 255, ${a})`
+  },
+  // Rouge Neon
+  red: {
+    primary: "#ff2a2a",
+    secondary: "#ff8080",
+    textDim: "#b54a4a",
+    textSub: "#b55c5c",
+    bgCoreGrad: "rgba(255, 42, 42, 0.35)",
+    rgbaPrimary: (a) => `rgba(255, 42, 42, ${a})`,
+    rgbaSecondary: (a) => `rgba(255, 0, 0, ${a})`
+  },
+  // Rose Cyberpunk
+  pink: {
+    primary: "#ff2a8d",
+    secondary: "#ff80c2",
+    textDim: "#b54a83",
+    textSub: "#b55c91",
+    bgCoreGrad: "rgba(255, 42, 141, 0.35)",
+    rgbaPrimary: (a) => `rgba(255, 42, 141, ${a})`,
+    rgbaSecondary: (a) => `rgba(255, 0, 100, ${a})`
+  },
+  // Jaune Néon
+  yellow: {
+    primary: "#ffcc00",
+    secondary: "#ffe680",
+    textDim: "#b59f4a",
+    textSub: "#b5a45c",
+    bgCoreGrad: "rgba(255, 204, 0, 0.35)",
+    rgbaPrimary: (a) => `rgba(255, 204, 0, ${a})`,
+    rgbaSecondary: (a) => `rgba(255, 180, 0, ${a})`
+  },
+  // Blanc Pur / Argent
+  white: {
+    primary: "#ffffff",
+    secondary: "#d9d9d9",
+    textDim: "#999999",
+    textSub: "#b3b3b3",
+    bgCoreGrad: "rgba(255, 255, 255, 0.35)",
+    rgbaPrimary: (a) => `rgba(255, 255, 255, ${a})`,
+    rgbaSecondary: (a) => `rgba(200, 200, 200, ${a})`
+  },
+  // Vert Matrix / Néon
+  green: {
+    primary: "#00ff66",
+    secondary: "#80ffb3",
+    textDim: "#4ab573",
+    textSub: "#5cb580",
+    bgCoreGrad: "rgba(0, 255, 102, 0.35)",
+    rgbaPrimary: (a) => `rgba(0, 255, 102, ${a})`,
+    rgbaSecondary: (a) => `rgba(0, 200, 80, ${a})`
+  }
+};
+
+/**
+ * Sélectionne un thème de couleur au hasard
+ */
+function getRandomTheme() {
+  const keys = Object.keys(COLOR_THEMES);
+  const randomKey = keys[Math.floor(Math.random() * keys.length)];
+  return COLOR_THEMES[randomKey];
+}
+
+// -------------------------------------------------------------------------
 // UTILITAIRES DE RENDU & MATHÉMATIQUES
 // -------------------------------------------------------------------------
 
@@ -97,6 +173,9 @@ async function createTransferCard({
   date = "29.07.2026 15:53",
   systemName = "SHADE QUANTUM"
 }) {
+  // Sélection aléatoire de la palette de couleurs
+  const theme = getRandomTheme();
+
   const W = 900;
   const H = 1000;
   const canvas = createCanvas(W, H);
@@ -118,15 +197,15 @@ async function createTransferCard({
   ctx.fillStyle = bgGrad;
   ctx.fillRect(0, 0, W, H);
 
-  // Halos lumineux d'ambiance néon
+  // Halos lumineux d'ambiance néon (Dynamiques)
   const auraGlow1 = ctx.createRadialGradient(centerX, centerY - 150, 10, centerX, centerY - 150, 350);
-  auraGlow1.addColorStop(0, "rgba(0, 212, 255, 0.12)");
+  auraGlow1.addColorStop(0, theme.rgbaPrimary(0.12));
   auraGlow1.addColorStop(1, "rgba(0, 0, 0, 0)");
   ctx.fillStyle = auraGlow1;
   ctx.fillRect(0, 0, W, H);
 
   const auraGlow2 = ctx.createRadialGradient(centerX, centerY + 150, 10, centerX, centerY + 150, 350);
-  auraGlow2.addColorStop(0, "rgba(0, 150, 255, 0.08)");
+  auraGlow2.addColorStop(0, theme.rgbaSecondary(0.08));
   auraGlow2.addColorStop(1, "rgba(0, 0, 0, 0)");
   ctx.fillStyle = auraGlow2;
   ctx.fillRect(0, 0, W, H);
@@ -135,14 +214,14 @@ async function createTransferCard({
   ctx.lineWidth = 1;
   const gridSize = 40;
   for (let x = 0; x <= W; x += gridSize) {
-    ctx.strokeStyle = x % (gridSize * 4) === 0 ? "rgba(0, 212, 255, 0.07)" : "rgba(0, 212, 255, 0.02)";
+    ctx.strokeStyle = x % (gridSize * 4) === 0 ? theme.rgbaPrimary(0.07) : theme.rgbaPrimary(0.02);
     ctx.beginPath();
     ctx.moveTo(x, 0);
     ctx.lineTo(x, H);
     ctx.stroke();
   }
   for (let y = 0; y <= H; y += gridSize) {
-    ctx.strokeStyle = y % (gridSize * 4) === 0 ? "rgba(0, 212, 255, 0.07)" : "rgba(0, 212, 255, 0.02)";
+    ctx.strokeStyle = y % (gridSize * 4) === 0 ? theme.rgbaPrimary(0.07) : theme.rgbaPrimary(0.02);
     ctx.beginPath();
     ctx.moveTo(0, y);
     ctx.lineTo(W, y);
@@ -157,8 +236,8 @@ async function createTransferCard({
     const pSize = seededRandom(seed++) * 2 + 0.5;
     const pAlpha = seededRandom(seed++) * 0.5 + 0.1;
 
-    ctx.fillStyle = `rgba(0, 225, 255, ${pAlpha})`;
-    ctx.shadowColor = "#00d4ff";
+    ctx.fillStyle = theme.rgbaPrimary(pAlpha);
+    ctx.shadowColor = theme.primary;
     ctx.shadowBlur = pSize * 4;
     ctx.beginPath();
     ctx.arc(px, py, pSize, 0, Math.PI * 2);
@@ -171,15 +250,15 @@ async function createTransferCard({
   // =========================================================================
 
   // Bordure principale extérieure
-  ctx.strokeStyle = "rgba(0, 212, 255, 0.25)";
+  ctx.strokeStyle = theme.rgbaPrimary(0.25);
   ctx.lineWidth = 2;
   drawBeveledPath(ctx, 15, 15, W - 30, H - 30, 25);
   ctx.stroke();
 
   // Bordure fine interne avec lueur
-  ctx.strokeStyle = "rgba(0, 212, 255, 0.5)";
+  ctx.strokeStyle = theme.rgbaPrimary(0.5);
   ctx.lineWidth = 1;
-  ctx.shadowColor = "#00d4ff";
+  ctx.shadowColor = theme.primary;
   ctx.shadowBlur = 10;
   drawBeveledPath(ctx, 22, 22, W - 44, H - 44, 20);
   ctx.stroke();
@@ -191,7 +270,7 @@ async function createTransferCard({
     ctx.translate(x, y);
     ctx.scale(scaleX, scaleY);
 
-    ctx.strokeStyle = "#00d4ff";
+    ctx.strokeStyle = theme.primary;
     ctx.lineWidth = 3;
     ctx.beginPath();
     ctx.moveTo(0, 35);
@@ -199,10 +278,10 @@ async function createTransferCard({
     ctx.lineTo(35, 0);
     ctx.stroke();
 
-    ctx.fillStyle = "#83d9ff";
+    ctx.fillStyle = theme.secondary;
     ctx.fillRect(5, 5, 4, 4);
 
-    ctx.strokeStyle = "rgba(0, 212, 255, 0.4)";
+    ctx.strokeStyle = theme.rgbaPrimary(0.4);
     ctx.lineWidth = 1;
     ctx.beginPath();
     ctx.moveTo(40, 0); ctx.lineTo(60, 0);
@@ -223,7 +302,7 @@ async function createTransferCard({
 
   ctx.save();
   // Halo lumineux du titre
-  ctx.shadowColor = "#00d4ff";
+  ctx.shadowColor = theme.primary;
   ctx.shadowBlur = 15;
   ctx.fillStyle = "#ffffff";
   ctx.font = `bold 22px ${FONT_FAMILY}`;
@@ -231,17 +310,17 @@ async function createTransferCard({
   ctx.fillText(":: CANAL DE TRANSFERT QUANTIQUE ::", centerX, 58);
   ctx.shadowBlur = 0;
 
-  ctx.fillStyle = "rgba(0, 212, 255, 0.5)";
+  ctx.fillStyle = theme.rgbaPrimary(0.5);
   ctx.font = `10px ${FONT_FAMILY}`;
   ctx.fillText("SYS.LOC: NETWORK // SECURED PROTOCOL V8.42", centerX, 74);
 
   // Lignes de séparation de l'en-tête
   const headGrad = ctx.createLinearGradient(centerX - 250, 0, centerX + 250, 0);
-  headGrad.addColorStop(0, "rgba(0, 212, 255, 0)");
-  headGrad.addColorStop(0.2, "#00d4ff");
+  headGrad.addColorStop(0, theme.rgbaPrimary(0));
+  headGrad.addColorStop(0.2, theme.primary);
   headGrad.addColorStop(0.5, "#ffffff");
-  headGrad.addColorStop(0.8, "#00d4ff");
-  headGrad.addColorStop(1, "rgba(0, 212, 255, 0)");
+  headGrad.addColorStop(0.8, theme.primary);
+  headGrad.addColorStop(1, theme.rgbaPrimary(0));
 
   ctx.strokeStyle = headGrad;
   ctx.lineWidth = 1.5;
@@ -258,12 +337,12 @@ async function createTransferCard({
   ctx.save();
   // Ligne de flux principale lumineuse
   const beamGrad = ctx.createLinearGradient(0, 280, 0, H - 280);
-  beamGrad.addColorStop(0, "rgba(0, 212, 255, 0.8)");
+  beamGrad.addColorStop(0, theme.rgbaPrimary(0.8));
   beamGrad.addColorStop(0.5, "rgba(255, 255, 255, 1)");
-  beamGrad.addColorStop(1, "rgba(0, 212, 255, 0.8)");
+  beamGrad.addColorStop(1, theme.rgbaPrimary(0.8));
 
   ctx.strokeStyle = beamGrad;
-  ctx.shadowColor = "#00d4ff";
+  ctx.shadowColor = theme.primary;
   ctx.shadowBlur = 12;
   ctx.lineWidth = 3;
   ctx.beginPath();
@@ -273,7 +352,7 @@ async function createTransferCard({
   ctx.shadowBlur = 0;
 
   // Lignes pointillées secondaires parallèles
-  ctx.strokeStyle = "rgba(0, 212, 255, 0.3)";
+  ctx.strokeStyle = theme.rgbaPrimary(0.3);
   ctx.lineWidth = 1;
   ctx.setLineDash([4, 6]);
   ctx.beginPath();
@@ -285,7 +364,7 @@ async function createTransferCard({
   // Nœuds d'énergie animés sur les flux
   [330, 360, H - 360, H - 330].forEach((nodeY) => {
     ctx.fillStyle = "#ffffff";
-    ctx.shadowColor = "#00d4ff";
+    ctx.shadowColor = theme.primary;
     ctx.shadowBlur = 10;
     ctx.beginPath();
     ctx.arc(centerX, nodeY, 4, 0, Math.PI * 2);
@@ -332,23 +411,23 @@ async function createTransferCard({
     ctx.fill();
 
     // Bordure néon avec glow du panneau
-    ctx.strokeStyle = isReceiver ? "rgba(0, 212, 255, 0.6)" : "rgba(0, 180, 255, 0.5)";
+    ctx.strokeStyle = isReceiver ? theme.rgbaPrimary(0.6) : theme.rgbaSecondary(0.5);
     ctx.lineWidth = 1.5;
-    ctx.shadowColor = "#00d4ff";
+    ctx.shadowColor = theme.primary;
     ctx.shadowBlur = 10;
     drawBeveledPath(ctx, x, y, cardW, cardH, 15);
     ctx.stroke();
     ctx.shadowBlur = 0;
 
     // Détails de cadre intérieur HUD
-    ctx.strokeStyle = "rgba(0, 212, 255, 0.15)";
+    ctx.strokeStyle = theme.rgbaPrimary(0.15);
     ctx.lineWidth = 1;
     drawBeveledPath(ctx, x + 6, y + 6, cardW - 12, cardH - 12, 12);
     ctx.stroke();
 
     // Coins décoratifs internes
     const drawInnerCorner = (cx, cy, rx, ry) => {
-      ctx.strokeStyle = "#83d9ff";
+      ctx.strokeStyle = theme.secondary;
       ctx.lineWidth = 2;
       ctx.beginPath();
       ctx.moveTo(cx + rx * 12, cy);
@@ -362,18 +441,18 @@ async function createTransferCard({
     drawInnerCorner(x + cardW - 14, y + cardH - 14, -1, -1);
 
     // Titre d'entité avec badge HUD
-    ctx.fillStyle = isReceiver ? "rgba(0, 212, 255, 0.2)" : "rgba(0, 150, 255, 0.2)";
+    ctx.fillStyle = isReceiver ? theme.rgbaPrimary(0.2) : theme.rgbaSecondary(0.2);
     ctx.fillRect(x + 20, y + 18, 140, 22);
-    ctx.strokeStyle = "rgba(0, 212, 255, 0.4)";
+    ctx.strokeStyle = theme.rgbaPrimary(0.4);
     ctx.strokeRect(x + 20, y + 18, 140, 22);
 
-    ctx.fillStyle = "#83d9ff";
+    ctx.fillStyle = theme.secondary;
     ctx.font = `bold 11px ${FONT_FAMILY}`;
     ctx.textAlign = "center";
     ctx.fillText(`// ${title}`, x + 90, y + 33);
 
     // =========================================================================
-    // RENDEDU AVATAR AVANCE (CYBER DOCK)
+    // RENDU AVATAR AVANCÉ (CYBER DOCK)
     // =========================================================================
     const avX = x + 110;
     const avY = y + cardH / 2 + 10;
@@ -381,16 +460,16 @@ async function createTransferCard({
 
     // Halos de l'avatar
     const avGlow = ctx.createRadialGradient(avX, avY, avRadius - 10, avX, avY, avRadius + 20);
-    avGlow.addColorStop(0, "rgba(0, 212, 255, 0)");
-    avGlow.addColorStop(0.8, "rgba(0, 212, 255, 0.3)");
-    avGlow.addColorStop(1, "rgba(0, 212, 255, 0)");
+    avGlow.addColorStop(0, "rgba(0, 0, 0, 0)");
+    avGlow.addColorStop(0.8, theme.rgbaPrimary(0.3));
+    avGlow.addColorStop(1, "rgba(0, 0, 0, 0)");
     ctx.fillStyle = avGlow;
     ctx.beginPath();
     ctx.arc(avX, avY, avRadius + 20, 0, Math.PI * 2);
     ctx.fill();
 
     // Anneau extérieur avec graduations
-    ctx.strokeStyle = "rgba(0, 212, 255, 0.4)";
+    ctx.strokeStyle = theme.rgbaPrimary(0.4);
     ctx.lineWidth = 2;
     ctx.setLineDash([6, 6]);
     ctx.beginPath();
@@ -399,9 +478,9 @@ async function createTransferCard({
     ctx.setLineDash([]);
 
     // Anneau plein néon
-    ctx.strokeStyle = "#00d4ff";
+    ctx.strokeStyle = theme.primary;
     ctx.lineWidth = 2;
-    ctx.shadowColor = "#00d4ff";
+    ctx.shadowColor = theme.primary;
     ctx.shadowBlur = 10;
     ctx.beginPath();
     ctx.arc(avX, avY, avRadius + 3, 0, Math.PI * 2);
@@ -444,7 +523,7 @@ async function createTransferCard({
     ctx.fillStyle = "#ffffff";
     ctx.font = `bold 28px ${FONT_FAMILY}`;
     ctx.textAlign = "left";
-    ctx.shadowColor = "rgba(0, 212, 255, 0.5)";
+    ctx.shadowColor = theme.rgbaPrimary(0.5);
     ctx.shadowBlur = 8;
     ctx.fillText(name, textX, y + 75);
     ctx.shadowBlur = 0;
@@ -452,15 +531,15 @@ async function createTransferCard({
     // Tag à côté du nom
     if (tag) {
       const nameWidth = ctx.measureText(name).width;
-      ctx.fillStyle = "#4a9cb5";
+      ctx.fillStyle = theme.textDim;
       ctx.font = `13px ${FONT_FAMILY}`;
       ctx.fillText(`ID: ${tag}`, textX + nameWidth + 15, y + 73);
     }
 
     // Badge Rang / Grade
     const rankY = y + 106;
-    ctx.fillStyle = isReceiver ? "#00d4ff" : "#ffb700";
-    ctx.shadowColor = isReceiver ? "#00d4ff" : "#ffb700";
+    ctx.fillStyle = isReceiver ? theme.primary : "#ffb700";
+    ctx.shadowColor = isReceiver ? theme.primary : "#ffb700";
     ctx.shadowBlur = 6;
     ctx.font = `bold 14px ${FONT_FAMILY}`;
     ctx.fillText(`RANK: ${rank}`, textX, rankY);
@@ -468,8 +547,8 @@ async function createTransferCard({
 
     // Séparateur horizontal stylisé
     const lineGrad = ctx.createLinearGradient(textX, 0, x + cardW - 30, 0);
-    lineGrad.addColorStop(0, "rgba(0, 212, 255, 0.5)");
-    lineGrad.addColorStop(1, "rgba(0, 212, 255, 0)");
+    lineGrad.addColorStop(0, theme.rgbaPrimary(0.5));
+    lineGrad.addColorStop(1, theme.rgbaPrimary(0));
     ctx.strokeStyle = lineGrad;
     ctx.lineWidth = 1;
     ctx.beginPath();
@@ -478,13 +557,13 @@ async function createTransferCard({
     ctx.stroke();
 
     // Bloc Solde après transfert
-    ctx.fillStyle = "#5c9bb5";
+    ctx.fillStyle = theme.textSub;
     ctx.font = `11px ${FONT_FAMILY}`;
     ctx.fillText("SOLDE NOUVEAU APRES TRANSFERT :", textX, y + 148);
 
     ctx.fillStyle = "#ffffff";
     ctx.font = `bold 22px ${FONT_FAMILY}`;
-    ctx.shadowColor = "#00d4ff";
+    ctx.shadowColor = theme.primary;
     ctx.shadowBlur = 10;
     ctx.fillText(formatAmount(balanceAfter), textX + 240, y + 149);
     ctx.shadowBlur = 0;
@@ -505,8 +584,8 @@ async function createTransferCard({
 
   // Enorme halo de fond derrière le cercle
   const coreBgGlow = ctx.createRadialGradient(centerX, centerY, 10, centerX, centerY, coreRadius + 60);
-  coreBgGlow.addColorStop(0, "rgba(0, 212, 255, 0.35)");
-  coreBgGlow.addColorStop(0.6, "rgba(0, 150, 255, 0.1)");
+  coreBgGlow.addColorStop(0, theme.bgCoreGrad);
+  coreBgGlow.addColorStop(0.6, theme.rgbaSecondary(0.1));
   coreBgGlow.addColorStop(1, "rgba(0, 0, 0, 0)");
   ctx.fillStyle = coreBgGlow;
   ctx.beginPath();
@@ -524,7 +603,7 @@ async function createTransferCard({
   ctx.fill();
 
   // Anneau externe 1: Graduations HUD
-  ctx.strokeStyle = "rgba(0, 212, 255, 0.4)";
+  ctx.strokeStyle = theme.rgbaPrimary(0.4);
   ctx.lineWidth = 1.5;
   const numTicks = 36;
   for (let i = 0; i < numTicks; i++) {
@@ -544,7 +623,7 @@ async function createTransferCard({
   }
 
   // Anneau 2: Pointillés tournants
-  ctx.strokeStyle = "rgba(131, 217, 255, 0.6)";
+  ctx.strokeStyle = theme.secondary;
   ctx.lineWidth = 2;
   ctx.setLineDash([3, 7]);
   ctx.beginPath();
@@ -553,9 +632,9 @@ async function createTransferCard({
   ctx.setLineDash([]);
 
   // Anneau 3: Bordure principale lumineuse
-  ctx.strokeStyle = "#00d4ff";
+  ctx.strokeStyle = theme.primary;
   ctx.lineWidth = 3;
-  ctx.shadowColor = "#00d4ff";
+  ctx.shadowColor = theme.primary;
   ctx.shadowBlur = 18;
   ctx.beginPath();
   ctx.arc(centerX, centerY, coreRadius, 0, Math.PI * 2);
@@ -563,7 +642,7 @@ async function createTransferCard({
   ctx.shadowBlur = 0;
 
   // Anneau 4: Découpes métalliques internes
-  ctx.strokeStyle = "rgba(0, 212, 255, 0.3)";
+  ctx.strokeStyle = theme.rgbaPrimary(0.3);
   ctx.lineWidth = 1;
   ctx.beginPath();
   ctx.arc(centerX, centerY, coreRadius - 12, 0, Math.PI * 2);
@@ -575,7 +654,7 @@ async function createTransferCard({
     const py = centerY + coreRadius * Math.sin(angle);
 
     ctx.fillStyle = "#ffffff";
-    ctx.shadowColor = "#00d4ff";
+    ctx.shadowColor = theme.primary;
     ctx.shadowBlur = 12;
     ctx.beginPath();
     ctx.arc(px, py, 5, 0, Math.PI * 2);
@@ -584,7 +663,7 @@ async function createTransferCard({
   });
 
   // Textes & Valeurs à l'intérieur du noyau
-  ctx.fillStyle = "#4a9cb5";
+  ctx.fillStyle = theme.textDim;
   ctx.font = `bold 11px ${FONT_FAMILY}`;
   ctx.textAlign = "center";
   ctx.fillText("VALEUR TRANSMISE", centerX, centerY - 45);
@@ -592,13 +671,13 @@ async function createTransferCard({
   // Valeur du montant avec lueur intense
   ctx.fillStyle = "#ffffff";
   ctx.font = `bold 38px ${FONT_FAMILY}`;
-  ctx.shadowColor = "rgba(0, 212, 255, 0.9)";
+  ctx.shadowColor = theme.rgbaPrimary(0.9);
   ctx.shadowBlur = 15;
   ctx.fillText(formatAmount(amount), centerX, centerY + 8);
   ctx.shadowBlur = 0;
 
   // Ligne sous le montant
-  ctx.strokeStyle = "rgba(0, 212, 255, 0.4)";
+  ctx.strokeStyle = theme.rgbaPrimary(0.4);
   ctx.lineWidth = 1;
   ctx.beginPath();
   ctx.moveTo(centerX - 60, centerY + 24);
@@ -606,8 +685,8 @@ async function createTransferCard({
   ctx.stroke();
 
   // Badge d'état "TRANSACTION VERIFIED"
-  ctx.fillStyle = "#00d4ff";
-  ctx.shadowColor = "#00d4ff";
+  ctx.fillStyle = theme.primary;
+  ctx.shadowColor = theme.primary;
   ctx.shadowBlur = 8;
   ctx.font = `bold 11px ${FONT_FAMILY}`;
   ctx.fillText("● SYSTEM VERIFIED ●", centerX, centerY + 48);
@@ -621,7 +700,7 @@ async function createTransferCard({
 
   ctx.save();
   // Ligne supérieure de bas de page
-  ctx.strokeStyle = "rgba(0, 212, 255, 0.2)";
+  ctx.strokeStyle = theme.rgbaPrimary(0.2);
   ctx.lineWidth = 1;
   ctx.beginPath();
   ctx.moveTo(60, H - 60);
@@ -629,7 +708,7 @@ async function createTransferCard({
   ctx.stroke();
 
   // Texte de bas de page
-  ctx.fillStyle = "rgba(131, 217, 255, 0.6)";
+  ctx.fillStyle = theme.secondary;
   ctx.font = `11px ${FONT_FAMILY}`;
   ctx.textAlign = "center";
   ctx.fillText(`SYSTEM: ${systemName}  //  TIMESTAMP: ${date}  //  ENCRYPTION: 256-BIT QUANTUM`, W / 2, H - 38);

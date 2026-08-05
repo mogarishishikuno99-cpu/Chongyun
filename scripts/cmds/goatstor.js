@@ -6,7 +6,7 @@ module.exports = {
   config: {
     name: "goatstor",
     aliases: ["gs", "market"],
-    version: "2.0.1 Hori Pro",
+    version: "2.0.2 Hori Pro",
     role: 0,
     author: "ArYAN × Shade",
     shortDescription: {
@@ -38,11 +38,14 @@ module.exports = {
           if (!item || !item.itemName) {
             return send(fonts.christus("✨ 🌸 [ COMPOSANT INTROUVABLE ] 🌸 ✨\n━━━━━━━━━━━━━━━━━━━━━━━━━━\n❌ Aucun module ne correspond à cet identifiant dans la base de données."));
           }
-          return send(
-            fonts.christus(
-              `✨ 🌸 [ MODULE : ${item.itemName.toUpperCase()} ] 🌸 ✨\n━━━━━━━━━━━━━━━━━━━━━━━━━━\n🆔 Identifiant : ${item.itemID}\n⚙️ Type d'architecture : ${item.type || "Non défini"}\n📝 Description : ${item.description || "Aucune description fournie."}\n👑 Développeur : ${item.authorName || "Anonyme"}\n📊 Statistiques globales :\n👀 Vues : ${item.views || 0}  |  💝 Likes : ${item.likes || 0}\n━━━━━━━━━━━━━━━━━━━━━━━━━━\n🔗 Code source brut (Raw) :\n${GoatStor}/raw/${item.rawID}`
-            )
+
+          // Le texte stylisé et le lien sont séparés pour épargner l'URL de fonts.christus
+          const header = fonts.christus(
+            `✨ 🌸 [ MODULE : ${item.itemName.toUpperCase()} ] 🌸 ✨\n━━━━━━━━━━━━━━━━━━━━━━━━━━\n🆔 Identifiant : ${item.itemID}\n⚙️ Type d'architecture : ${item.type || "Non défini"}\n📝 Description : ${item.description || "Aucune description fournie."}\n👑 Développeur : ${item.authorName || "Anonyme"}\n📊 Statistiques globales :\n👀 Vues : ${item.views || 0}  |  💝 Likes : ${item.likes || 0}\n━━━━━━━━━━━━━━━━━━━━━━━━━━\n🔗 Code source brut (Raw) :\n`
           );
+          const rawUrl = `${GoatStor}/raw/${item.rawID}`;
+
+          return send(header + rawUrl);
         }
         // 📄 PAGE (Navigation)
         case "page": {

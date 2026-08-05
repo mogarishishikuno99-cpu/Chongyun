@@ -572,8 +572,8 @@ async function createTransferCard({
   };
 
   // Dessin des deux panneaux principaux
-  await drawPlayerCard(95, "ENTITÉ ÉMETTRICE", senderName, senderTag, senderRank, senderBalanceAfter, senderAvatar, false);
-  await drawPlayerCard(685, "ENTITÉ RÉCEPTRICE", receiverName, receiverTag, receiverRank, receiverBalanceAfter, receiverAvatar, true);
+  await drawPlayerCard(95, "ENTITÉ ÉMETTEUR", senderName, senderTag, senderRank, senderBalanceAfter, senderAvatar, false);
+  await drawPlayerCard(685, "ENTITÉ RÉCEPTEUR", receiverName, receiverTag, receiverRank, receiverBalanceAfter, receiverAvatar, true);
 
   // =========================================================================
   // 6. CERCLE CENTRAL AAA (LE NOYAU DE TRANSACTION)

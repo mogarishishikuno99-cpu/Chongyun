@@ -10,7 +10,7 @@ module.exports = {
     category: "owner",
     description: "Affiche la liste des groupes et permet de les quitter.",
     guide: {
-      fr: "Tapez la commande, puis répondez au message avec 'page [numéro]' ou 'kick [numéro]'."
+      en: "Tapez la commande, puis répondez au message avec 'page [numéro]' ou 'kick [numéro]'."
     }
   },
   onStart: async function ({ api, event, args, message, commandName }) {

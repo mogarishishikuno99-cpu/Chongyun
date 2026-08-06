@@ -1,4 +1,6 @@
 // 🌸 Hori Custom Rank Card Terminal 🌸
+const fs = require("fs");
+const path = require("path");
 const checkUrlRegex = /https?:\/\/.*\.(?:png|jpg|jpeg|gif)/gi;
 const regExColor = /#([0-9a-f]{6})|rgb\((\d{1,3}),\s*(\d{1,3}),\s*(\d{1,3})\)|rgba\((\d{1,3}),\s*(\d{1,3}),\s*(\d{1,3}),\s*(\d+\.?\d*)\)/gi;
 const fonts = require("../func/fonts.js");
@@ -8,7 +10,7 @@ module.exports = {
   config: {
     name: "customrankcard",
     aliases: ["crc", "customrank", "horirank"],
-    version: "2.0.0 Hori Pro",
+    version: "2.0.2 Hori Pro",
     author: "NTKhang × Shade × Gemini",
     countDown: 5,
     role: 0,
@@ -31,23 +33,32 @@ module.exports = {
       invalidAlpha: "❌ Opacity transparency value must be range between 0 ⟶ 1."
     }
   },
-  onStart: async function ({ message, threadsData, event, args, getLang, usersData, envCommands }) {
+  onStart: async function ({ api, message, threadsData, usersData, event, args, getLang }) {
     if (!args[0]) return message.SyntaxError();
     const customRankCard = await threadsData.get(event.threadID, "data.customRankCard", {});
     const key = args[0].toLowerCase();
     let value = args.slice(1).join(" ");
     const supportImage = ["maincolor", "background", "bg", "subcolor", "expbarcolor", "progresscolor", "linecolor"];
     const notSupportImage = ["textcolor", "namecolor", "expcolor", "rankcolor", "levelcolor", "lvcolor"];
-    
+
+    // Fonction interne pour exécuter le rendu direct de rank.js pour l'aperçu
+    const sendPreview = async (successMessage) => {
+      const rankCmd = global.GoatBot?.commands?.get("rank");
+      if (rankCmd && typeof rankCmd.onStart === "function") {
+        return rankCmd.onStart({ api, event, args: [], usersData, threadsData, message });
+      }
+      return message.reply(fonts.christus(successMessage));
+    };
+
     if ([...notSupportImage, ...supportImage].includes(key)) {
       const attachmentsReply = event.messageReply?.attachments;
       const attachments = [
         ...event.attachments.filter(({ type }) => ["photo", "animated_image"].includes(type)),
-        ...attachmentsReply?.filter(({ type }) => ["photo", "animated_image"].includes(type)) || []
+        ...(attachmentsReply?.filter(({ type }) => ["photo", "animated_image"].includes(type)) || [])
       ];
-      
+
       if (value === "reset") {
-        // Mode reset géré dans le switch inférieur
+        // Géré dans le switch
       } else if (value.match(/^https?:\/\//)) {
         const matchUrl = value.match(checkUrlRegex);
         if (!matchUrl) return message.reply(fonts.christus(getLang("invalidImage")));
@@ -65,11 +76,11 @@ module.exports = {
         if (!colors) return message.reply(fonts.christus(getLang("invalidColor")));
         value = colors.length === 1 ? colors[0] : colors;
       }
-      
-      if (value !== "reset" && notSupportImage.includes(key) && value.startsWith?.("http")) {
+
+      if (value !== "reset" && notSupportImage.includes(key) && typeof value === "string" && value.startsWith("http")) {
         return message.reply(fonts.christus(getLang("notSupportImage", key)));
       }
-      
+
       switch (key) {
         case "maincolor":
         case "background":
@@ -105,24 +116,14 @@ module.exports = {
           value === "reset" ? delete customRankCard.exp_text_color : customRankCard.exp_text_color = value;
           break;
       }
-      
+
       try {
         await threadsData.set(event.threadID, customRankCard, "data.customRankCard");
-        message.reply({
-          body: fonts.christus("✨ 🌸 [ INTERFACE DE RENDU MISE À JOUR ] 🌸 ✨\n━━━━━━━━━━━━━━━━━━━━━━━━━━\n") + 
-                fonts.christus("Modification : ") + fonts.christus(`Définition de l'attribut [ ${key} ] effectuée.\n`) + 
-                fonts.christus("Statut : ") + fonts.christus("Changements sauvegardés dans la base de données du salon."),
-          attachment: await global.client.makeRankCard(
-            event.senderID,
-            usersData,
-            threadsData,
-            event.threadID,
-            envCommands["rank"]?.deltaNext || 5
-          ).then(stream => {
-            stream.path = "hori_rankcard.png";
-            return stream;
-          })
-        });
+        await message.reply(
+          fonts.christus("✨ 🌸 [ INTERFACE DE RENDU MISE À JOUR ] 🌸 ✨\n━━━━━━━━━━━━━━━━━━━━━━━━━━\n") +
+          fonts.christus(`Attribut [ ${key} ] enregistré avec succès. Génération de l'aperçu...`)
+        );
+        await sendPreview("Aperçu non disponible.");
       } catch (err) {
         message.err(err);
       }
@@ -133,27 +134,19 @@ module.exports = {
       customRankCard.alpha_subcard = parseFloat(value);
       try {
         await threadsData.set(event.threadID, customRankCard, "data.customRankCard");
-        message.reply({
-          body: fonts.christus("✨ 🌸 [ OPACITY INTERFACE OPTIMIZED ] 🌸 ✨\n━━━━━━━━━━━━━━━━━━━━━━━━━━\n") + 
-                fonts.christus(`Opacité de transparence mise à jour avec succès [ ${value} ]. Calibrage du visuel en cours.`),
-          attachment: await global.client.makeRankCard(
-            event.senderID,
-            usersData,
-            threadsData,
-            event.threadID,
-            envCommands["rank"]?.deltaNext || 5
-          ).then(stream => {
-            stream.path = "hori_rankcard.png";
-            return stream;
-          })
-        });
+        await message.reply(
+          fonts.christus("✨ 🌸 [ OPACITY INTERFACE OPTIMIZED ] 🌸 ✨\n━━━━━━━━━━━━━━━━━━━━━━━━━━\n") +
+          fonts.christus(`Opacité mise à jour à [ ${value} ]. Génération de l'aperçu...`)
+        );
+        await sendPreview("Aperçu non disponible.");
       } catch (err) {
         message.err(err);
       }
     } else if (key === "reset") {
       try {
         await threadsData.set(event.threadID, {}, "data.customRankCard");
-        message.reply(fonts.christus("✨ 🌸 [ ARCHITECTURE INITIALISÉE ] 🌸 ✨\n━━━━━━━━━━━━━━━━━━━━━━━━━━\nConfiguration réinitialisée. Les calques d'origine de la carte de niveau ont été restaurés."));
+        await message.reply(fonts.christus("✨ 🌸 [ ARCHITECTURE INITIALISÉE ] 🌸 ✨\n━━━━━━━━━━━━━━━━━━━━━━━━━━\nConfiguration réinitialisée. Les calques d'origine de la carte de niveau ont été restaurés."));
+        await sendPreview("Aperçu non disponible.");
       } catch (err) {
         message.err(err);
       }

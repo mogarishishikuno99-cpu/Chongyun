@@ -5,7 +5,7 @@ const fonts = require("../func/fonts.js");
 module.exports = {
   config: {
     name: "help",
-    version: "10.3",
+    version: "10.6",
     author: "Shade × Christus",
     countDown: 2,
     role: 0,
@@ -26,10 +26,16 @@ module.exports = {
       for (const [name, cmd] of commands) {
         const c = cmd.config || {};
         const cmdName = (c.name || name).toLowerCase();
-        const desc = (c.shortDescription?.en || c.description || "").toLowerCase();
+        
+        let descStr = "";
+        if (typeof c.shortDescription === "string") descStr = c.shortDescription;
+        else if (c.shortDescription && typeof c.shortDescription.en === "string") descStr = c.shortDescription.en;
+        else if (typeof c.description === "string") descStr = c.description;
+        else if (c.description && typeof c.description.en === "string") descStr = c.description.en;
+
         const aliases = c.aliases ? c.aliases.map(a => a.toLowerCase()) : [];
 
-        if (cmdName.includes(keyword) || desc.includes(keyword) || aliases.some(a => a.includes(keyword))) {
+        if (cmdName.includes(keyword) || descStr.toLowerCase().includes(keyword) || aliases.some(a => a.includes(keyword))) {
           matchedCmds.push({ name: c.name || name, config: c });
         }
       }
@@ -42,16 +48,28 @@ module.exports = {
       
       for (const item of matchedCmds) {
         const c = item.config;
-        const name = c.name || "unknown";
-        const desc = c.shortDescription?.en || c.description || "No Description";
-        const aliases = c.aliases && c.aliases.length > 0 ? c.aliases.join(", ") : "None";
-        const guide = c.guide?.fr || c.guide?.en || c.guide || "";
+        const rawName = c.name || "unknown";
+        
+        let descStr = "";
+        if (typeof c.shortDescription === "string") descStr = c.shortDescription;
+        else if (c.shortDescription && typeof c.shortDescription.en === "string") descStr = c.shortDescription.en;
+        else if (typeof c.description === "string") descStr = c.description;
+        else if (c.description && typeof c.description.en === "string") descStr = c.description.en;
 
-        resultMsg += `\n📁 ${p}${fonts.developed(name)}`;
-        resultMsg += `\n➜ 𝗡𝗈 𝗗𝖾𝗌𝖼𝗋𝗂𝗉𝗍𝗂𝗈𝗇: ${fonts.christus(desc)}`;
+        const aliases = c.aliases && c.aliases.length > 0 ? c.aliases.join(", ") : "None";
+        const guide = c.guide?.fr || c.guide?.en || (typeof c.guide === "string" ? c.guide : "");
+
+        resultMsg += `\n\n📁 +${fonts.christus(rawName)}`;
+        
+        if (!descStr || descStr.trim() === "" || descStr.toLowerCase() === "none") {
+          resultMsg += `\n➜ 𝗡𝗈 𝗗𝖾𝗌𝖼𝗋𝗂𝗉𝗍𝗂𝗈𝗇`;
+        } else {
+          resultMsg += `\n➜ ${fonts.christus(descStr)}`;
+        }
+
         resultMsg += `\n𝗔𝗅𝗂𝖺𝗌𝖾𝗌: ${fonts.christus(aliases)}`;
         if (guide) {
-          resultMsg += `\n➜ 🔧 ${fonts.christus(guide)}`;
+          resultMsg += `\n➜ ${fonts.christus(guide)}`;
         }
       }
 
@@ -69,10 +87,17 @@ module.exports = {
       if (!cmd) return message.reply(fonts.christus("❌ Commande introuvable."));
       const c = cmd.config;
 
-      const name = c.name || "Unknown";
+      const rawName = c.name || "Unknown";
+      const capitalizedName = rawName.charAt(0).toUpperCase() + rawName.slice(1);
       const author = c.author || "Unknown";
-      const desc = c.shortDescription?.en || c.description || "None";
-      const usage = c.guide?.fr || c.guide?.en || c.guide || "No guide available";
+      
+      let descStr = "None";
+      if (typeof c.shortDescription === "string") descStr = c.shortDescription;
+      else if (c.shortDescription && typeof c.shortDescription.en === "string") descStr = c.shortDescription.en;
+      else if (typeof c.description === "string") descStr = c.description;
+      else if (c.description && typeof c.description.en === "string") descStr = c.description.en;
+
+      const usage = c.guide?.fr || c.guide?.en || (typeof c.guide === "string" ? c.guide : "No guide available");
       const category = c.category || "other";
       const cooldown = `${c.countDown || 0}s`;
       let roleText = "All users";
@@ -80,10 +105,10 @@ module.exports = {
       if (c.role === 2) roleText = "Admin";
       const aliases = c.aliases && c.aliases.length > 0 ? c.aliases.join(", ") : "None";
 
-      const detailMsg = `╭─── 📄 ${fonts.developed(name)} ───` +
-        `\n│ ➤ 𝗡𝖺𝗆𝖾: ${fonts.christus(name)}` +
+      const detailMsg = `╭─── 📄 ${fonts.developed(capitalizedName)} ───` +
+        `\n│ ➤ 𝗡𝖺𝗆𝖾: ${fonts.christus(rawName)}` +
         `\n│ ➤ 𝗔𝗎𝗍𝗁𝗈𝗋: ${fonts.christus(author)}` +
-        `\n│ ➤ 𝗗𝖾𝗌𝖼𝗋𝗂𝗉𝗍𝗂𝗈𝗇: ${fonts.christus(desc)}` +
+        `\n│ ➤ 𝗗𝖾𝗌𝖼𝗋𝗂𝗉𝗍𝗂𝗈𝗇: ${fonts.christus(descStr)}` +
         `\n│ ➤ 𝗨𝗌𝖺𝗀𝖾: ${fonts.mono(usage)}` +
         `\n│ ➤ 𝗖𝖺𝗍𝖾𝗀𝗈𝗋𝗒: ${fonts.christus(category)}` +
         `\n│ ➤ 𝗖𝗈𝗈𝗅𝖽𝗈𝗐𝗇: ${fonts.christus(cooldown)}` +
@@ -110,7 +135,7 @@ module.exports = {
       const sortedCmds = cats[cat].sort();
       const count = sortedCmds.length;
 
-      menu += `\n${fonts.developed(cat)} (${count})`;
+      menu += `\n\n${fonts.developed(cat)} (${count})`;
       
       const formattedCmdsList = sortedCmds.map(cmd => `📄 ${fonts.christus(cmd)}`).join("   ");
       menu += `\n${formattedCmdsList}`;
@@ -118,7 +143,7 @@ module.exports = {
 
     menu += `\n\n➜ 𝐂𝐨𝐦𝐦𝐚𝐧𝐝 𝐝𝐞𝐭𝐚𝐢𝐥𝐬: ${p}help <𝚌𝚘𝚖𝚖𝚊𝚗𝚍𝚎>`;
     menu += `\n➜ 𝐁𝐚𝐬𝐢𝐜𝐬: ${p}help 𝚋𝚊𝚜𝚒𝚌𝚜`;
-    menu += `\n➜ 𝐒𝐞𝐚𝐫𝐜𝐡: ${p}help 𝚜𝚎𝚊𝚛𝚌𝚑 <𝚖𝚘𝚝>`;
+    menu += `\n➜ 𝐒𝐞𝐚𝐫𝐜𝐡: ${p}help 𝚜𝚎𝚊𝚛𝚌𝚑 <𝚖𝗈𝚝>`;
     menu += `\n➜ 𝐃𝐞𝐯𝐞𝐥𝐨𝐩𝐞𝐝 𝐛𝐲 @𝐒𝐡𝐚𝐝𝐞 🎀`;
 
     return message.reply(fonts.christus(menu));

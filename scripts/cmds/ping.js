@@ -1,32 +1,57 @@
+const fs = require("fs");
+const path = require("path");
+const https = require("https");
+
+const imageUrl = "https://i.imgur.com/uOqUSV7.jpeg";
+const localPath = path.join(__dirname, "ping_image.jpg");
+
 module.exports = {
   config: {
     name: "ping",
-    aliases: ["latency", "ms"],
-    version: "1.0.0",
-    author: "Shade × Gemini",
+    version: "0.0.1",
+    author: "ArYAN",
+    countDown: 5,
     role: 0,
-    category: "system",
-    shortDescription: "Vérifie la latence et le temps de réponse du bot",
-    guide: "{pn}"
+    shortDescription: "Check bot speed!",
+    longDescription: "Check bot response & uptime with a cute image.",
+    category: "utility",
   },
 
-  onStart: async function ({ message, event }) {
-    const timeStart = Date.now();
+  onStart: async () => {},
 
-    // Envoi du message initial pour calculer le délai d'aller-retour
-    const sentMsg = await message.reply("🏓 Pong ! Calcul de la latence...");
+  onChat: async function ({ event, message }) {
+    if ((event.body || "").toLowerCase() === "ping") {
+      const start = Date.now();
+      const systemUptime = process.uptime(); // in seconds
+      const botUptime = global.botStartTime
+        ? Math.floor((Date.now() - global.botStartTime) / 1000)
+        : systemUptime;
 
-    const timeEnd = Date.now();
-    const latency = timeEnd - timeStart;
+      // Download image
+      const file = fs.createWriteStream(localPath);
+      https.get(imageUrl, (response) => {
+        response.pipe(file);
+        file.on("finish", async () => {
+          const ping = Date.now() - start;
 
-    let status = "🟢 Excellente";
-    if (latency > 200) status = "🟡 Moyenne";
-    if (latency > 500) status = "🔴 Lente";
+          const body = `🟢 Ping Time : ${ping}ms.`.trim();
 
-    return message.reply(
-      `🏓 **PONG !**\n\n` +
-      `⚡ **Latence :** \`${latency} ms\`\n` +
-      `📊 **État du réseau :** ${status}`
-    );
-  }
+          return message.reply({
+            body,
+            attachment: fs.createReadStream(localPath),
+          });
+        });
+      });
+    }
+  },
 };
+
+function formatTime(seconds) {
+  const d = Math.floor(seconds / (3600 * 24));
+  seconds %= 3600 * 24;
+  const h = Math.floor(seconds / 3600);
+  seconds %= 3600;
+  const m = Math.floor(seconds / 60);
+  const s = Math.floor(seconds % 60);
+  return `${d}d ${h}h ${m}m ${s}s`;
+                }

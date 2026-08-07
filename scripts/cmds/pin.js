@@ -199,7 +199,7 @@ module.exports = {
             return message.reply("❌ Veuillez entrer un mot-clé pour lancer la recherche interactive.");
         }
 
-        const apiUrl = `https://zetbot-page.onrender.com/api/pinterest?query=${encodeURIComponent(query)}&limit=32`;
+        const apiUrl = `https://zetbot-page.onrender.com/api/pinterest?query=${encodeURIComponent(query)}&limit=30`;
 
         try {
             const loadingMsg = await message.reply("🔍 Chargement du catalogue Pinterest...");

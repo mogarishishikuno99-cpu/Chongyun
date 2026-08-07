@@ -1,67 +1,62 @@
 const axios = require("axios");
+const fonts = require("../func/fonts.js");
 
 module.exports = {
   config: {
     name: "imgur",
-    version: "✨ 1.1 angel kawaii",
-    author: "Christus ✨ Shade Edit",
+    version: "1.2",
+    author: "Christus & Shade Edit",
     countDown: 3,
     role: 0,
-    shortDescription: "🌸 Upload image/vidéo sur Imgur",
-    longDescription: "💖 Réponds à une image ou envoie une URL pour l’envoyer sur Imgur",
+    shortDescription: "Upload image/vidéo sur Imgur",
+    longDescription: "Réponds à une image ou envoie une URL pour l’envoyer sur Imgur",
     category: "download",
-    guide: "{pn} reply image/vidéo ou lien 🌸"
+    guide: "{pn} reply image/vidéo ou lien"
   },
-
   onStart: async function ({ api, event, args }) {
     const { threadID, messageID, messageReply } = event;
-
     const send = (text) =>
-      api.sendMessage(`🌸✨ ${text}`, threadID, messageID);
+      api.sendMessage(fonts.christus(`📌 ${text}`), threadID, messageID);
 
     try {
       let mediaUrl = "";
-
-      // 📸 reply image
+      
       if (messageReply?.attachments?.length > 0) {
         mediaUrl = messageReply.attachments[0].url;
       }
-
-      // 🔗 url
       else if (args.length > 0) {
         mediaUrl = args.join(" ");
       }
 
       if (!mediaUrl) {
-        return send("❌ Réponds à une image/vidéo ou donne un lien valide 💔✨");
+        return send("Réponds à une image/vidéo ou donne un lien valide.");
       }
 
-      // ⏳ reaction loading
       api.setMessageReaction("⏳", messageID, () => {}, true);
 
       const res = await axios.get(
         `http://65.109.80.126:20409/aryan/imgur?url=${encodeURIComponent(mediaUrl)}`
       );
-
       const link = res.data?.imgur;
 
       if (!link) {
         api.setMessageReaction("❌", messageID, () => {}, true);
-        return send("💔✨ Upload échoué sur Imgur...");
+        return send("Upload échoué sur Imgur...");
       }
 
-      // ✅ success reaction
       api.setMessageReaction("✅", messageID, () => {}, true);
 
+      const caption = `╭───────────────✦` +
+        `\n│ 📤 𝗜𝗠𝗚𝗨𝗥 𝗨𝗣𝗟𝗢𝗔𝗗 𝗣𝗥𝗢` +
+        `\n├────────────────` +
+        `\n│ 🔗 Lien : ${link}` +
+        `\n├────────────────` +
+        `\n│ 📌 Status : Upload terminé` +
+        `\n│ 🤖 System par Shade` +
+        `\n╰───────────────✦`;
+
       return api.sendMessage(
-        `╭───────────────✦
-│ 🌸 𝗜𝗠𝗚𝗨𝗥 𝗨𝗣𝗟𝗢𝗔𝗗 𝗔𝗡𝗚𝗘𝗟 ✨
-├────────────────
-│ 💖 Lien : ${link}
-├────────────────
-│ ⏳ Status : Upload terminé
-│ 🤖 Bot : Angel system ✨
-╰───────────────✦`,
+        fonts.christus(caption),
         threadID,
         messageID
       );
@@ -69,8 +64,7 @@ module.exports = {
     } catch (err) {
       console.error("Imgur error:", err);
       api.setMessageReaction("❌", messageID, () => {}, true);
-
-      return send("⚠️ Une erreur est survenue pendant l’upload 💔✨");
+      return send("Une erreur est survenue pendant l’upload.");
     }
   }
 };

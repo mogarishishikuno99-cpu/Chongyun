@@ -8,7 +8,7 @@ module.exports.config = {
   name: "imagedetail",
   aliases: ["imgdetail"],
   version: "1.2",
-  author: "Christus & Shade Edit",
+  author: "Shade",
   countDown: 5,
   role: 0,
   description: "Affiche les métadonnées d'une image avec style pro",

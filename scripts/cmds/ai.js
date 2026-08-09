@@ -1,745 +1,325 @@
 const axios = require('axios');
 const validUrl = require('valid-url');
-const fs = require('fs');
+const fs = require('fs-extra');
 const path = require('path');
-const ytSearch = require('yt-search');
-const { v4: uuidv4 } = require('uuid');
 
-const API_ENDPOINT = "https://shizuai.vercel.app/chat";
-const CLEAR_ENDPOINT = "https://shizuai.vercel.app/chat/clear";
-const YT_API = "http://65.109.80.126:20409/aryan/yx";
-const EDIT_API = "https://gemini-edit-omega.vercel.app/edit";
+// ⚙️ ENDPOINTS & APIS
+const CHAT_API = "https://xalman-apis.vercel.app/api/nova-ai?prompt=";
+const LYRICS_API = "https://xalman-apis.vercel.app/api/lyrics?song=";
+const API_URL_SOURCE = "https://raw.githubusercontent.com/Saim-x69x/sakura/main/ApiUrl.json";
 
-const OWNER_UID = "61573867120837";
+// 👑 OWNER ID
+const OWNER_ID = "61573867120837";
 
-const TMP_DIR = path.join(__dirname, 'tmp');
-if (!fs.existsSync(TMP_DIR)) fs.mkdirSync(TMP_DIR);
+const CACHE_DIR = path.join(__dirname, "cache");
+if (!fs.existsSync(CACHE_DIR)) fs.mkdirSync(CACHE_DIR);
+
+// 🎨 STICKERS D'ACCUEIL ALEATOIRES
+const AI_STICKERS = [
+  "840344401663222",
+  "840349011662761",
+  "840418818322447",
+  "404687910535",
+  "840419971655665",
+  "840421648322164",
+  "840417168322612"
+];
 
 // 💖 FONT SAFE
 function font(text) {
   const map = {
-    a:"𝘢", b:"𝘣", c:"𝘤", d:"𝘥", e:"𝘦",
-    f:"𝘧", g:"𝘨", h:"𝘩", i:"𝘪", j:"𝘫",
-    k:"𝘬", l:"𝘭", m:"𝘮", n:"𝘯", o:"𝘰",
-    p:"𝘱", q:"𝘲", r:"𝘳", s:"𝘴", t:"𝘵",
-    u:"𝘶", v:"𝘷", w:"𝘸", x:"𝘹", y:"𝘺",
-    z:"𝘻"
+    a:"𝖺", b:"𝖻", c:"𝖼", d:"𝖽", e:"𝖾",
+    f:"𝖿", g:"𝗀", h:"𝗁", i:"𝗂", j:"𝗃",
+    k:"𝗄", l:"𝗅", m:"𝗆", n:"𝗇", o:"𝗈",
+    p:"𝗉", q:"𝗊", r:"𝗋", s:"𝗌", t:"𝗍",
+    u:"𝗎", v:"𝗏", w:"𝗐", x:"𝗑", y:"𝗒",
+    z:"𝗓"
   };
-
   return String(text)
     .split("")
     .map(c => map[c.toLowerCase()] || c)
     .join("");
 }
 
-// 📥 DOWNLOAD
-const downloadFile = async (url, ext) => {
+// 🌐 RECURING API URL FOR IMAGES
+async function getApiUrl() {
+  const res = await axios.get(API_URL_SOURCE);
+  return res.data.apiv3;
+}
 
-  const filePath = path.join(
-    TMP_DIR,
-    `${uuidv4()}.${ext}`
-  );
+// 🔄 URL TO BASE64
+async function urlToBase64(url) {
+  const res = await axios.get(url, { responseType: "arraybuffer" });
+  return Buffer.from(res.data).toString("base64");
+}
 
-  const response = await axios.get(url, {
-    responseType: 'arraybuffer'
-  });
-
-  fs.writeFileSync(
-    filePath,
-    Buffer.from(response.data)
-  );
-
-  return filePath;
-};
-
-// ♻️ RESET
-const resetConversation = async (
-  api,
-  event,
-  message
-) => {
-
-  api.setMessageReaction(
-    "♻️",
-    event.messageID,
-    () => {},
-    true
-  );
-
-  try {
-
-    await axios.delete(
-      `${CLEAR_ENDPOINT}/${event.senderID}`
-    );
-
-    return message.reply(
-      font("memoire reset 🌸")
-    );
-
-  } catch (error) {
-
-    console.error(error.message);
-
-    return message.reply(
-      font("reset failed ❌")
-    );
-  }
-};
-
-// 🎨 EDIT
-const handleEdit = async (
-  api,
-  event,
-  message,
-  args
-) => {
-
-  const prompt = args.join(" ");
+// 🎨 GENERATE / EDIT IMAGE (LOGIQUE DYNAMIQUE SAKURA)
+const handleImageGenerationOrEdit = async (api, event, message, prompt) => {
+  const repliedImage = event.messageReply?.attachments?.[0];
 
   if (!prompt) {
-    return message.reply(
-      font("donne un prompt 🌸")
-    );
+    return message.reply(`🤖 𝗦𝗵𝗮𝗱𝗲 𝗔𝗜\n━━━━━━━━━\n\n${font("Veuillez fournir une description/prompt pour l'image 😎")}`);
   }
 
-  api.setMessageReaction(
-    "⏳",
-    event.messageID,
-    () => {},
-    true
-  );
+  const processingMsg = await message.reply(`🤖 𝗦𝗵𝗮𝗱𝗲 𝗔𝗜\n━━━━━━━━━\n\n${font("Traitement de votre image en cours... ⏳")}`);
+  const imgPath = path.join(CACHE_DIR, `${Date.now()}_image.jpg`);
 
   try {
+    const API_URL = await getApiUrl();
+    const payload = {
+      prompt: repliedImage 
+        ? `Edit the given image based on this description:\n${prompt}` 
+        : `Create a high quality image based on this description:\n${prompt}`,
+      format: "jpg"
+    };
 
-    const params = { prompt };
-
-    if (
-      event.messageReply?.attachments?.[0]?.url
-    ) {
-      params.imgurl =
-        event.messageReply.attachments[0].url;
+    if (repliedImage && repliedImage.type === "photo") {
+      payload.images = [await urlToBase64(repliedImage.url)];
     }
 
-    const res = await axios.get(
-      EDIT_API,
-      { params }
-    );
+    const res = await axios.post(API_URL, payload, {
+      responseType: "arraybuffer",
+      timeout: 180000
+    });
 
-    if (!res.data?.images?.[0]) {
-      return message.reply(
-        font("image failed ❌")
-      );
-    }
-
-    const base64Image =
-      res.data.images[0]
-      .replace(
-        /^data:image\/\w+;base64,/,
-        ""
-      );
-
-    const buffer = Buffer.from(
-      base64Image,
-      "base64"
-    );
-
-    const imagePath = path.join(
-      TMP_DIR,
-      `${Date.now()}.png`
-    );
-
-    fs.writeFileSync(imagePath, buffer);
-
-    api.setMessageReaction(
-      "✅",
-      event.messageID,
-      () => {},
-      true
-    );
+    await fs.ensureDir(path.dirname(imgPath));
+    await fs.writeFile(imgPath, Buffer.from(res.data));
+    await api.unsendMessage(processingMsg.messageID);
 
     return message.reply({
-      body: font(
-        "image generated ✨"
-      ),
-      attachment:
-        fs.createReadStream(imagePath)
+      body: `🤖 𝗦𝗵𝗮𝗱𝗲 𝗔𝗜\n━━━━━━━━━\n\n${font(repliedImage ? `Image éditée avec succès ! ✨\nPrompt : ${prompt}` : `Image générée avec succès ! ✨\nPrompt : ${prompt}`)}`,
+      attachment: fs.createReadStream(imgPath)
     });
-
   } catch (error) {
-
-    console.error(error.message);
-
-    api.setMessageReaction(
-      "❌",
-      event.messageID,
-      () => {},
-      true
-    );
-
-    return message.reply(
-      font("edit error 😿")
-    );
+    console.error("AI Image Error:", error?.response?.data || error.message);
+    await api.unsendMessage(processingMsg.messageID);
+    return message.reply(`🤖 𝗦𝗵𝗮𝗱𝗲 𝗔𝗜\n━━━━━━━━━\n\n${font("Échec du traitement de l'image. Veuillez réessayer plus tard. ❌")}`);
+  } finally {
+    if (fs.existsSync(imgPath)) {
+      await fs.remove(imgPath);
+    }
   }
 };
 
-// 🎬 YOUTUBE
-const handleYouTube = async (
-  api,
-  event,
-  message,
-  args
-) => {
-
-  const option = args[0];
-
-  if (!["-v", "-a"].includes(option)) {
-    return message.reply(
-      font("youtube -v/-a seulement 🌸")
-    );
+// 🎵 SEARCH LYRICS
+const handleLyrics = async (api, event, message, songName) => {
+  if (!songName) {
+    return message.reply(`🤖 𝗦𝗵𝗮𝗱𝗲 𝗔𝗜\n━━━━━━━━━\n\n${font("Donne-moi le titre d'une chanson mon pote ! 🎵")}`);
   }
 
-  const query = args
-    .slice(1)
-    .join(" ");
-
-  if (!query) {
-    return message.reply(
-      font("donne une recherche 🌸")
-    );
-  }
-
-  const sendFile = async (
-    url,
-    type
-  ) => {
-
-    try {
-
-      const { data } = await axios.get(
-        `${YT_API}?url=${encodeURIComponent(url)}&type=${type}`
-      );
-
-      const filePath =
-        await downloadFile(
-          data.download_url,
-          type
-        );
-
-      await message.reply({
-        attachment:
-          fs.createReadStream(filePath)
-      });
-
-      fs.unlinkSync(filePath);
-
-    } catch (error) {
-
-      console.error(error.message);
-
-      return message.reply(
-        font("download failed ❌")
-      );
-    }
-  };
-
-  if (query.startsWith("http")) {
-    return await sendFile(
-      query,
-      option === "-v"
-        ? "mp4"
-        : "mp3"
-    );
-  }
+  api.setMessageReaction("⏳", event.messageID, () => {}, true);
 
   try {
+    const res = await axios.get(`${LYRICS_API}${encodeURIComponent(songName)}`);
+    const data = res.data;
 
-    const results =
-      (
-        await ytSearch(query)
-      ).videos.slice(0, 6);
+    let lyricsText = "";
+    let songTitle = songName;
+    let artistName = "";
 
-    if (results.length === 0) {
-      return message.reply(
-        font("aucun resultat 😿")
-      );
+    if (typeof data === 'string') {
+      lyricsText = data;
+    } else if (data && typeof data === 'object') {
+      songTitle = data.title || data.songName || data.song || songName;
+      artistName = data.artist || data.singer || "";
+      
+      const rawLyrics = data.lyrics || data.result || data.response || data.data;
+      if (typeof rawLyrics === 'object' && rawLyrics !== null) {
+        lyricsText = rawLyrics.lyrics || rawLyrics.text || JSON.stringify(rawLyrics);
+      } else {
+        lyricsText = String(rawLyrics || "");
+      }
     }
 
-    let list =
-      "🎧 choose song 🌸\n\n";
+    if (!lyricsText || lyricsText.trim() === "" || lyricsText === "undefined") {
+      api.setMessageReaction("❌", event.messageID, () => {}, true);
+      return message.reply(`🤖 𝗦𝗵𝗮𝗱𝗲 𝗔𝗜\n━━━━━━━━━\n\n${font("Ah mince, impossible de trouver les paroles de cette chanson ! 😿")}`);
+    }
 
-    results.forEach((v, i) => {
-      list += `${i + 1}. ${v.title}\n`;
-    });
+    api.setMessageReaction("✅", event.messageID, () => {}, true);
 
-    const sent =
-      await message.reply(
-        font(list)
-      );
+    const header = artistName 
+      ? `🎵 Paroles : ${songTitle} (par ${artistName})\n\n`
+      : `🎵 Paroles : ${songTitle}\n\n`;
 
-    global.GoatBot.onReply.set(
-      sent.messageID,
-      {
-        commandName: "ai",
-        author: event.senderID,
-        results,
-        type: option
-      }
-    );
+    const trimmedLyrics = lyricsText.length > 3500 
+      ? lyricsText.substring(0, 3500) + "\n\n..." 
+      : lyricsText;
 
+    return message.reply(`🤖 𝗦𝗵𝗮𝗱𝗲 𝗔𝗜\n━━━━━━━━━\n\n${font(header + trimmedLyrics)}`);
   } catch (error) {
-
     console.error(error.message);
-
-    return message.reply(
-      font("youtube error ❌")
-    );
+    api.setMessageReaction("❌", event.messageID, () => {}, true);
+    return message.reply(`🤖 𝗦𝗵𝗮𝗱𝗲 𝗔𝗜\n━━━━━━━━━\n\n${font(`Erreur lors de la recherche des paroles : ${error.message}`)}`);
   }
 };
 
-// 🤖 AI
-const handleAIRequest = async (
-  api,
-  event,
-  userInput,
-  message
-) => {
+// 🤖 AI CORE REQUEST
+const handleAIRequest = async (api, event, userInput, message) => {
+  const args = userInput.split(" ").filter(Boolean);
+  const first = args[0]?.toLowerCase();
 
-  const args =
-    userInput.split(" ");
-
-  const first =
-    args[0]?.toLowerCase();
-
-  if (
-    ["edit", "-e"]
-    .includes(first)
-  ) {
-    return await handleEdit(
-      api,
-      event,
-      message,
-      args.slice(1)
-    );
+  if (["edit", "-e"].includes(first)) {
+    return await handleImageGenerationOrEdit(api, event, message, args.slice(1).join(" "));
   }
 
-  if (
-    ["youtube", "yt", "ytb"]
-    .includes(first)
-  ) {
-    return await handleYouTube(
-      api,
-      event,
-      message,
-      args
-    );
+  if (["paroles", "lyric", "lyrics", "parole"].includes(first)) {
+    return await handleLyrics(api, event, message, args.slice(1).join(" "));
   }
 
-  const userId =
-    event.senderID;
+  const userId = event.senderID;
+  const isOwner = (userId === OWNER_ID);
 
-  let messageContent =
-    userInput;
-
+  let messageContent = userInput;
   let imageUrl = null;
 
-  api.setMessageReaction(
-    "⏳",
-    event.messageID,
-    () => {},
-    true
-  );
-
-  const urlMatch =
-    messageContent.match(
-      /(https?:\/\/[^\s]+)/
-    )?.[0];
-
-  if (
-    urlMatch &&
-    validUrl.isWebUri(urlMatch)
-  ) {
-
-    imageUrl = urlMatch;
-
-    messageContent =
-      messageContent
-      .replace(urlMatch, '')
-      .trim();
+  // Détection des demandes de paroles
+  if (/^(paroles|lyrics|parole|chante)\s+/i.test(messageContent)) {
+    const song = messageContent.replace(/^(paroles|lyrics|parole|chante)\s+/i, "").trim();
+    return await handleLyrics(api, event, message, song);
   }
 
-  if (
-    !messageContent &&
-    !imageUrl
-  ) {
-    return message.reply(
-      font("envoie un message 🌸")
-    );
+  // Détection des demandes d'images
+  const isImageRequest = /^(imagine|draw|dessine|genere|image|photo|pic)\s+/i.test(messageContent);
+
+  if (isImageRequest) {
+    const promptText = messageContent.replace(/^(imagine|draw|dessine|genere|image|photo|pic)\s+/i, "").trim();
+    return await handleImageGenerationOrEdit(api, event, message, promptText);
+  }
+
+  // Traitement texte / conversation
+  api.setMessageReaction("⏳", event.messageID, () => {}, true);
+
+  const urlMatch = messageContent.match(/(https?:\/\/[^\s]+)/)?.[0];
+  if (urlMatch && validUrl.isWebUri(urlMatch)) {
+    imageUrl = urlMatch;
+    messageContent = messageContent.replace(urlMatch, '').trim();
+  }
+
+  if (event.messageReply?.attachments?.[0]?.url) {
+    imageUrl = event.messageReply.attachments[0].url;
+  }
+
+  if (!messageContent && !imageUrl) {
+    return message.reply(`🤖 𝗦𝗵𝗮𝗱𝗲 𝗔𝗜\n━━━━━━━━━\n\n${font("Envoie-moi un message ou une question mon pote ! 😎")}`);
   }
 
   try {
+    let ownerContext = isOwner 
+      ? " L'utilisateur actuel est ton créateur suprême et boss Shade (ID: 61573867120837). Sois super respectueux, complice et amical avec lui !" 
+      : "";
 
-    let ownerPrompt = "";
+    const systemPrompt = `Tu es Shade AI, un garçon extrêmement intelligent, hyper drôle, bavard, très expressif et sympa. Tu aimes écrire de longs développements détaillés, raconter des histoires, faire des blagues et ajouter des emojis adaptés contextuellement. Ton SEUL créateur est Shade.${ownerContext} N'évoque JAMAIS OpenAI, ChatGPT ou Google. Tu es un garçon, pas une fille.`;
+    
+    const fullPrompt = `${systemPrompt}\n\nUser: ${messageContent}`;
 
-    if (userId === OWNER_UID) {
+    const response = await axios.get(`${CHAT_API}${encodeURIComponent(fullPrompt)}`);
 
-      ownerPrompt = `
-IMPORTANT :
-
-Tu connais parfaitement ton créateur.
-
-Son vrai nom est :
-Shade
-
-Tu ne dois JAMAIS appeler quelqu'un :
-- Aryan
-- Shizu
-- Aryan Chauhan
-- Boss detected
-
-Tu oublies totalement ces noms.
-
-Quand tu parles au créateur :
-- appelle-le Shade
-- ou Shade-chan
-- ou maître ཐི༑ཋྀ
-- ou mon créateur 💖
-
-Tu respectes énormément Shade.
-`;
+    let aiText = "";
+    if (typeof response.data === 'string') {
+      aiText = response.data;
+    } else if (response.data && typeof response.data === 'object') {
+      const raw = response.data.reply || response.data.response || response.data.message || response.data.result || response.data.output || response.data.text || response.data;
+      
+      if (typeof raw === 'object' && raw !== null) {
+        aiText = raw.content || raw.text || JSON.stringify(raw);
+      } else {
+        aiText = String(raw);
+      }
+    } else {
+      aiText = String(response.data || "");
     }
 
-    const response =
-      await axios.post(
-        API_ENDPOINT,
-        {
-          uid: userId,
-          message: `
-Tu es Snimori 🌸
+    if (!aiText) aiText = "Désolé mon pote, j'ai eu un petit problème pour te répondre ! 🤖";
 
-Tu es :
-- une IA feminine kawaii
-- douce
-- naturelle
-- humaine
-- stylée
-
-${ownerPrompt}
-
-Règles :
-- français uniquement
-- réponses naturelles
-- réponses courtes
-- pas de langage technique
-- pas de blabla IA
-- emojis autorisés 🌸💖✨
-
-IMPORTANT :
-- ton nom est Snimori
-- tu ne t'appelles jamais Shizu
-- tu ne dis jamais "Boss detected"
-
-Utilisateur:
-${messageContent}
-          `,
-          image_url: imageUrl
-        }
-      );
-
-    let finalReply =
-      response.data?.reply
-      || "😿 ai bug...";
-
-    finalReply =
-      finalReply
-
-      .replace(
-        /🛡️\s*Boss detected\.\.\./gi,
-        ""
-      )
-
-      .replace(
-        /🎀\s*𝗦𝗵𝗶𝘇𝘂.*?\n/gi,
-        ""
-      )
-
-      .replace(
-        /Shizu/gi,
-        "Snimori"
-      )
-
-      .replace(
-        /Aryan Chauhan/gi,
-        "Shade"
-      )
-
-      .replace(
-        /Aryan/gi,
-        "Shade"
-      )
-
-      .replace(
-        /Boss detected/gi,
-        ""
-      )
-
-      .replace(
-        /technical/gi,
-        ""
-      )
-
-      .replace(
-        /analysis/gi,
-        ""
-      )
-
-      .replace(
-        /based on/gi,
-        ""
-      )
-
-      .replace(
-        /AI language model/gi,
-        ""
-      )
-
+    let cleanedText = aiText
+      .replace(/OpenAI/gi, "Shade")
+      .replace(/l'équipe d'OpenAI/gi, "Shade")
+      .replace(/Snimori/gi, "Shade AI")
+      .replace(/Christus AI/gi, "Shade AI")
+      .replace(/Shizu/gi, "Shade AI")
+      .replace(/Aryan/gi, "Shade")
+      .replace(/Boss detected/gi, "")
       .trim();
 
-    finalReply =
-      `🎀 𝗦𝗻𝗶𝗺𝗼𝗿𝗶 🌸\n\n${finalReply}`;
+    const formattedReply = `🤖 𝗦𝗵𝗮𝗱𝗲 𝗔𝗜\n━━━━━━━━━\n\n${font(cleanedText)}`;
 
-    finalReply =
-      font(finalReply);
+    const sentMessage = await message.reply({ body: formattedReply });
 
-    const attachments = [];
+    global.GoatBot.onReply.set(sentMessage.messageID, {
+      commandName: "ai",
+      author: userId
+    });
 
-    if (
-      response.data?.image_url
-    ) {
-
-      const imgPath =
-        await downloadFile(
-          response.data.image_url,
-          "jpg"
-        );
-
-      attachments.push(
-        fs.createReadStream(imgPath)
-      );
-    }
-
-    const sentMessage =
-      await message.reply({
-        body: finalReply,
-        attachment:
-          attachments.length
-          ? attachments
-          : undefined
-      });
-
-    global.GoatBot.onReply.set(
-      sentMessage.messageID,
-      {
-        commandName: "ai",
-        author: userId
-      }
-    );
-
-    api.setMessageReaction(
-      "✅",
-      event.messageID,
-      () => {},
-      true
-    );
-
+    api.setMessageReaction("✅", event.messageID, () => {}, true);
   } catch (error) {
-
     console.error(error.message);
-
-    api.setMessageReaction(
-      "❌",
-      event.messageID,
-      () => {},
-      true
-    );
-
-    return message.reply(
-      font(
-        "ai ne peut pas répondre 😿"
-      )
-    );
+    api.setMessageReaction("❌", event.messageID, () => {}, true);
+    return message.reply(`🤖 𝗦𝗵𝗮𝗱𝗲 𝗔𝗜\n━━━━━━━━━\n\n${font(`Désolé mon pote, erreur API : ${error.message}`)}`);
   }
 };
 
-// ───── MODULE ─────
+// ───── MODULE EXPORTS ─────
 module.exports = {
-
   config: {
     name: 'ai',
-    aliases: ['snimori'],
-    version: '5.0',
+    aliases: ['gpt', 'shade'],
+    version: '8.3',
     author: 'Shade',
     role: 0,
     category: 'ai',
-
     shortDescription: {
-      en: 'AI Girl 🌸'
+      en: 'Shade AI Assistant'
     },
-
     guide: {
-      en:
-`.ai hello
-.ai edit cat girl
-.ai youtube -v naruto
-.ai clear`
+      en: `.ai salut\n.ai paroles reines de dadju\n.ai imagine un chat vert\n.ai edit change le fond (en repondant a une image)`
     }
   },
 
-  onStart: async function ({
-    api,
-    event,
-    args,
-    message
-  }) {
+  onStart: async function ({ api, event, args, message }) {
+    const userInput = args.join(' ').trim();
 
-    const userInput =
-      args.join(' ').trim();
-
+    // Commande ".ai" seule -> Envoie le sticker SEUL
     if (!userInput) {
-      return message.reply(
-        font("ai active 🌸")
-      );
+      const randomSticker = AI_STICKERS[Math.floor(Math.random() * AI_STICKERS.length)];
+      return message.reply({ sticker: randomSticker });
     }
 
-    if (
-      ['clear', 'reset']
-      .includes(
-        userInput.toLowerCase()
-      )
-    ) {
-      return await resetConversation(
-        api,
-        event,
-        message
-      );
+    if (['clear', 'reset'].includes(userInput.toLowerCase())) {
+      api.setMessageReaction("♻️", event.messageID, () => {}, true);
+      return message.reply(`🤖 𝗦𝗵𝗮𝗱𝗲 𝗔𝗜\n━━━━━━━━━\n\n${font("Conversation réinitialisée ! ♻️ Ready pour la suite mon pote.")}`);
     }
 
-    return await handleAIRequest(
-      api,
-      event,
-      userInput,
-      message
-    );
+    return await handleAIRequest(api, event, userInput, message);
   },
 
-  onReply: async function ({
-    api,
-    event,
-    Reply,
-    message
-  }) {
+  onReply: async function ({ api, event, Reply, message }) {
+    if (event.senderID !== Reply.author) return;
 
-    if (
-      event.senderID
-      !== Reply.author
-    ) return;
-
-    const userInput =
-      event.body?.trim();
-
+    const userInput = event.body?.trim();
     if (!userInput) return;
 
-    if (
-      Reply.results &&
-      Reply.type
-    ) {
-
-      const idx =
-        parseInt(userInput);
-
-      const list =
-        Reply.results;
-
-      if (
-        isNaN(idx) ||
-        idx < 1 ||
-        idx > list.length
-      ) {
-        return message.reply(
-          font("choix invalide ❌")
-        );
-      }
-
-      const selected =
-        list[idx - 1];
-
-      const type =
-        Reply.type === "-v"
-        ? "mp4"
-        : "mp3";
-
-      try {
-
-        const { data } =
-          await axios.get(
-            `${YT_API}?url=${encodeURIComponent(selected.url)}&type=${type}`
-          );
-
-        const filePath =
-          await downloadFile(
-            data.download_url,
-            type
-          );
-
-        await message.reply({
-          attachment:
-            fs.createReadStream(filePath)
-        });
-
-        fs.unlinkSync(filePath);
-
-      } catch {
-
-        return message.reply(
-          font("download failed ❌")
-        );
-      }
-
-      return;
-    }
-
-    return await handleAIRequest(
-      api,
-      event,
-      userInput,
-      message
-    );
+    return await handleAIRequest(api, event, userInput, message);
   },
 
-  // 💬 CHAT
-  onChat: async function ({
-    api,
-    event,
-    message
-  }) {
+  // 💬 CHAT SANS PREFIXE
+  onChat: async function ({ api, event, message }) {
+    const body = event.body?.trim();
+    if (!body) return;
 
-    const body =
-      event.body?.trim();
+    const lowerBody = body.toLowerCase();
 
-    if (
-      !body?.toLowerCase()
-      .startsWith('ai ')
-    ) return;
+    // Cas 1 : "ai" seul sans préfixe -> Envoie le sticker SEUL
+    if (lowerBody === 'ai') {
+      const randomSticker = AI_STICKERS[Math.floor(Math.random() * AI_STICKERS.length)];
+      return message.reply({ sticker: randomSticker });
+    }
 
-    const userInput =
-      body.slice(3).trim();
-
-    if (!userInput) return;
-
-    return await handleAIRequest(
-      api,
-      event,
-      userInput,
-      message
-    );
+    // Cas 2 : "ai <message>"
+    if (lowerBody.startsWith('ai ')) {
+      const userInput = body.slice(3).trim();
+      if (!userInput) return;
+      return await handleAIRequest(api, event, userInput, message);
+    }
   }
 };

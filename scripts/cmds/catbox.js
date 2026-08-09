@@ -9,12 +9,14 @@ module.exports = {
     name: "catbox",    
     aliases: ["cb"],    
     version: "2.2.1 Hori Edition",    
-    author: "Shade × Gemini",    
+    author: "Shade",    
     role: 0,    
     category: "download",    
     description: "Upload tes médias sur Catbox et récupère un lien permanent.",    
     guide: {      
-      fr: "Réponds à une image, vidéo ou audio avec : {pn}"    }  },  
+      fr: "Réponds à une image, vidéo ou audio avec : {pn}"    
+    }  
+  },  
   
   onStart: async function ({ api, event }) {    
     const attachment = event.messageReply?.attachments?.[0];    
@@ -23,14 +25,16 @@ module.exports = {
     if (!attachmentUrl) {      
       const errorText = fonts.bold("UPLOAD TERMINAL") + "\n\n" +
         "❌ | Action requise : Réponds à une image, une vidéo ou un fichier audio pour l'envoyer vers le serveur d'hébergement.";
-      return api.sendMessage(fonts.christus(errorText), event.threadID, event.messageID);    }    
+      return api.sendMessage(fonts.christus(errorText), event.threadID, event.messageID);    
+    }    
     
     let ext = ".bin";    
     if (attachment.type === "photo") ext = ".png";    
     else if (attachment.type === "video") ext = ".mp4";    
     else if (attachment.type === "audio") ext = ".mp3";    
     else {      
-      ext = path.extname(attachmentUrl.split("?")[0]) || ".bin";    }    
+      ext = path.extname(attachmentUrl.split("?")[0]) || ".bin";    
+    }    
     
     const filename = `hori_upload_${Date.now()}${ext}`;    
     
@@ -57,12 +61,14 @@ module.exports = {
       try { api.setMessageReaction("📩", event.messageID, () => {}, true); } catch(e){}      
       
       const successTitle = fonts.bold("CLOUD STORAGE SUCCESS") + "\n\n";
-      const successText = successTitle + 
-        "📦 | Statut : Hébergement terminé [ 100% ]\n\n" + 
-        `🔗 | Lien permanent généré :\n${data}\n\n` + 
-        "💡 | Le fichier est désormais stocké en ligne de façon définitive.";      
       
-      return api.sendMessage(fonts.christus(successText), event.threadID, event.messageID);      
+      // Application des polices uniquement sur le texte, hors de l'URL
+      const bodyHeader = fonts.christus("📦 | Statut : Hébergement terminé [ 100% ]\n\n🔗 | Lien permanent généré :\n");
+      const bodyFooter = fonts.christus("\n\n💡 | Le fichier est désormais stocké en ligne de façon définitive.");
+      
+      const finalMessage = successTitle + bodyHeader + data + bodyFooter;
+      
+      return api.sendMessage(finalMessage, event.threadID, event.messageID);      
     } catch (err) {        
       console.error("Catbox error:", err.message);        
       try { api.setMessageReaction("❌", event.messageID, () => {}, true); } catch(e){}      
@@ -73,5 +79,6 @@ module.exports = {
         "💡 | Vérifie la taille ou le format de ton média, puis réessaie.";      
       
       return api.sendMessage(fonts.christus(failText), event.threadID, event.messageID);      
-    }  
+    }
+  }
 };

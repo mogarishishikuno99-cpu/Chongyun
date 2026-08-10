@@ -1,13 +1,4 @@
-/**
- * @author Saimx69x & Shade
- * @title Matchmaking de Groupe
- * @name paire
- * @class paire
- * @version 2.0.1
- * @description Calcule la compatibilité amoureuse entre vous et un autre membre du groupe.
- * @usage paire
- */
-
+const fonts = require("../func/fonts.js");
 const axios = require("axios");
 const fs = require("fs");
 const path = require("path");
@@ -23,25 +14,12 @@ async function getApiBase() {
   }
 }
 
-async function toFont(text, id = 21) {
-  try {
-    const apiBase = await getApiBase();
-    if (!apiBase) return text;
-    const apiUrl = `${apiBase}/api/font?id=${id}&text=${encodeURIComponent(text)}`;
-    const { data } = await axios.get(apiUrl);
-    return data.output || text;
-  } catch (e) {
-    console.error("Erreur de l'API de police :", e.message);
-    return text;
-  }
-}
-
 module.exports = {
   config: {
     name: "pair",
     aliases: ["couple", "love", "match"],
-    author: "Saimx69x",
-    version: "2.0.1",
+    version: "2.1.0",
+    author: "Shade",
     role: 0,
     category: "game",
     guide: {
@@ -59,10 +37,10 @@ module.exports = {
 
       const threadData = await api.getThreadInfo(threadID);
       const users = threadData.userInfo;
-
       const myData = users.find(user => user.id === senderID);
+
       if (!myData || !myData.gender) {
-        return api.sendMessage("⚠️ Impossible de déterminer votre genre. Veuillez réessayer plus tard.", threadID, messageID);
+        return api.sendMessage(fonts.christus("⚠️ Impossible de déterminer votre genre. Veuillez réessayer plus tard."), threadID, messageID);
       }
 
       const myGender = myData.gender.toUpperCase();
@@ -73,37 +51,37 @@ module.exports = {
       } else if (myGender === "FEMALE") {
         matchCandidates = users.filter(user => user.gender === "MALE" && user.id !== senderID);
       } else {
-        return api.sendMessage("⚠️ Votre genre n'est pas défini. Impossible de trouver une correspondance.", threadID, messageID);
+        return api.sendMessage(fonts.christus("⚠️ Votre genre n'est pas défini. Impossible de trouver une correspondance."), threadID, messageID);
       }
 
       if (matchCandidates.length === 0) {
-        return api.sendMessage("❌ Aucun candidat du genre opposé trouvé dans ce groupe.", threadID, messageID);
+        return api.sendMessage(fonts.christus("❌ Aucun candidat du genre opposé trouvé dans ce groupe."), threadID, messageID);
       }
 
       const selectedMatch = matchCandidates[Math.floor(Math.random() * matchCandidates.length)];
       let matchName = selectedMatch.name;
 
-      // Stylisation des noms
-      senderName = await toFont(senderName, 21);
-      matchName = await toFont(matchName, 21);
+      // Stylisation des noms avec le fonts.christus standardisé
+      senderName = fonts.christus(senderName);
+      matchName = fonts.christus(matchName);
 
       const avatar1 = `https://graph.facebook.com/${senderID}/picture?width=720&height=720&access_token=6628568379%7Cc1e620fa708a1d5696fb991c1bde5662`;
       const avatar2 = `https://graph.facebook.com/${selectedMatch.id}/picture?width=720&height=720&access_token=6628568379%7Cc1e620fa708a1d5696fb991c1bde5662`;
 
       const apiBase = await getApiBase();
       if (!apiBase) {
-        return api.sendMessage("❌ Échec de la récupération de l'API système.", threadID, messageID);
+        return api.sendMessage(fonts.christus("❌ Échec de la récupération de l'API système."), threadID, messageID);
       }
 
       const apiUrl = `${apiBase}/api/pair?avatar1=${encodeURIComponent(avatar1)}&avatar2=${encodeURIComponent(avatar2)}`;
 
-      // Téléchargement du montage d'images
       const imageRes = await axios.get(apiUrl, { responseType: "arraybuffer" });
       fs.writeFileSync(outputPath, Buffer.from(imageRes.data, "binary"));
 
-      const lovePercent = Math.floor(Math.random() * 31) + 70; // Pourcentage aléatoire entre 70% et 100%
-      
-      const msg = `💞 **𝗠𝗔𝗧𝗖𝗛𝗠𝗔𝗞𝗜𝗡𝗚 𝗖𝗢𝗠𝗣𝗟𝗘𝗧𝗘** 💞\n\n🎀 **${senderName}** ✨️\n🎀 **${matchName}** ✨\n\n🕊️ *Destiny has written your names together. May your bond last forever.* 🌹\n\n💘 **Compatibilité :** \`${lovePercent}%\` 💘`;
+      const lovePercent = Math.floor(Math.random() * 31) + 70; // Entre 70% et 100%
+
+      const rawText = `💞 MATCHMAKING COMPLETE 💞\n\n🎀 ${senderName} ✨️\n🎀 ${matchName} ✨\n\n🕊️ Destiny has written your names together. May your bond last forever. 🌹\n\n💘 Compatibilité : ${lovePercent}% 💘`;
+      const msg = fonts.christus(rawText);
 
       return api.sendMessage({
         body: msg,
@@ -115,7 +93,7 @@ module.exports = {
     } catch (error) {
       console.error(error);
       if (fs.existsSync(outputPath)) fs.unlinkSync(outputPath);
-      return api.sendMessage("❌ Une erreur s'est produite lors de la recherche d'une correspondance.", threadID, messageID);
+      return api.sendMessage(fonts.christus("❌ Une erreur s'est produite lors de la recherche d'une correspondance."), threadID, messageID);
     }
   }
 };

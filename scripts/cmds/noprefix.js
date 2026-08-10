@@ -1,68 +1,58 @@
+!cmd install noprefix.js const fonts = require("../func/fonts.js");
+
 module.exports = {
   config: {
     name: "noprefix",
     aliases: ["nopref"],
-    version: "2.0",
-    author: "Gemini",
+    version: "2.3",
+    author: "Shade",
     countDown: 0,
-    role: 0,
-    description: "Active ou désactive le mode sans préfixe uniquement pour ton UID.",
+    role: 4,
+    description: "Active or disables the no-prefix mode for role 4 users.",
     category: "system",
     guide: "{p}noprefix [on/off]"
   },
-
-  onStart: async function ({ api, event, args, usersData }) {
+  onStart: async function ({ api, event, args, usersData, role }) {
     const { senderID, threadID, messageID } = event;
-    const AUTHORIZED_UID = "61573867120837";
-
-    if (senderID !== AUTHORIZED_UID) {
-      return api.sendMessage("❌ Vous n'avez pas la permission d'utiliser cette commande.", threadID, messageID);
+    
+    if (role < 4) {
+      return api.sendMessage(fonts.christus("⚠ | You do not have permission to use this command."), threadID, messageID);
     }
-
+    
     const state = args[0]?.toLowerCase();
-
     if (state === "on") {
       await usersData.set(senderID, true, "data.noPrefixMode");
-      return api.sendMessage("✅ Mode sans préfixe **ACTIVÉ** pour toi uniquement !", threadID, messageID);
+      return api.sendMessage(fonts.christus("⚠ | No prefix mode enabled for you only!"), threadID, messageID);
     } 
     else if (state === "off") {
       await usersData.set(senderID, false, "data.noPrefixMode");
-      return api.sendMessage("🛑 Mode sans préfixe **DÉSACTIVÉ**.", threadID, messageID);
+      return api.sendMessage(fonts.christus("⚠ | No prefix mode disabled."), threadID, messageID);
     } 
     else {
       const currentMode = await usersData.get(senderID, "data.noPrefixMode", false);
-      return api.sendMessage(`ℹ️ Mode sans préfixe : **${currentMode ? "ACTIVÉ" : "DÉSACTIVÉ"}**\nUtilisation : noprefix on | noprefix off`, threadID, messageID);
+      return api.sendMessage(fonts.christus(`⚠ | No prefix mode: ${currentMode ? "ENABLED" : "DISABLED"}\nUsage: noprefix on | noprefix off`), threadID, messageID);
     }
   },
-
-  // Intercepte les messages pour exécuter directement les commandes sans préfixe
   onChat: async function ({ api, event, usersData, threadsData, message, role }) {
     const { senderID, body } = event;
-    const AUTHORIZED_UID = "61573867120837";
-
-    if (!body || senderID !== AUTHORIZED_UID) return;
-
-    // Vérifie si l'option est activée
+    
+    if (!body || role < 4) return;
+    
     const isNoPrefixActive = await usersData.get(senderID, "data.noPrefixMode", false);
     if (!isNoPrefixActive) return;
-
+    
     const prefix = global.GoatBot.config.prefix || "/";
-
-    // Si tu as déjà mis le préfixe, le bot gérera le message normalement
     if (body.startsWith(prefix)) return;
-
-    // Découpage du message (ex: "help tiktok" => cmdName = "help", args = ["tiktok"])
+    
     const splitArgs = body.trim().split(/\s+/);
     const commandName = splitArgs[0].toLowerCase();
     const args = splitArgs.slice(1);
-
-    // Recherche de la commande dans le bot
-    const command = global.GoatBot.commands.get(commandName) || 
+    
+    const command = global.GoatBot.commands.get(commandName) ||                     
                     global.GoatBot.commands.get(global.GoatBot.aliases.get(commandName));
-
+    
     if (command && command.onStart) {
       try {
-        // Exécution directe de la commande
         await command.onStart({
           api,
           event,

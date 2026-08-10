@@ -1,4 +1,4 @@
-!cmd install noprefix.js const fonts = require("../func/fonts.js");
+const fonts = require("../func/fonts.js");
 
 module.exports = {
   config: {

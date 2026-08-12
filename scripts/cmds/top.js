@@ -552,15 +552,15 @@ async function buildCanvas(richList, pageUsers, startIndex, page, totalPages, se
 module.exports = {
   config: {
     name:        "top",
-    aliases:     [],
+    aliases:     ["richest"],
     version:     "3.0",
-    author:      "Christus",
+    author:      "Shade",
     countDown:   5,
     role:        0,
     description: { fr: "◈ Top Sovereign v3 — Classement des riches, 10 thèmes, pixel-perfect." },
     category:    "economy",
     guide: {
-      fr: [
+      en: [
         "◈  TOP SOVEREIGN",
         "",
         "  top [page]         — Classement des riches",

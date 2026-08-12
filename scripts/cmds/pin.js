@@ -1,332 +1,251 @@
-/**
- * @author Zetsu & Shade
- * @title Pinterest Catalogue Premium (Infinite Scroll)
- * @name pin
- * @class pinterest
- * @version 3.0.2
- * @description Recherche Pinterest sous forme d'application interactive avec scroll (Next / Prev) et jusqu'à 30 images.
- * @usage pinterest [terme]
- * @alt pin
- */
-const { createCanvas, loadImage } = require("canvas");
 const axios = require("axios");
-const fs = require("fs-extra");
-const path = require("path");
+const { createCanvas, loadImage } = require('canvas');
+const fs = require('fs-extra');
+const path = require('path');
+const fonts = require("../func/fonts.js");
+const { getStreamFromURL } = global.utils;
 
-async function createPinterestScrollCanvas(allPins, query, scrollOffset = 0) {
-    // 1. Configuration de la grille Masonry à 3 colonnes
-    const canvasWidth = 900;
-    const viewportHeight = 1500;
-    const padding = 30;
-    const gap = 16;
-    const cols = 3;
-    const colWidth = (canvasWidth - (padding * 2) - (gap * (cols - 1))) / cols;
-    const headerHeight = 140;
-
-    // Limite fixée à 30 images
-    const maxPins = allPins.slice(0, 30);
-
-    // 2. Préchargement et calcul Masonry
-    const loadedItems = await Promise.all(
-        maxPins.map(async (pin) => {
-            try {
-                const img = await loadImage(pin.image);
-                const aspectRatio = img.height / img.width;
-                const calculatedHeight = Math.max(160, Math.min(450, Math.round(colWidth * aspectRatio)));
-                return { img, height: calculatedHeight, success: true };
-            } catch (e) {
-                return { img: null, height: 220, success: false };
-            }
-        })
-    );
-
-    // 3. Positionnement Masonry
-    const colHeights = [headerHeight, headerHeight, headerHeight];
-    const itemPositions = [];
-
-    loadedItems.forEach((item, index) => {
-        let minCol = 0;
-        if (colHeights[1] < colHeights[minCol]) minCol = 1;
-        if (colHeights[2] < colHeights[minCol]) minCol = 2;
-
-        const x = padding + minCol * (colWidth + gap);
-        const y = colHeights[minCol];
-
-        itemPositions.push({ x, y, width: colWidth, height: item.height, index });
-        colHeights[minCol] += item.height + gap;
-    });
-
-    // 4. Initialisation du Canvas
-    const canvas = createCanvas(canvasWidth, viewportHeight);
-    const ctx = canvas.getContext("2d");
-
-    ctx.fillStyle = "#121212";
-    ctx.fillRect(0, 0, canvasWidth, viewportHeight);
-
-    function drawRoundedRect(x, y, w, h, radius) {
-        ctx.beginPath();
-        ctx.moveTo(x + radius, y);
-        ctx.lineTo(x + w - radius, y);
-        ctx.quadraticCurveTo(x + w, y, x + w, y + radius);
-        ctx.lineTo(x + w, y + h - radius);
-        ctx.quadraticCurveTo(x + w, y + h, x + w - radius, y + h);
-        ctx.lineTo(x + radius, y + h);
-        ctx.quadraticCurveTo(x, y + h, x, y + h - radius);
-        ctx.lineTo(x, y + radius);
-        ctx.quadraticCurveTo(x, y, x + radius, y);
-        ctx.closePath();
-    }
-
-    // 5. Zone d'affichage (Viewport Clipping)
-    ctx.save();
-    ctx.beginPath();
-    ctx.rect(0, headerHeight - 20, canvasWidth, viewportHeight - (headerHeight - 20));
-    ctx.clip();
-
-    for (let i = 0; i < itemPositions.length; i++) {
-        const pos = itemPositions[i];
-        const drawY = pos.y - scrollOffset;
-
-        if (drawY + pos.height < headerHeight - 40 || drawY > viewportHeight + 40) {
-            continue;
-        }
-
-        const item = loadedItems[pos.index];
-        const cornerRadius = 16;
-
-        ctx.save();
-
-        ctx.shadowColor = "rgba(0, 0, 0, 0.45)";
-        ctx.shadowBlur = 12;
-        ctx.shadowOffsetX = 0;
-        ctx.shadowOffsetY = 6;
-
-        ctx.fillStyle = "#1e1e1e";
-        drawRoundedRect(pos.x, drawY, pos.width, pos.height, cornerRadius);
-        ctx.fill();
-
-        ctx.shadowColor = "transparent";
-
-        ctx.save();
-        drawRoundedRect(pos.x, drawY, pos.width, pos.height, cornerRadius);
-        ctx.clip();
-
-        if (item.success && item.img) {
-            ctx.drawImage(item.img, pos.x, drawY, pos.width, pos.height);
-        } else {
-            ctx.fillStyle = "#2a2a2a";
-            ctx.fillRect(pos.x, drawY, pos.width, pos.height);
-            ctx.fillStyle = "#8e8e93";
-            ctx.font = "bold 15px sans-serif";
-            ctx.textAlign = "center";
-            ctx.fillText("Image indisponible", pos.x + pos.width / 2, drawY + pos.height / 2);
-            ctx.textAlign = "left";
-        }
-        ctx.restore();
-
-        // Badge (#1, #2, ... #30)
-        const badgeText = `#${pos.index + 1}`;
-        ctx.font = "bold 13px sans-serif";
-        const textMetrics = ctx.measureText(badgeText);
-        const badgeWidth = textMetrics.width + 16;
-        const badgeHeight = 24;
-        const badgeX = pos.x + 10;
-        const badgeY = drawY + 10;
-
-        ctx.fillStyle = "rgba(0, 0, 0, 0.65)";
-        drawRoundedRect(badgeX, badgeY, badgeWidth, badgeHeight, 12);
-        ctx.fill();
-
-        ctx.fillStyle = "#ffffff";
-        ctx.textAlign = "center";
-        ctx.textBaseline = "middle";
-        ctx.fillText(badgeText, badgeX + badgeWidth / 2, badgeY + badgeHeight / 2);
-        ctx.textAlign = "left";
-        ctx.textBaseline = "alphabetic";
-
-        ctx.restore();
-    }
-    ctx.restore();
-
-    // 6. En-tête fixe
-    ctx.fillStyle = "#121212";
-    ctx.fillRect(0, 0, canvasWidth, headerHeight - 10);
-
-    ctx.fillStyle = "#ffffff";
-    ctx.font = "bold 32px sans-serif";
-    ctx.fillText("🔍 Recherche Pinterest", padding, 55);
-
-    ctx.fillStyle = "#9ca3af";
-    ctx.font = "18px sans-serif";
-    ctx.fillText(`Résultats pour "${query}" • ${maxPins.length} images au total`, padding, 92);
-
-    ctx.strokeStyle = "rgba(255, 255, 255, 0.08)";
-    ctx.lineWidth = 1;
-    ctx.beginPath();
-    ctx.moveTo(padding, headerHeight - 15);
-    ctx.lineTo(canvasWidth - padding, headerHeight - 15);
-    ctx.stroke();
-
-    // 7. Sauvegarde du fichier
-    const cacheDir = path.join(__dirname, "cache");
-    await fs.ensureDir(cacheDir);
-    const cachePath = path.join(cacheDir, `pin_scroll_${Date.now()}.png`);
-    await fs.writeFile(cachePath, canvas.toBuffer("image/png"));
-
-    const maxScroll = Math.max(0, Math.max(...colHeights) - viewportHeight + 40);
-
-    return { cachePath, maxScroll };
+function emojiToURL(emoji) {  
+  const code = [...emoji].map(c => c.codePointAt(0).toString(16)).join("-");  
+  return `https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/72x72/${code}.png`;
 }
 
-module.exports = {
-    config: {
-        name: "pin",
-        aliases: ["pinterest"],
-        version: "3.0.2",
-        author: "Zetsu & Shade",
-        countDown: 5,
-        role: 0,
-        category: "image",
-        guide: {
-            fr: "{p}{n} <recherche>\nExemple: {p}{n} naruto"
-        }
-    },
-    onStart: async function ({ api, event, message, args, commandName }) {
-        const { threadID, messageID, senderID } = event;
-        const query = args.join(" ");
+async function drawEmoji(ctx, emoji, x, y, size) {  
+  try {    
+    const img = await loadImage(emojiToURL(emoji));    
+    ctx.drawImage(img, x, y, size, size);  } catch (e) {}
+}
 
-        if (!query) {
-            return message.reply("❌ Veuillez entrer un mot-clé pour lancer la recherche interactive.");
-        }
+async function drawTextWithEmojis(ctx, text, x, y, font, emojiSize = null) {  
+  ctx.save();  
+  ctx.font = font;  
+  const emojiSizePx = emojiSize || parseInt(font.match(/\d+/)) || 30;  
+  const emojiRegex = /(\p{Emoji_Presentation}|\p{Extended_Pictographic})/gu;  
+  const segments = [];  
+  let lastIndex = 0;  
+  let match;  
+  while ((match = emojiRegex.exec(text)) !== null) {    
+    if (match.index > lastIndex) {      
+      segments.push({ type: 'text', value: text.slice(lastIndex, match.index) });    }    
+    segments.push({ type: 'emoji', value: match[0] });    
+    lastIndex = emojiRegex.lastIndex;  }  
+  if (lastIndex < text.length) {    
+    segments.push({ type: 'text', value: text.slice(lastIndex) });  }  
+  let currentX = x;  
+  for (const seg of segments) {    
+    if (seg.type === 'text') {      
+      ctx.fillText(seg.value, currentX, y);      
+      const metrics = ctx.measureText(seg.value);      
+      currentX += metrics.width;    } else {      
+      await drawEmoji(ctx, seg.value, currentX, y - emojiSizePx, emojiSizePx);      
+      currentX += emojiSizePx;    }  }  
+  ctx.restore();  
+  return currentX;
+}
 
-        const apiUrl = `https://zetbot-page.onrender.com/api/pinterest?query=${encodeURIComponent(query)}&limit=30`;
+async function generatePinterestCanvas(imageObjects, query, page, totalPages) {  
+  const canvasWidth = 800;  
+  const canvasHeight = 1600;  
+  const canvas = createCanvas(canvasWidth, canvasHeight);  
+  const ctx = canvas.getContext('2d');  
+  ctx.fillStyle = '#1e1e1e';  
+  ctx.fillRect(0, 0, canvasWidth, canvasHeight);  
+  ctx.fillStyle = '#ffffff';  
+  ctx.font = '24px Arial';  
+  ctx.textAlign = 'left';  
+  await drawTextWithEmojis(ctx, '🔍 Recherche Pinterest', 20, 45, '24px Arial', 28);  
+  ctx.font = '16px Arial';  
+  ctx.fillStyle = '#b0b0b0';  
+  await drawTextWithEmojis(ctx, `Résultats de recherche pour "${query}", affichant jusqu'à ${imageObjects.length} images.`, 20, 75, '16px Arial', 18);  
+  const numColumns = 3;  
+  const padding = 15;  
+  const columnWidth = (canvasWidth - (padding * (numColumns + 1))) / numColumns;  
+  const columnHeights = Array(numColumns).fill(100);  
+  const loadedPairs = await Promise.all(    
+    imageObjects.map(obj =>      
+      loadImage(obj.url)        
+        .then(img => ({ img, originalIndex: obj.originalIndex, url: obj.url }))        
+        .catch(e => {          
+          console.error(`Impossible de charger l'image : ${obj.url}`, e && e.message);          
+          return null;        })    )  );  
+  const successful = loadedPairs.filter(x => x !== null);  
+  if (successful.length === 0) {    
+    ctx.fillStyle = '#ff6666';    
+    ctx.font = '16px Arial';    
+    await drawTextWithEmojis(ctx, `Aucune image n'a pu être chargée pour cette page.`, 20, 110, '16px Arial', 18);    
+    const outputPath = path.join(__dirname, 'cache', `pinterest_page_${Date.now()}.png`);    
+    await fs.ensureDir(path.dirname(outputPath));    
+    const buffer = canvas.toBuffer('image/png');    
+    fs.writeFileSync(outputPath, buffer);    
+    return { outputPath, displayedMap: [] };  }  
+  let displayNumber = 0;  
+  const displayedMap = [];  
+  for (let i = 0; i < successful.length; i++) {    
+    const { img, originalIndex } = successful[i];    
+    const minHeight = Math.min(...columnHeights);    
+    const columnIndex = columnHeights.indexOf(minHeight);    
+    const x = padding + columnIndex * (columnWidth + padding);    
+    const y = minHeight + padding;    
+    const scale = columnWidth / img.width;    
+    const scaledHeight = img.height * scale;    
+    ctx.drawImage(img, x, y, columnWidth, scaledHeight);    
+    displayNumber += 1;    
+    displayedMap.push(originalIndex);    
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';    
+    ctx.fillRect(x, y, 50, 24);    
+    ctx.fillStyle = '#ffffff';    
+    ctx.font = 'bold 14px Arial';    
+    ctx.textAlign = 'center';    
+    ctx.textBaseline = 'middle';    
+    ctx.fillText(`#${displayNumber}`, x + 25, y + 12);    
+    ctx.fillStyle = '#b0b0b0';    
+    ctx.font = '10px Arial';    
+    ctx.textAlign = 'right';    
+    ctx.textBaseline = 'alphabetic';    
+    ctx.fillText(`${img.width} x ${img.height}`, x + columnWidth - 6, y + scaledHeight - 6);    
+    columnHeights[columnIndex] += scaledHeight + padding;  }  
+  ctx.fillStyle = '#ffffff';  
+  ctx.font = 'bold 18px Arial';  
+  ctx.textAlign = 'center';  
+  const footerY = Math.max(...columnHeights) + 40;  
+  await drawTextWithEmojis(ctx, `Anchestor - Page ${page}/${totalPages}`, canvasWidth / 2, footerY, 'bold 18px Arial', 20);  
+  const outputPath = path.join(__dirname, 'cache', `pinterest_page_${Date.now()}.png`);  
+  await fs.ensureDir(path.dirname(outputPath));  
+  const buffer = canvas.toBuffer('image/png');  
+  fs.writeFileSync(outputPath, buffer);  
+  return { outputPath, displayedMap };
+}
 
-        try {
-            const loadingMsg = await message.reply("🔍 Chargement du catalogue Pinterest...");
-            const response = await axios.get(apiUrl);
-
-            if (!response.data.status || !response.data.pins || response.data.pins.length === 0) {
-                try { api.unsendMessage(loadingMsg.messageID); } catch(e){}
-                return message.reply("❌ Aucun résultat trouvé pour cette recherche.");
-            }
-
-            const allPins = response.data.pins.slice(0, 30);
-            const { cachePath, maxScroll } = await createPinterestScrollCanvas(allPins, query, 0);
-
-            try { api.unsendMessage(loadingMsg.messageID); } catch(e){}
-
-            const sentMessage = await api.sendMessage({
-                body: `📸 **𝖯𝖨𝖭𝖳𝖤𝖱𝖤𝖲𝖳 𝖥𝖤𝖤𝖣** (30 images)\n\n💬 **Navigation :**\n• Répondez **\`next\`** pour faire défiler vers le bas (Scroll).\n• Répondez **\`prev\`** ou **\`back\`** pour remonter.\n• Répondez avec un numéro (\`1\` à \`30\`) pour recevoir l'image HD.`,
-                attachment: fs.createReadStream(cachePath)
-            }, threadID, messageID);
-
-            global.GoatBot?.onReply?.set(sentMessage.messageID, {
-                commandName,
-                author: senderID,
-                query,
-                allPins,
-                scrollOffset: 0,
-                maxScroll,
-                messageID: sentMessage.messageID
-            });
-
-            if (fs.existsSync(cachePath)) fs.unlinkSync(cachePath);
-        } catch (error) {
-            console.error(error);
-            return message.reply(`❌ Une erreur est survenue lors de la recherche : ${error.message}`);
-        }
-    },
-    onReply: async function ({ api, event, Reply, message, commandName }) {
-        const { senderID, threadID, messageID, body } = event;
-        const { author, query, allPins, scrollOffset = 0, maxScroll = 0, messageID: replyMsgID } = Reply || {};
-
-        if (senderID !== author) return;
-
-        const input = (body || "").trim().toLowerCase();
-
-        // ---- NAVIGATION PAR SCROLL ----
-        if (input === "next" || input === "prev" || input === "back") {
-            const scrollStep = 550;
-            let newScrollOffset = scrollOffset;
-
-            if (input === "next") {
-                if (scrollOffset >= maxScroll) {
-                    return message.reply("❌ Vous avez atteint le bas du fil d'actualité.");
-                }
-                newScrollOffset = Math.min(scrollOffset + scrollStep, maxScroll);
-            } else {
-                if (scrollOffset <= 0) {
-                    return message.reply("❌ Vous êtes tout en haut du fil d'actualité.");
-                }
-                newScrollOffset = Math.max(0, scrollOffset - scrollStep);
-            }
-
-            try { api.unsendMessage(replyMsgID); } catch (e) {}
-
-            const { cachePath, maxScroll: updatedMaxScroll } = await createPinterestScrollCanvas(allPins, query, newScrollOffset);
-
-            const sentMessage = await api.sendMessage({
-                body: `📸 **𝖯𝖨𝖭𝖳𝖤𝖱𝖤𝖲𝖳 𝖥𝖤𝖤𝖣**\n\n💬 Répondez **\`next\`** ou **\`prev\`** pour scroller.\n💬 Tapez un numéro (\`1\` à \`30\`) pour obtenir l'image HD.`,
-                attachment: fs.createReadStream(cachePath)
-            }, threadID, messageID);
-
-            global.GoatBot?.onReply?.set(sentMessage.messageID, {
-                commandName,
-                author: senderID,
-                query,
-                allPins,
-                scrollOffset: newScrollOffset,
-                maxScroll: updatedMaxScroll,
-                messageID: sentMessage.messageID
-            });
-
-            if (fs.existsSync(cachePath)) fs.unlinkSync(cachePath);
-            return;
-        }
-
-        // ---- SÉLECTION DE L'IMAGE HD (#1 À #30) ----
-        const selection = parseInt(input, 10);
-        if (!isNaN(selection) && selection >= 1 && selection <= allPins.length) {
-            const selectedPin = allPins[selection - 1];
-
-            if (!selectedPin || !selectedPin.image) {
-                return message.reply("❌ Données de l'image introuvables.");
-            }
-
-            const ext = selectedPin.image.split('.').pop().split('?')[0] || "jpg";
-            const cacheDir = path.join(__dirname, "cache");
-            await fs.ensureDir(cacheDir);
-            const cachePath = path.join(cacheDir, `pin_hd_${Date.now()}.${ext}`);
-
-            try {
-                const downloadNotice = await message.reply(`📥 Extraction et envoi de l'image HD n°${selection}...`);
-                const response = await axios({
-                    method: "get",
-                    url: selectedPin.image,
-                    responseType: "stream"
-                });
-
-                const writer = fs.createWriteStream(cachePath);
-                response.data.pipe(writer);
-
-                await new Promise((resolve, reject) => {
-                    writer.on("finish", resolve);
-                    writer.on("error", reject);
-                });
-
-                try { api.unsendMessage(downloadNotice.messageID); } catch(e){}
-
-                await api.sendMessage({
-                    body: `✨ **I𝖬𝖠𝖦𝖤 𝖤𝖷𝖳𝖱𝖠𝖨𝖳𝖤 (#${selection})** ✨\n\n📝 Titre : ${selectedPin.title || "Sans titre"}\n👤 Compte : ${selectedPin.uploader?.username || "Inconnu"}`,
-                    attachment: fs.createReadStream(cachePath)
-                }, threadID, () => {
-                    if (fs.existsSync(cachePath)) fs.unlinkSync(cachePath);
-                }, messageID);
-            } catch (e) {
-                console.error(e);
-                if (fs.existsSync(cachePath)) fs.unlinkSync(cachePath);
-                return message.reply("❌ Impossible de récupérer cette image en haute résolution.");
-            }
-        }
-    }
+module.exports = {  
+  config: {    
+    name: "pinterest",    
+    aliases: ["pinterest", "pin"],    
+    version: "2.2",    
+    author: "Shade",    
+    countDown: 10,    
+    role: 0,    
+    shortDescription: "Rechercher des images sur Pinterest",    
+    longDescription: "Recherche des images sur Pinterest, avec un aperçu en canvas pour naviguer.",    
+    category: "Image",    
+    guide: {      
+      en: "{pn} requête [-count]\n" +        
+        "• Si count est utilisé, les images sont envoyées directement.\n" +        
+        "• Sans count, une vue canvas interactive s'affiche.\n" +        
+        "• Exemple : {pn} cute cat -5 (envoi direct)\n" +        
+        "• Exemple : {pn} anime wallpaper (vue canvas)"    }  },  
+  onStart: async function({ api, args, message, event }) {    
+    let processingMessage = null;    
+    try {      
+      let count = null;      
+      const countArg = args.find(arg => /^-\d+$/.test(arg));      
+      if (countArg) {        
+        count = parseInt(countArg.slice(1), 10);        
+        args = args.filter(arg => arg !== countArg);      }      
+      const query = args.join(" ").trim();      
+      if (!query) {        
+        return message.reply(fonts.christus("Veuillez fournir une requête de recherche."));      }      
+      processingMessage = await message.reply(fonts.christus("🔍 Recherche sur Pinterest..."));      
+      const res = await axios.get(`https://pinspiration-hub.onrender.com/api/pin?query=${encodeURIComponent(query)}&num=90`);      
+      const allImageUrls = res.data.results || [];      
+      if (allImageUrls.length === 0) {        
+        if (processingMessage) await message.unsend(processingMessage.messageID).catch(() => { });        
+        return message.reply(fonts.christus(`Aucune image trouvée pour "${query}".`));      }      
+      if (count) {        
+        const urls = allImageUrls.slice(0, count);        
+        const streams = await Promise.all(urls.map(url => getStreamFromURL(url).catch(() => null)));        
+        const validStreams = streams.filter(s => s);        
+        if (processingMessage) await message.unsend(processingMessage.messageID).catch(() => { });        
+        const title = fonts.bold(`Voici ${validStreams.length} image(s) pour "${query}" :\n`);
+        return message.reply({          
+          body: title,          
+          attachment: validStreams        });      } else {        
+        const imagesPerPage = 21;        
+        const totalPages = Math.ceil(allImageUrls.length / imagesPerPage);        
+        const startIndex = 0;        
+        const endIndex = Math.min(allImageUrls.length, imagesPerPage);        
+        const imagesForPage1 = allImageUrls.slice(startIndex, endIndex).map((url, idx) => ({          
+          url,          
+          originalIndex: startIndex + idx        }));        
+        const { outputPath: canvasPath, displayedMap } = await generatePinterestCanvas(imagesForPage1, query, 1, totalPages);        
+        
+        const title = fonts.bold(`🖼️ ${allImageUrls.length} images trouvées pour "${query}".\n`);
+        const bodyText = fonts.christus("Répondez avec un numéro (affiché sur le canvas) pour obtenir l’image, ou “next” pour plus.");
+        
+        const sentMessage = await message.reply({          
+          body: title + bodyText,          
+          attachment: fs.createReadStream(canvasPath)        });        
+        fs.unlink(canvasPath, (err) => {          
+          if (err) console.error(err);        });        
+        global.GoatBot.onReply.set(sentMessage.messageID, {          
+          commandName: this.config.name,          
+          author: event.senderID,          
+          allImageUrls,          
+          query,          
+          imagesPerPage,          
+          currentPage: 1,          
+          totalPages,          
+          displayedMap,          
+          displayCount: Array.isArray(displayedMap) ? displayedMap.length : 0        });        
+        if (processingMessage) await message.unsend(processingMessage.messageID).catch(() => { });      }    } catch (error) {      
+      console.error(error);      
+      if (processingMessage) {        
+        try { await message.unsend(processingMessage.messageID); } catch (e) { }      }      
+      message.reply(fonts.christus("Une erreur est survenue. Le serveur ou l'API peut être indisponible."));    }  },  
+  onReply: async function({ api, event, message, Reply }) {    
+    try {      
+      if (!Reply) return message.reply(fonts.christus("Session expirée. Veuillez relancer la commande."));      
+      const { author, allImageUrls, query, imagesPerPage, currentPage, totalPages, displayedMap, displayCount } = Reply;      
+      if (event.senderID !== author) return;      
+      const input = (event.body || "").trim().toLowerCase();      
+      if (input === 'next') {        
+        if (currentPage >= totalPages) {          
+          return message.reply(fonts.christus("Vous êtes déjà sur la dernière page des résultats."));        }        
+        const nextPage = currentPage + 1;        
+        const startIndex = (nextPage - 1) * imagesPerPage;        
+        const endIndex = Math.min(startIndex + imagesPerPage, allImageUrls.length);        
+        const imagesForNextPage = allImageUrls.slice(startIndex, endIndex).map((url, idx) => ({          
+          url,          
+          originalIndex: startIndex + idx        }));        
+        const processingMessage = await message.reply(fonts.christus(`Chargement de la page ${nextPage}...`));        
+        const { outputPath: canvasPath, displayedMap: nextDisplayedMap } = await generatePinterestCanvas(imagesForNextPage, query, nextPage, totalPages);        
+        
+        const title = fonts.bold(`🖼️ Page ${nextPage}/${totalPages}.\n`);
+        const bodyText = fonts.christus("Répondez avec un numéro (du canvas) pour obtenir l’image, ou “next” pour continuer.");
+        
+        const sentMessage = await message.reply({          
+          body: title + bodyText,          
+          attachment: fs.createReadStream(canvasPath)        });        
+        fs.unlink(canvasPath, (err) => {          
+          if (err) console.error(err);        });        
+        await message.unsend(processingMessage.messageID).catch(() => { });        
+        global.GoatBot.onReply.set(sentMessage.messageID, {          
+          commandName: this.config.name,          
+          author,          
+          allImageUrls,          
+          query,          
+          imagesPerPage,          
+          currentPage: nextPage,          
+          totalPages,          
+          displayedMap: nextDisplayedMap,          
+          displayCount: Array.isArray(nextDisplayedMap) ? nextDisplayedMap.length : 0        });      } else {        
+        const number = parseInt(input, 10);        
+        if (!isNaN(number) && number > 0) {          
+          if (!Array.isArray(displayedMap) || typeof displayCount !== 'number') {            
+            return message.reply(fonts.christus("Les images de cette page ne sont plus disponibles. Relancez la commande ou tapez “next”."));          }          
+          if (number > displayCount) {            
+            return message.reply(fonts.christus(`Numéro invalide. Le canvas actuel affiche seulement ${displayCount} image(s). Choisissez un numéro de 1 à ${displayCount}, ou tapez “next” pour charger plus.`));          }          
+          const originalIndex = displayedMap[number - 1];          
+          if (originalIndex == null || originalIndex < 0 || originalIndex >= allImageUrls.length) {            
+            return message.reply(fonts.christus(`Impossible de trouver cette image. Réessayez avec un autre numéro.`));          }          
+          const imageUrl = allImageUrls[originalIndex];          
+          const stream = await getStreamFromURL(imageUrl).catch(() => null);          
+          if (!stream) return message.reply(fonts.christus("Impossible de récupérer l'image demandée."));          
+          
+          const title = fonts.bold(`Image #${number} pour la requête "${query}" :\n`);
+          return message.reply({            
+            body: title,            
+            attachment: stream          });        } else {          
+          return message.reply(fonts.christus("Répondez avec un numéro (du canvas) pour obtenir l’image, ou “next” pour charger d’autres pages."));        }      }    } catch (error) {      
+      console.error(error);      
+      message.reply(fonts.christus("Une erreur est survenue lors du traitement de votre réponse."));    }  }
 };

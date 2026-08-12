@@ -241,7 +241,7 @@ module.exports = {
           const stream = await getStreamFromURL(imageUrl).catch(() => null);          
           if (!stream) return message.reply(fonts.christus("Impossible de récupérer l'image demandée."));          
           
-          const title = fonts.bold(`Image #${number} pour la requête "${query}" :\n`);
+          const title = fonts.christus(`Image #${number} pour la requête "${query}" :\n`);
           return message.reply({            
             body: title,            
             attachment: stream          });        } else {          

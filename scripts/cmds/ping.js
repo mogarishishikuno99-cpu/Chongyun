@@ -34,7 +34,7 @@ module.exports = {
         file.on("finish", async () => {
           const ping = Date.now() - start;
 
-          const body = `🟢 Ping Time : ${ping}ms.`.trim();
+          const body = `🟢 𝗣𝗂𝗇𝗀 𝗧𝗂𝗆𝖾 : ${ping}m𝗌.`.trim();
 
           return message.reply({
             body,

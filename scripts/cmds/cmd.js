@@ -33,16 +33,16 @@ module.exports = {
         countDown: 5,
         role: 4,
         description: {
-            fr: "Gestion de vos fichiers de commandes",
-            en: "Manage your command files"
+            en: "Gestion de vos fichiers de commandes",
+            fr: "Manage your command files"
         },
         category: "owner",
         guide: {
-            fr: "   {pn} load <nom du fichier de commande>"
+            en: "   {pn} load <nom du fichier de commande>"
                 + "\n   {pn} loadAll"
                 + "\n   {pn} install <url> <nom du fichier de commande> : Télécharge et installe un fichier de commande depuis une URL (lien brut/raw)."
                 + "\n   {pn} install <nom du fichier de commande> <code> : Télécharge et installe un fichier de commande à partir d'un code de commande.",
-            en: "   {pn} load <command file name>"
+            fr: "   {pn} load <command file name>"
                 + "\n   {pn} loadAll"
                 + "\n   {pn} install <url> <command file name>: Download and install a command file from a url, url is the path to the file (raw)"
                 + "\n   {pn} install <command file name> <code>: Download and install a command file from a code, code is the code of the command"
@@ -50,7 +50,7 @@ module.exports = {
     },
 
     langs: {
-        fr: {
+        en: {
             missingFileName: "⚠️ | Veuillez entrer le nom de la commande que vous souhaitez recharger",
             loaded: "✅ | Commande \"%1\" chargée avec succès",
             loadedError: "❌ | Échec du chargement de la commande \"%1\" avec l'erreur\n%2 : %3",
@@ -72,7 +72,7 @@ module.exports = {
             invalidFileName: "⚠️ | Nom de fichier de commande invalide",
             unloadedFile: "✅ | Commande \"%1\" déchargée"
         },
-        en: {
+        fr: {
             missingFileName: "⚠️ | Please enter the command name you want to reload",
             loaded: "✅ | Loaded command \"%1\" successfully",
             loadedError: "❌ | Failed to load command \"%1\" with error\n%2: %3",
@@ -349,7 +349,7 @@ function loadScripts(folder, fileName, log, configCommands, api, threadModel, us
                 }
             }
         }
-        // ———————————————— GET OLD COMMAND ———————————————— //
+        // ————————————————— GET OLD COMMAND ————————————————— //
         const oldCommand = require(pathCommand);
         const oldCommandName = oldCommand?.config?.name;
         // —————————————— CHECK COMMAND EXIST ——————————————— //
@@ -371,7 +371,7 @@ function loadScripts(folder, fileName, log, configCommands, api, threadModel, us
 
 
 
-        // ———————————————— GET NEW COMMAND ———————————————— //
+        // ————————————————— GET NEW COMMAND ————————————————— //
         const command = require(pathCommand);
         command.location = pathCommand;
         const configCommand = command.config;

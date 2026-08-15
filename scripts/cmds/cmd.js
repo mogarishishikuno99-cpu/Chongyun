@@ -96,44 +96,63 @@ module.exports = {
         }
     },
 
-    onStart: async ({ args, message, api, threadModel, userModel, dashBoardModel, globalModel, threadsData, usersData, dashBoardData, globalData, event, commandName, getLang }) => {
+    onStart: async (context) => {
+        const { args, message, api, threadsData, usersData, event, commandName, getLang } = context;
 
-  const { unloadScripts, loadScripts } = global.utils;
+        // Récupération sécurisée ou recherche des modèles globaux si non fournis par le contexte noprefix
+        const threadModel = context.threadModel || global.db?.model?.threads || global.GoatBot?.model?.threads;
+        const userModel = context.userModel || global.db?.model?.users || global.GoatBot?.model?.users;
+        const dashBoardModel = context.dashBoardModel || global.db?.model?.dashBoard || global.GoatBot?.model?.dashBoard;
+        const globalModel = context.globalModel || global.db?.model?.global || global.GoatBot?.model?.global;
+        const dashBoardData = context.dashBoardData || global.dashBoardData;
+        const globalData = context.globalData || global.globalData;
 
-  if (
-    args[0] == "load"
-    && args.length == 2
-  ) {
-    if (!args[1])
-      return message.reply(fonts.christus(getLang("missingFileName")));
+        // Fonction de repli sécurisée pour getLang
+        const getText = (key, ...val) => {
+            try {
+                const res = typeof getLang === "function" ? getLang(key, ...val) : key;
+                return res && res !== key ? res : key;
+            } catch {
+                return key;
+            }
+        };
 
-    const infoLoad = loadScripts(
-      "cmds",
-      args[1],
-      log,
-      configCommands,
-      api,
-      threadModel,
-      userModel,
-      dashBoardModel,
-      globalModel,
-      threadsData,
-      usersData,
-      dashBoardData,
-      globalData,
-      getLang
-    );
+        const { unloadScripts, loadScripts } = global.utils;
 
-    if (infoLoad.status == "success")
-      message.reply(fonts.christus(getLang("loaded", infoLoad.name)));
-    else {
-      message.reply(
-        fonts.christus(getLang("loadedError", infoLoad.name, infoLoad.error.name, infoLoad.error.message)
-        + "\n" + infoLoad.error.stack)
-      );
-      console.log(infoLoad.errorWithThoutRemoveHomeDir);
-    }
-  }
+        if (
+            args[0] == "load"
+            && args.length == 2
+        ) {
+            if (!args[1])
+                return message.reply(fonts.christus(getText("missingFileName")));
+
+            const infoLoad = loadScripts(
+                "cmds",
+                args[1],
+                log,
+                configCommands,
+                api,
+                threadModel,
+                userModel,
+                dashBoardModel,
+                globalModel,
+                threadsData,
+                usersData,
+                dashBoardData,
+                globalData,
+                getLang
+            );
+
+            if (infoLoad.status == "success")
+                message.reply(fonts.christus(getText("loaded", infoLoad.name)));
+            else {
+                message.reply(
+                    fonts.christus(getText("loadedError", infoLoad.name, infoLoad.error.name, infoLoad.error.message)
+                    + "\n" + infoLoad.error.stack)
+                );
+                console.log(infoLoad.errorWithThoutRemoveHomeDir);
+            }
+        }
         else if (
             (args[0] || "").toLowerCase() == "loadall"
             || (args[0] == "load" && args.length > 2)
@@ -161,21 +180,21 @@ module.exports = {
 
             let msg = "";
             if (arraySucces.length > 0)
-                msg += getLang("loadedSuccess", arraySucces.length);
+                msg += getText("loadedSuccess", arraySucces.length);
             if (arrayFail.length > 0) {
-                msg += (msg ? "\n" : "") + getLang("loadedFail", arrayFail.length, arrayFail.join("\n"));
-                msg += "\n" + getLang("openConsoleToSeeError");
+                msg += (msg ? "\n" : "") + getText("loadedFail", arrayFail.length, arrayFail.join("\n"));
+                msg += "\n" + getText("openConsoleToSeeError");
             }
 
             message.reply(fonts.christus(msg));
         }
         else if (args[0] == "unload") {
             if (!args[1])
-                return message.reply(fonts.christus(getLang("missingCommandNameUnload")));
+                return message.reply(fonts.christus(getText("missingCommandNameUnload")));
             const infoUnload = unloadScripts("cmds", args[1], configCommands, getLang);
             infoUnload.status == "success" ?
-                message.reply(fonts.christus(getLang("unloaded", infoUnload.name))) :
-                message.reply(fonts.christus(getLang("unloadedError", infoUnload.name, infoUnload.error.name, infoUnload.error.message)));
+                message.reply(fonts.christus(getText("unloaded", infoUnload.name))) :
+                message.reply(fonts.christus(getText("unloadedError", infoUnload.name, infoUnload.error.name, infoUnload.error.message)));
         }
         else if (args[0] == "install") {
             let url = args[1];
@@ -183,7 +202,7 @@ module.exports = {
             let rawCode;
 
             if (!url || !fileName)
-                return message.reply(fonts.christus(getLang("missingUrlCodeOrFileName")));
+                return message.reply(fonts.christus(getText("missingUrlCodeOrFileName")));
 
             if (
                 url.endsWith(".js")
@@ -197,11 +216,11 @@ module.exports = {
             if (url.match(/(https?:\/\/(?:www\.|(?!www)))/)) {
                 global.utils.log.dev("install", "url", url);
                 if (!fileName || !fileName.endsWith(".js"))
-                    return message.reply(fonts.christus(getLang("missingFileNameInstall")));
+                    return message.reply(fonts.christus(getText("missingFileNameInstall")));
 
                 const domain = getDomain(url);
                 if (!domain)
-                    return message.reply(fonts.christus(getLang("invalidUrl")));
+                    return message.reply(fonts.christus(getText("invalidUrl")));
 
                 if (domain == "pastebin.com") {
                     const regex = /https:\/\/pastebin\.com\/(?!raw\/)(.*)/;
@@ -234,14 +253,14 @@ module.exports = {
                     rawCode = event.body.slice(event.body.indexOf(fileName) + fileName.length + 1);
                 }
                 else
-                    return message.reply(fonts.christus(getLang("missingFileNameInstall")));
+                    return message.reply(fonts.christus(getText("missingFileNameInstall")));
             }
 
             if (!rawCode)
-                return message.reply(fonts.christus(getLang("invalidUrlOrCode")));
+                return message.reply(fonts.christus(getText("invalidUrlOrCode")));
 
             if (fs.existsSync(path.join(__dirname, fileName)))
-                return message.reply(fonts.christus(getLang("alreadExist")), (err, info) => {
+                return message.reply(fonts.christus(getText("alreadExist")), (err, info) => {
                     global.GoatBot.onReaction.set(info.messageID, {
                         commandName,
                         messageID: info.messageID,
@@ -256,15 +275,23 @@ module.exports = {
             else {
                 const infoLoad = loadScripts("cmds", fileName, log, configCommands, api, threadModel, userModel, dashBoardModel, globalModel, threadsData, usersData, dashBoardData, globalData, getLang, rawCode);
                 infoLoad.status == "success" ?
-                    message.reply(fonts.christus(getLang("installed", infoLoad.name, path.join(__dirname, fileName).replace(process.cwd(), "")))) :
-                    message.reply(fonts.christus(getLang("installedError", infoLoad.name, infoLoad.error.name, infoLoad.error.message)));
+                    message.reply(fonts.christus(getText("installed", infoLoad.name, path.join(__dirname, fileName).replace(process.cwd(), "")))) :
+                    message.reply(fonts.christus(getText("installedError", infoLoad.name, infoLoad.error.name, infoLoad.error.message)));
             }
         }
         else
             message.SyntaxError();
     },
 
-    onReaction: async function ({ Reaction, message, event, api, threadModel, userModel, dashBoardModel, globalModel, threadsData, usersData, dashBoardData, globalData, getLang }) {
+    onReaction: async function (context) {
+        const { Reaction, message, api, threadsData, usersData, event, getLang } = context;
+        const threadModel = context.threadModel || global.db?.model?.threads || global.GoatBot?.model?.threads;
+        const userModel = context.userModel || global.db?.model?.users || global.GoatBot?.model?.users;
+        const dashBoardModel = context.dashBoardModel || global.db?.model?.dashBoard || global.GoatBot?.model?.dashBoard;
+        const globalModel = context.globalModel || global.db?.model?.global || global.GoatBot?.model?.global;
+        const dashBoardData = context.dashBoardData || global.dashBoardData;
+        const globalData = context.globalData || global.globalData;
+
         const { loadScripts } = global.utils;
         const { author, data: { fileName, rawCode } } = Reaction;
         if (event.userID != author)

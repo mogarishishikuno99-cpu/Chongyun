@@ -1,8 +1,10 @@
+const fonts = require("../func/fonts.js");
+
 module.exports = {
 	config: {
 		name: "setalias",
-		version: "1.8",
-		author: "NTKhang",
+		version: "1.9",
+		author: "NTKhang / Adapted",
 		countDown: 5,
 		role: 2,
 		description: {
@@ -31,7 +33,6 @@ module.exports = {
 				+ "\n   {pn} list -g: list all alias for commands in the whole system"
 		}
 	},
-
 	langs: {
 		vi: {
 			commandNotExist: "❌ Lệnh \"%1\" không tồn tại",
@@ -70,27 +71,24 @@ module.exports = {
 			aliasListInGroup: "📜 List of other aliases for commands in your group chat:\n%1"
 		}
 	},
-
 	onStart: async function ({ message, event, args, threadsData, globalData, role, getLang }) {
 		const aliasesData = await threadsData.get(event.threadID, "data.aliases", {});
-
 		switch (args[0]) {
 			case "add": {
 				if (!args[2])
 					return message.SyntaxError();
 				const commandName = args[2].toLowerCase();
 				if (!global.GoatBot.commands.has(commandName))
-					return message.reply(getLang("commandNotExist", commandName));
+					return message.reply(fonts.christus(getLang("commandNotExist", commandName)));
 				const alias = args[1].toLowerCase();
-
 				if (args[3] == '-g') {
 					if (role > 1) {
 						const globalAliasesData = await globalData.get('setalias', 'data', []);
 						const globalAliasesExist = globalAliasesData.find(item => item.aliases.includes(alias));
 						if (globalAliasesExist)
-							return message.reply(getLang("aliasExist", alias, globalAliasesExist.commandName));
+							return message.reply(fonts.christus(getLang("aliasExist", alias, globalAliasesExist.commandName)));
 						if (global.GoatBot.aliases.has(alias))
-							return message.reply(getLang("aliasExist", alias, global.GoatBot.aliases.get(alias)));
+							return message.reply(fonts.christus(getLang("aliasExist", alias, global.GoatBot.aliases.get(alias))));
 						const globalAliasesThisCommand = globalAliasesData.find(aliasData => aliasData.commandName == commandName);
 						if (globalAliasesThisCommand)
 							globalAliasesThisCommand.aliases.push(alias);
@@ -101,26 +99,24 @@ module.exports = {
 							});
 						await globalData.set('setalias', globalAliasesData, 'data');
 						global.GoatBot.aliases.set(alias, commandName);
-						return message.reply(getLang("addAliasSuccess", alias, commandName));
+						return message.reply(fonts.christus(getLang("addAliasSuccess", alias, commandName)));
 					}
 					else {
-						return message.reply(getLang("noPermissionAdd", alias, commandName));
+						return message.reply(fonts.christus(getLang("noPermissionAdd", alias, commandName)));
 					}
 				}
-
 				if (global.GoatBot.commands.get(alias))
-					return message.reply(getLang("aliasIsCommand", alias));
+					return message.reply(fonts.christus(getLang("aliasIsCommand", alias)));
 				if (global.GoatBot.aliases.has(alias))
-					return message.reply(getLang("aliasExist", alias, global.GoatBot.aliases.get(alias)));
+					return message.reply(fonts.christus(getLang("aliasExist", alias, global.GoatBot.aliases.get(alias))));
 				for (const cmdName in aliasesData)
 					if (aliasesData[cmdName].includes(alias))
-						return message.reply(getLang("aliasExistInGroup", alias, cmdName));
-
+						return message.reply(fonts.christus(getLang("aliasExistInGroup", alias, cmdName)));
 				const oldAlias = aliasesData[commandName] || [];
 				oldAlias.push(alias);
 				aliasesData[commandName] = oldAlias;
 				await threadsData.set(event.threadID, aliasesData, "data.aliases");
-				return message.reply(getLang("addAliasToGroupSuccess", alias, commandName));
+				return message.reply(fonts.christus(getLang("addAliasToGroupSuccess", alias, commandName)));
 			}
 			case "remove":
 			case "rm": {
@@ -128,35 +124,32 @@ module.exports = {
 					return message.SyntaxError();
 				const commandName = args[2].toLowerCase();
 				const alias = args[1].toLowerCase();
-
 				if (!global.GoatBot.commands.has(commandName))
-					return message.reply(getLang("commandNotExist", commandName));
-
+					return message.reply(fonts.christus(getLang("commandNotExist", commandName)));
 				if (args[3] == '-g') {
 					if (role > 1) {
 						const globalAliasesData = await globalData.get('setalias', 'data', []);
 						const globalAliasesThisCommand = globalAliasesData.find(aliasData => aliasData.commandName == commandName);
 						if (!globalAliasesThisCommand || !globalAliasesThisCommand.aliases.includes(alias))
-							return message.reply(getLang("aliasNotExist", alias, commandName));
+							return message.reply(fonts.christus(getLang("aliasNotExist", alias, commandName)));
 						globalAliasesThisCommand.aliases.splice(globalAliasesThisCommand.aliases.indexOf(alias), 1);
 						await globalData.set('setalias', globalAliasesData, 'data');
 						global.GoatBot.aliases.delete(alias);
-						return message.reply(getLang("removeAliasSuccess", alias, commandName));
+						return message.reply(fonts.christus(getLang("removeAliasSuccess", alias, commandName)));
 					}
 					else {
-						return message.reply(getLang("noPermissionDelete", alias, commandName));
+						return message.reply(fonts.christus(getLang("noPermissionDelete", alias, commandName)));
 					}
 				}
-
 				const oldAlias = aliasesData[commandName];
 				if (!oldAlias)
-					return message.reply(getLang("noAliasInGroup", commandName));
+					return message.reply(fonts.christus(getLang("noAliasInGroup", commandName)));
 				const index = oldAlias.indexOf(alias);
 				if (index === -1)
-					return message.reply(getLang("aliasNotExist", alias, commandName));
+					return message.reply(fonts.christus(getLang("aliasNotExist", alias, commandName)));
 				oldAlias.splice(index, 1);
 				await threadsData.set(event.threadID, aliasesData, "data.aliases");
-				return message.reply(getLang("removeAliasInGroupSuccess", alias, commandName));
+				return message.reply(fonts.christus(getLang("removeAliasInGroupSuccess", alias, commandName)));
 			}
 			case "list": {
 				if (args[1] == '-g') {
@@ -166,16 +159,17 @@ module.exports = {
 						aliases: aliasData.aliases.join(', ')
 					}));
 					return message.reply(
-						globalAliases.length ?
-							getLang("aliasList", globalAliases.map(alias => `• ${alias.commandName}: ${alias.aliases}`).join('\n')) :
-							getLang("noAliasInSystem")
+						fonts.christus(
+							globalAliases.length ?
+								getLang("aliasList", globalAliases.map(alias => `• ${alias.commandName}: ${alias.aliases}`).join('\n')) :
+								getLang("noAliasInSystem")
+						)
 					);
 				}
-
 				if (!Object.keys(aliasesData).length)
-					return message.reply(getLang("notExistAliasInGroup"));
+					return message.reply(fonts.christus(getLang("notExistAliasInGroup")));
 				const list = Object.keys(aliasesData).map(commandName => `\n• ${commandName}: ${aliasesData[commandName].join(", ")} `);
-				return message.reply(getLang("aliasListInGroup", list.join("\n")));
+				return message.reply(fonts.christus(getLang("aliasListInGroup", list.join("\n"))));
 			}
 			default: {
 				return message.SyntaxError();

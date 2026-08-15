@@ -8,7 +8,7 @@ module.exports = {
         longDescription: "Ajouter de l'argent, de l'expérience ou définir des variables personnalisées d'un utilisateur par tag, reply, sur soi-même ou à tous les utilisateurs (all).",
         category: "settings",
         guide: {
-            fr: "En réponse ou sur soi-même :\n{p}set money [montant]\nPar tag :\n{p}set money [montant] [@utilisateur]\nPour tout le monde :\n{p}set money all [montant]"
+            en: "En réponse ou sur soi-même :\n{p}set money [montant]\nPar tag :\n{p}set money [montant] [@utilisateur]\nPour tout le monde :\n{p}set money all [montant]"
         },
         role: 5 // Niveau Admin requis par le système
     },

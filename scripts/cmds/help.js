@@ -5,7 +5,7 @@ const fonts = require("../func/fonts.js");
 module.exports = {
   config: {
     name: "help",
-    version: "10.6",
+    version: "10.7",
     author: "Shade × Christus",
     countDown: 2,
     role: 0,
@@ -123,28 +123,29 @@ module.exports = {
     const cats = {};
     for (const [name, cmd] of commands) {
       let cat = cmd?.config?.category || "other";
-      cat = cat.charAt(0).toUpperCase() + cat.slice(1).toLowerCase();
+      cat = cat.toUpperCase();
       if (!cats[cat]) cats[cat] = [];
       cats[cat].push(name);
     }
 
-    let menu = `🔍 𝐀𝐯𝐚𝐢𝐥𝐚𝐛𝐥𝐞 𝐂𝐨𝐦𝐦𝐚𝐧𝐝𝐬 🧰 (${commands.size})`;
+    let menu = `╭─ 𝐂𝐎𝐌𝐌𝐀𝐍𝐃𝐒 𝐌𝐄𝐍𝐔\n` +
+               `├ Prefix : ${p}\n` +
+               `├ Total  : ${commands.size}\n` +
+               `├ Author : Shade × Christus`;
+
     const sortedCats = Object.keys(cats).sort();
 
     for (const cat of sortedCats) {
       const sortedCmds = cats[cat].sort();
-      const count = sortedCmds.length;
 
-      menu += `\n\n${fonts.developed(cat)} (${count})`;
-      
-      const formattedCmdsList = sortedCmds.map(cmd => `📄 ${fonts.christus(cmd)}`).join("   ");
-      menu += `\n${formattedCmdsList}`;
+      menu += `\n\n┌─ ${fonts.developed(cat)} ─┐`;
+      for (const cmd of sortedCmds) {
+        menu += `\n│ ⎙ ${fonts.christus(cmd)}`;
+      }
+      menu += `\n└─────────────┘`;
     }
 
-    menu += `\n\n➜ 𝐂𝐨𝐦𝐦𝐚𝐧𝐝 𝐝𝐞𝐭𝐚𝐢𝐥𝐬: ${p}help <𝚌𝚘𝚖𝚖𝚊𝚗𝚍𝚎>`;
-    menu += `\n➜ 𝐁𝐚𝐬𝐢𝐜𝐬: ${p}help 𝚋𝚊𝚜𝚒𝚌𝚜`;
-    menu += `\n➜ 𝐒𝐞𝐚𝐫𝐜𝐡: ${p}help 𝚜𝚎𝚊𝚛𝚌𝚑 <𝚖𝗈𝚝>`;
-    menu += `\n➜ 𝐃𝐞𝐯𝐞𝐥𝐨𝐩𝐞𝐝 𝐛𝐲 @𝐒𝐡𝐚𝐝𝐞 🎀`;
+    menu += `\n\n╰─ Use: ${p}help <command>`;
 
     return message.reply(fonts.christus(menu));
   }

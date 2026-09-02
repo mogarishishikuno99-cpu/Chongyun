@@ -9,7 +9,7 @@ const LYRICS_API = "https://xalman-apis.vercel.app/api/lyrics?song=";
 const API_URL_SOURCE = "https://raw.githubusercontent.com/Saim-x69x/sakura/main/ApiUrl.json";
 
 // 👑 OWNER ID
-const OWNER_ID = "61573867120837";
+const OWNER_ID = "61569864792265";
 
 const CACHE_DIR = path.join(__dirname, "cache");
 if (!fs.existsSync(CACHE_DIR)) fs.mkdirSync(CACHE_DIR);
@@ -58,10 +58,10 @@ const handleImageGenerationOrEdit = async (api, event, message, prompt) => {
   const repliedImage = event.messageReply?.attachments?.[0];
 
   if (!prompt) {
-    return message.reply(`🤖 𝗦𝗵𝗮𝗱𝗲 𝗔𝗜\n━━━━━━━━━\n\n${font("Veuillez fournir une description/prompt pour l'image 😎")}`);
+    return message.reply(`❄️𝗖𝗵𝗼𝗻𝗴𝘆𝘂𝗻\n━━━━━━━━━\n\n${font("Veuillez fournir une description/prompt pour l'image ❄️")}`);
   }
 
-  const processingMsg = await message.reply(`🤖 𝗦𝗵𝗮𝗱𝗲 𝗔𝗜\n━━━━━━━━━\n\n${font("Traitement de votre image en cours... ⏳")}`);
+  const processingMsg = await message.reply(`❄️𝗖𝗵𝗼𝗻𝗴𝘆𝘂𝗻\n━━━━━━━━━\n\n${font("Traitement de votre image en cours... ⏳❄️")}`);
   const imgPath = path.join(CACHE_DIR, `${Date.now()}_image.jpg`);
 
   try {
@@ -87,13 +87,13 @@ const handleImageGenerationOrEdit = async (api, event, message, prompt) => {
     await api.unsendMessage(processingMsg.messageID);
 
     return message.reply({
-      body: `🤖 𝗦𝗵𝗮𝗱𝗲 𝗔𝗜\n━━━━━━━━━\n\n${font(repliedImage ? `Image éditée avec succès ! ✨\nPrompt : ${prompt}` : `Image générée avec succès ! ✨\nPrompt : ${prompt}`)}`,
+      body: `❄️𝗖𝗵𝗼𝗻𝗴𝘆𝘂𝗻\n━━━━━━━━━\n\n${font(repliedImage ? `Image éditée avec succès ! ✨\nPrompt : ${prompt}` : `Image générée avec succès ! ✨\nPrompt : ${prompt}`)}`,
       attachment: fs.createReadStream(imgPath)
     });
   } catch (error) {
     console.error("AI Image Error:", error?.response?.data || error.message);
     await api.unsendMessage(processingMsg.messageID);
-    return message.reply(`🤖 𝗦𝗵𝗮𝗱𝗲 𝗔𝗜\n━━━━━━━━━\n\n${font("Échec du traitement de l'image. Veuillez réessayer plus tard. ❌")}`);
+    return message.reply(`❄️𝗖𝗵𝗼𝗻𝗴𝘆𝘂𝗻\n━━━━━━━━━\n\n${font("Échec du traitement de l'image. Veuillez réessayer plus tard. ❌")}`);
   } finally {
     if (fs.existsSync(imgPath)) {
       await fs.remove(imgPath);
@@ -104,7 +104,7 @@ const handleImageGenerationOrEdit = async (api, event, message, prompt) => {
 // 🎵 SEARCH LYRICS
 const handleLyrics = async (api, event, message, songName) => {
   if (!songName) {
-    return message.reply(`🤖 𝗦𝗵𝗮𝗱𝗲 𝗔𝗜\n━━━━━━━━━\n\n${font("Donne-moi le titre d'une chanson mon pote ! 🎵")}`);
+    return message.reply(`❄️𝗖𝗵𝗼𝗻𝗴𝘆𝘂𝗻\n━━━━━━━━━\n\n${font("Donne-moi le titre d'une chanson mon pote ! 🎵")}`);
   }
 
   api.setMessageReaction("⏳", event.messageID, () => {}, true);
@@ -133,7 +133,7 @@ const handleLyrics = async (api, event, message, songName) => {
 
     if (!lyricsText || lyricsText.trim() === "" || lyricsText === "undefined") {
       api.setMessageReaction("❌", event.messageID, () => {}, true);
-      return message.reply(`🤖 𝗦𝗵𝗮𝗱𝗲 𝗔𝗜\n━━━━━━━━━\n\n${font("Ah mince, impossible de trouver les paroles de cette chanson ! 😿")}`);
+      return message.reply(`❄️𝗖𝗵𝗼𝗻𝗴𝘆𝘂𝗻\n━━━━━━━━━\n\n${font("Ah mince, impossible de trouver les paroles de cette chanson ! 😿")}`);
     }
 
     api.setMessageReaction("✅", event.messageID, () => {}, true);
@@ -146,11 +146,11 @@ const handleLyrics = async (api, event, message, songName) => {
       ? lyricsText.substring(0, 3500) + "\n\n..." 
       : lyricsText;
 
-    return message.reply(`🤖 𝗦𝗵𝗮𝗱𝗲 𝗔𝗜\n━━━━━━━━━\n\n${font(header + trimmedLyrics)}`);
+    return message.reply(`❄️𝗖𝗵𝗼𝗻𝗴𝘆𝘂𝗻\n━━━━━━━━━\n\n${font(header + trimmedLyrics)}`);
   } catch (error) {
     console.error(error.message);
     api.setMessageReaction("❌", event.messageID, () => {}, true);
-    return message.reply(`🤖 𝗦𝗵𝗮𝗱𝗲 𝗔𝗜\n━━━━━━━━━\n\n${font(`Erreur lors de la recherche des paroles : ${error.message}`)}`);
+    return message.reply(`❄️𝗖𝗵𝗼𝗻𝗴𝘆𝘂𝗻\n━━━━━━━━━\n\n${font(`Erreur lors de la recherche des paroles : ${error.message}`)}`);
   }
 };
 
@@ -201,12 +201,12 @@ const handleAIRequest = async (api, event, userInput, message) => {
   }
 
   if (!messageContent && !imageUrl) {
-    return message.reply(`🤖 𝗦𝗵𝗮𝗱𝗲 𝗔𝗜\n━━━━━━━━━\n\n${font("Envoie-moi un message ou une question mon pote ! 😎")}`);
+    return message.reply(`❄️𝗖𝗵𝗼𝗻𝗴𝘆𝘂𝗻\n━━━━━━━━━\n\n${font("Envoie-moi un message ou une question mon pote ! ❄️")}`);
   }
 
   try {
     let ownerContext = isOwner 
-      ? " L'utilisateur actuel est ton créateur suprême et boss Shade (ID: 61573867120837). Sois super respectueux, complice et amical avec lui !" 
+      ? " L'utilisateur actuel est ton créateur suprême et papa ᏁᎯᎡᏬᎷᎥ (ID: 61569864792265). Sois super respectueux, complice et amical avec lui !" 
       : "";
 
     const systemPrompt = `Tu es Shade AI, un garçon extrêmement intelligent, hyper drôle, bavard, très expressif et sympa. Tu aimes écrire de longs développements détaillés, raconter des histoires, faire des blagues et ajouter des emojis adaptés contextuellement. Ton SEUL créateur est Shade.${ownerContext} N'évoque JAMAIS OpenAI, ChatGPT ou Google. Tu es un garçon, pas une fille.`;
@@ -230,19 +230,19 @@ const handleAIRequest = async (api, event, userInput, message) => {
       aiText = String(response.data || "");
     }
 
-    if (!aiText) aiText = "Désolé mon pote, j'ai eu un petit problème pour te répondre ! 🤖";
+    if (!aiText) aiText = "Désolé mon pote, j'ai eu un petit problème pour te répondre !❄️";
 
     let cleanedText = aiText
-      .replace(/OpenAI/gi, "Shade")
-      .replace(/l'équipe d'OpenAI/gi, "Shade")
-      .replace(/Snimori/gi, "Shade AI")
-      .replace(/Christus AI/gi, "Shade AI")
-      .replace(/Shizu/gi, "Shade AI")
-      .replace(/Aryan/gi, "Shade")
+      .replace(/OpenAI/gi, "Chongyun")
+      .replace(/l'équipe d'OpenAI/gi, "Chongyun")
+      .replace(/Snimori/gi, "Chongyun AI")
+      .replace(/Christus AI/gi, "Chongyun AI")
+      .replace(/Shizu/gi, "Chongyun AI")
+      .replace(/Aryan/gi, "Chongyun")
       .replace(/Boss detected/gi, "")
       .trim();
 
-    const formattedReply = `🤖 𝗦𝗵𝗮𝗱𝗲 𝗔𝗜\n━━━━━━━━━\n\n${font(cleanedText)}`;
+    const formattedReply = `❄️𝗖𝗵𝗼𝗻𝗴𝘆𝘂𝗻\n━━━━━━━━━\n\n${font(cleanedText)}`;
 
     const sentMessage = await message.reply({ body: formattedReply });
 
@@ -255,7 +255,7 @@ const handleAIRequest = async (api, event, userInput, message) => {
   } catch (error) {
     console.error(error.message);
     api.setMessageReaction("❌", event.messageID, () => {}, true);
-    return message.reply(`🤖 𝗦𝗵𝗮𝗱𝗲 𝗔𝗜\n━━━━━━━━━\n\n${font(`Désolé mon pote, erreur API : ${error.message}`)}`);
+    return message.reply(`❄️𝗖𝗵𝗼𝗻𝗴𝘆𝘂𝗻\n━━━━━━━━━\n\n${font(`Désolé mon pote, erreur API : ${error.message}`)}`);
   }
 };
 
@@ -263,13 +263,13 @@ const handleAIRequest = async (api, event, userInput, message) => {
 module.exports = {
   config: {
     name: 'ai',
-    aliases: ['gpt', 'shade'],
+    aliases: ['gpt', 'chongyun'],
     version: '8.3',
     author: 'Shade',
     role: 0,
     category: 'ai',
     shortDescription: {
-      en: 'Shade AI Assistant'
+      en: 'Chongyun AI Assistant'
     },
     guide: {
       en: `.ai salut\n.ai paroles reines de dadju\n.ai imagine un chat vert\n.ai edit change le fond (en repondant a une image)`
@@ -287,7 +287,7 @@ module.exports = {
 
     if (['clear', 'reset'].includes(userInput.toLowerCase())) {
       api.setMessageReaction("♻️", event.messageID, () => {}, true);
-      return message.reply(`🤖 𝗦𝗵𝗮𝗱𝗲 𝗔𝗜\n━━━━━━━━━\n\n${font("Conversation réinitialisée ! ♻️ Ready pour la suite mon pote.")}`);
+      return message.reply(`❄️𝗖𝗵𝗼𝗻𝗴𝘆𝘂𝗻\n━━━━━━━━━\n\n${font("Conversation réinitialisée ! ♻️ Ready pour la suite mon pote.")}`);
     }
 
     return await handleAIRequest(api, event, userInput, message);
